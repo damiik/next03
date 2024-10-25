@@ -4,7 +4,16 @@ import Image from "next/image";
 const Topbar: React.FC = () => {
   return (
     <header className="bg-black p-4 flex justify-between items-center">
-      <h1 className="text-white text-xl font-bold">My App</h1>
+      <div className="flex gap-4 items-center"> {/* Replaced h1 with div */}
+        <Image
+          className="dark"
+          src="/images/daryo-logo.svg"
+          alt="daryo.pl logo"
+          width={180}
+          height={38}
+          priority
+        />
+      </div>
       <div className="flex gap-4 items-center">
           <a
             className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-[50%] sm:h-[50%] px-4 sm:px-5"
