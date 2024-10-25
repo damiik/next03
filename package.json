@@ -9,13 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@babel/standalone": "^7.26.0",
     "lucide-react": "^0.453.0",
-    "next": "14.2.12",
+    "next": "^15.0.1",
     "openai": "^4.68.4",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@types/babel__standalone": "^7.1.7",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
