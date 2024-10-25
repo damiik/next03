@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import Image from "next/image";
 import OpenAI from 'openai';
 import QuickSortVisualization from './components/QuickSortVisualization'; // Import the component
 
@@ -73,7 +72,7 @@ export default function Home() {
         <QuickSortVisualization /> {/* Added the component here */}
 
       </main>
-      <div className="flex flex-col w-full max-w-[95%] h-[40%] m-4 p-2 border border-gray-300 rounded text-orange-700 bg-stone-700 text-2xl font-[family-name:var(--font-cascadia-code)] overflow-y-auto">
+      <div className="flex flex-col w-full max-w-[95%] h-[40%] m-4 p-2 border-[3px] border-[#483AA4] rounded bg-[#282824] text-[#CB993B] text-xl font-[family-name:var(--font-cascadia-code)] overflow-y-auto">
         <textarea
           ref={textareaRef}
           className="flex-1 resize-none bg-transparent outline-none"
@@ -87,7 +86,7 @@ export default function Home() {
             onChange={(e) => setUserInput(e.target.value)}
             placeholder={isLoading ? "Waiting for response..." : "Type your message..."}
             disabled={isLoading}
-            className="w-full p-2 border border-gray-300 rounded bg-stone-700 text-orange-700"
+            className="w-full p-2 border-[3px] border-gray-800 rounded bg-[#2f2f2a] text-[#6FB150]"
           />
         </form>
       </div>

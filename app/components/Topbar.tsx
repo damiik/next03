@@ -3,14 +3,14 @@ import Image from "next/image";
 
 const Topbar: React.FC = () => {
   return (
-    <header className="bg-black p-4 flex justify-between items-center">
-      <div className="flex gap-4 items-center"> {/* Replaced h1 with div */}
+    <header className="bg-black p-1 flex justify-between items-center">
+      <div className="flex gap-1 items-center"> {/* Replaced h1 with div */}
         <Image
           className="dark"
           src="/images/daryo-logo.svg"
           alt="daryo.pl logo"
           width={180}
-          height={38}
+          height={28}
           priority
         />
       </div>

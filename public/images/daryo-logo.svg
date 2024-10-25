@@ -1,11 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 60">
   <!-- Background rectangle with rounded corners -->
-  <rect x="10" y="15" width="280" height="80" rx="20" fill="light-blue" />
+  <rect x="0" y="0" width="300" height="80" rx="20" fill="light-blue" />
   
   <!-- White decorative line -->
-  <path d="M30 68 Q 80 0, 270 68" stroke="#4a43c7" stroke-width="8" fill="transparent" />
-  <path d="M30 76 Q 80 8, 270 76" stroke="#7643c7" stroke-width="8" fill="transparent" />
-  <path d="M30 84 Q 80 16, 270 84" stroke="#c343c7" stroke-width="8" fill="transparent" />
+  <path d="M30 24 Q 80 -8, 270 24" stroke="#2c3175" stroke-width="10" fill="transparent" />
+  <path d="M30 32 Q 80 0, 270 32" stroke="#4a43c7" stroke-width="10" fill="transparent" />
+  <path d="M30 40 Q 80 8, 270 40" stroke="#8c43c7" stroke-width="10" fill="transparent" />
+  <path d="M30 48 Q 80 16, 270 48" stroke="#c343c7" stroke-width="10" fill="transparent" />
+  <path d="M30 56 Q 80 24, 270 56" stroke="#fa67c2" stroke-width="10" fill="transparent" />
 
 <!-- Definitions for filters -->
   <defs>
@@ -33,27 +35,14 @@
     </linearGradient>
   </defs>
 
-
   <!-- Main text -->
-  <text x="150" y="75" 
+  <text x="150" y="42" 
         font-family="Cascadia Code" 
-        font-size="55" 
+        font-size="44" 
         font-weight="bold" 
         text-anchor="middle" 
         fill="#ffb45f"
         filter="url(#textShadow)">
     daryo.pl
   </text>
-  
-  <!-- Subtle shadow effect -->
-  <rect x="10" y="10" width="280" height="80" rx="20" 
-        fill="url(#shadow)" opacity="0.5"/>
-  
-  <!-- Gradient definition for shadow -->
-  <defs>
-    <linearGradient id="shadow" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#000000;stop-opacity:0"/>
-      <stop offset="100%" style="stop-color:#000000;stop-opacity:0.3"/>
-    </linearGradient>
-  </defs>
 </svg>
