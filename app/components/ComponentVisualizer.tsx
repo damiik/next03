@@ -1,50 +1,27 @@
+"use client";
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, ChevronDown, Code, Package, PlayCircle, Save, RotateCw } from 'lucide-react';
+import { ChevronRight, ChevronDown, Code, Package, RotateCw } from 'lucide-react';
 import * as Babel from '@babel/standalone';
+import { useComponentContext } from '../context/ComponentContext';
 
 const ComponentVisualizer = () => {
+  const { components, previewKey, isRefreshing, setEditableCode, selectedComponent, setSelectedComponent } = useComponentContext();
+
   const [expandedNodes, setExpandedNodes] = useState<{ [key: string]: boolean }>({
     root: true,
     loader: false,
     compiler: false,
   });
 
-  const defaultComponents: { [key: string]: string } = {
-    Component1: `function Component1() {
-      return (
-        <div className="p-4 bg-blue-500 rounded">
-          Hello from Component 1!
-        </div>
-      );
-    }`,
-    Component2: `function Component2() {
-      return (
-        <div className="p-4 bg-green-500 rounded">
-          Hello from Component 2!
-        </div>
-      );
-    }`,
-    Component3: `function Component3() {
-      return (
-        <div className="p-4 text-[#ff0] bg-purple-500 rounded">
-          Hello from Component 3!
-        </div>
-      );
-    }`
-  };
-
-  const [components, setComponents] = useState<{ [key: string]: string }>({...defaultComponents});
-  const [selectedComponent, setSelectedComponent] = useState('');
-  const [editableCode, setEditableCode] = useState('');
+  const [editableCode, setEditableCodeLocal] = useState('');
   const [error, setError] = useState('');
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [previewKey, setPreviewKey] = useState(0);
   const [compiledComponent, setCompiledComponent] = useState<React.ComponentType | null>(null);
 
   useEffect(() => {
     if (selectedComponent) {
-      setEditableCode(components[selectedComponent] || '');
-      compileAndRender(components[selectedComponent] || '');
+      const componentCode = components[selectedComponent] || '';
+      setEditableCodeLocal(componentCode);
+      compileAndRender(componentCode);
     }
   }, [selectedComponent, components]);
 
@@ -53,45 +30,12 @@ const ComponentVisualizer = () => {
   };
 
   const handleCodeChange = (newCode: string) => {
-    setEditableCode(newCode);
-  };
-
-  const saveComponent = () => {
-    if (!error && selectedComponent) {
-      try {
-        const Component = new Function(`return (${editableCode})`)();
-        if (typeof Component !== 'function') {
-          throw new Error('Invalid component code: must return a function.');
-        }
-        setComponents(prev => ({ ...prev, [selectedComponent]: editableCode }));
-        refreshPreview();
-      } catch (err: unknown) {
-        setError((err as Error).message);
-      }
-    }
-  };
-
-  const refreshPreview = () => {
-    try {
-      setIsRefreshing(true);
-      setError('');
-      setTimeout(() => {
-        compileAndRender(editableCode);
-        setPreviewKey(prev => prev + 1);
-        setIsRefreshing(false);
-      }, 500);
-    } catch (err: unknown) {
-      setError((err as Error).message);
-      setIsRefreshing(false);
-    }
-  };
-
-  const resetComponent = () => {
-    if (selectedComponent) {
-      setEditableCode(defaultComponents[selectedComponent] || '');
-      setError('');
-      setPreviewKey(prev => prev + 1);
-    }
+    setEditableCodeLocal(newCode);
+    // Update the context's editableCode whenever the textarea content changes
+    setEditableCode(prev => ({
+      ...prev,
+      [selectedComponent]: newCode
+    }));
   };
 
   const compileAndRender = (code: string) => {
@@ -169,16 +113,11 @@ const ComponentVisualizer = () => {
               <div className="space-y-4">
                 <div className="relative">
                   <textarea className="w-full h-48 font-mono text-sm p-4 border rounded bg-[#1e1e1e] text-white" value={editableCode} onChange={(e) => handleCodeChange(e.target.value)} placeholder="Edit component code here..." />
-                  <div className="absolute top-2 right-2 space-x-2">
-                    <button onClick={saveComponent} className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors" title="Save changes"><Save size={16} /></button>
-                    <button onClick={refreshPreview} className="p-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors" title="Refresh preview"><PlayCircle size={16} /></button>
-                    <button onClick={resetComponent} className="p-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors" title="Reset to default"><RotateCw size={16} /></button>
-                  </div>
                 </div>
-                  <div className="flex items-center justify-between mb-2">
-                    {isRefreshing && <span className="text-sm text-blue-500">Refreshing...</span>}
-                    <div className="border p-4 rounded bg-[#1e1e1e] min-h-[100px]">{renderPreview()}</div>
-                  </div>
+                <div className="flex items-center justify-between mb-2">
+                  {isRefreshing && <span className="text-sm text-blue-500">Refreshing...</span>}
+                  <div className="border p-4 rounded bg-[#1e1e1e] min-h-[100px]">{renderPreview()}</div>
+                </div>
               </div>
             )}
           </div>
