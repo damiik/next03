@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface Step {
   array: number[];
@@ -11,7 +11,8 @@ interface Step {
   side: string | null;
 }
 
-const QuickSortVisualization = () => {
+const UserSpace = () => {
+  // useState is used to declare state variables and their corresponding setter functions.
   const [array, setArray] = useState<number[]>([]);
   const [pivotIndex, setPivotIndex] = useState(-1);
   const [leftPointer, setLeftPointer] = useState(-1);
@@ -145,7 +146,12 @@ const QuickSortVisualization = () => {
     setCurrentStep(0);
   };
 
-  const handleStep = () => {
+  // useCallback is used to memoize the handleStep function, ensuring that it is only recreated
+  // when one of its dependencies changes.
+  // By using useCallback, the component can avoid unnecessary re-renders and improve overall performance.
+  // So when the same inputs occur again to handleStep then instead of expensive function call, React just returning the cached (memoized) result .
+  // This is important for optimizing performance, especially in components that re-render frequently.
+  const handleStep = useCallback(() => {
     if (steps.length === 0) {
       const newSteps = quickSort([...array], 0, array.length - 1, [], null);
       setSteps(newSteps);
@@ -169,12 +175,15 @@ const QuickSortVisualization = () => {
       setRightPointer(-1);
       setPartitionSide(null);
     }
-  };
+  }, [steps, currentStep, setArray, setPivotIndex, setLeftPointer, setRightPointer, setPartitionSide, setCurrentStep, setIsSorting]);
 
+  // useEffect is used to perform side effects in function components.
+  // The first useEffect initializes the array when the component mounts.
   useEffect(() => {
     generateArray();
   }, []);
 
+  // The second useEffect handles the sorting steps and auto-play functionality.
   useEffect(() => {
     if (isSorting && isAutoPlay && currentStep < steps.length) {
       const timer = setTimeout(() => {
@@ -189,7 +198,7 @@ const QuickSortVisualization = () => {
       setRightPointer(-1);
       setPartitionSide(null);
     }
-  }, [currentStep, isSorting, isAutoPlay, steps]);
+  }, [currentStep, isSorting, isAutoPlay, steps, handleStep]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -243,4 +252,4 @@ const QuickSortVisualization = () => {
   );
 };
 
-export default QuickSortVisualization;
+export default UserSpace;

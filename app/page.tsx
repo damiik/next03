@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import OpenAI from 'openai';
-import QuickSortVisualization from './components/QuickSortVisualization'; // Import the component
+import UserSpace from './components/UserSpace';
 
 // Initialize OpenAI client with empty API key since we're using a proxy
 const client = new OpenAI({
@@ -69,7 +69,7 @@ export default function Home() {
       <main className="flex-1 flex flex-col gap-8 items-center sm:items-start p-4">
 
 
-        <QuickSortVisualization /> {/* Added the component here */}
+        <UserSpace /> {/* Added the component here */}
 
       </main>
       <div className="flex flex-col w-full max-w-[95%] h-[40%] m-4 p-2 border-[3px] border-[#483AA4] rounded bg-[#282824] text-[#CB993B] text-xl font-[family-name:var(--font-cascadia-code)] overflow-y-auto">
