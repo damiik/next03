@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { CornerRightDown, ChevronDown } from 'lucide-react';
+import { CornerRightDown, ChevronsRight, Palette, FileCode2, Wrench } from 'lucide-react';
+import { colors } from './colors';
+
 
 const Sidebar: React.FC = () => {
   const [isComponentStyleOpen, setIsComponentStyleOpen] = useState(false);
@@ -24,29 +26,14 @@ const Sidebar: React.FC = () => {
       <h2 className="text-xl font-bold mb-4 text-white">Sidebar</h2>
       <ul>
         <li>
-          <a
-            href="#"
-            className="block py-2 px-4 rounded-md hover:bg-gray-700 text-white"
-          >
-            Link 1
-          </a>
-        </li>
-        <li>
-          <a
-            href="#"
-            className="block py-2 px-4 rounded-md hover:bg-gray-700 text-white"
-          >
-            Link 2
-          </a>
-        </li>
-        <li>
           {isComponentStyleOpen ? (
             <a
               href="#"
               className="block py-2 px-4 rounded-md hover:bg-gray-700 text-white flex items-center"
               onClick={toggleComponentStyle}
             >
-              Component style
+              <Wrench className="mr-2 transition-transform" />
+              Properities
               <CornerRightDown className="ml-2 transition-transform translate-y-2" />
             </a>
           ) : (
@@ -55,8 +42,9 @@ const Sidebar: React.FC = () => {
               className="block py-2 px-4 rounded-md hover:bg-gray-700 text-white flex items-center"
               onClick={toggleComponentStyle}
             >
-              <ChevronDown className="mr-2 transition-transform" />
-              Component style
+              <ChevronsRight className="mr-2 transition-transform" />
+              <FileCode2 className="mr-2 transition-transform" />
+              Component Style
             </a>
           )}
           <ul className={`ml-4 ${isComponentStyleOpen ? '' : 'hidden'}`}>
@@ -64,167 +52,37 @@ const Sidebar: React.FC = () => {
               {isBackgroundOpen ? (
                 <a
                   href="#"
-                  className="block py-2 px-4 rounded-md hover:bg-gray-700 text-white flex items-center"
+                  className="py-2 px-4 rounded-md hover:bg-gray-700 text-white flex items-center"
                   onClick={toggleBackground}
                 >
-                  Background
+                  <Palette className="mr-2 transition-transform" />
+                  Colors
                   <CornerRightDown className="ml-2 transition-transform translate-y-2" />
                 </a>
               ) : (
                 <a
                   href="#"
-                  className="block py-2 px-4 rounded-md hover:bg-gray-700 text-white flex items-center"
+                  className="py-2 px-4 rounded-md hover:bg-gray-700 text-white flex items-center"
                   onClick={toggleBackground}
                 >
-                  <ChevronDown className="mr-2 transition-transform" />
-                  Background
+                  <ChevronsRight className="mr-2 transition-transform" />
+                  <Palette className="mr-2 transition-transform" />
+
+                  Palette
                 </a>
               )}
               <ul className={`ml-4 ${isBackgroundOpen ? '' : 'hidden'}`}>
-                <li>
-                  <a
-                    href="#"
-                    className="bg-[#000000] px-4 py-2 rounded-md hover:bg-gray-700 text-white"
-                    onClick={() => copyToClipboard('#000000')}
-                  >
-                    BLACK
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="bg-[#ffffff] px-4 py-2 rounded-md hover:bg-gray-700 text-white"
-                    onClick={() => copyToClipboard('#ffffff')}
-                  >
-                    WHITE
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="bg-[#9a0000] px-4 py-2 rounded-md hover:bg-gray-700 text-white"
-                    onClick={() => copyToClipboard('#9a0000')}
-                  >
-                    RED
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="bg-[#a590e8] px-4 py-2 rounded-md hover:bg-gray-700 text-white"
-                    onClick={() => copyToClipboard('#a590e8')}
-                  >
-                    CYAN
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="bg-[#b472d0] px-4 py-2 rounded-md hover:bg-gray-700 text-white"
-                    onClick={() => copyToClipboard('#b472d0')}
-                  >
-                    PURPLE
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="bg-[#9fe339] px-4 py-2 rounded-md hover:bg-gray-700 text-white"
-                    onClick={() => copyToClipboard('#9fe339')}
-                  >
-                    GREEN
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="bg-[#352879] px-4 py-2 rounded-md hover:bg-gray-700 text-white"
-                    onClick={() => copyToClipboard('#352879')}
-                  >
-                    BLUE
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="bg-[#fff780] px-4 py-2 rounded-md hover:bg-gray-700 text-white"
-                    onClick={() => copyToClipboard('#fff780')}
-                  >
-                    YELLOW
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="bg-[#d49a44] px-4 py-2 rounded-md hover:bg-gray-700 text-white"
-                    onClick={() => copyToClipboard('#d49a44')}
-                  >
-                    ORANGE
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="bg-[#433900] px-4 py-2 rounded-md hover:bg-gray-700 text-white"
-                    onClick={() => copyToClipboard('#433900')}
-                  >
-                    BROWN
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="bg-[#f6ab96] px-4 py-2 rounded-md hover:bg-gray-700 text-white"
-                    onClick={() => copyToClipboard('#f6ab96')}
-                  >
-                    PINKY / LIGHT RED
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="bg-[#656565] px-4 py-2 rounded-md hover:bg-gray-700 text-white"
-                    onClick={() => copyToClipboard('#656565')}
-                  >
-                    DARK GREY
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="bg-[#b1b1b1] px-4 py-2 rounded-md hover:bg-gray-700 text-white"
-                    onClick={() => copyToClipboard('#b1b1b1')}
-                  >
-                    MID GREY
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="bg-[#e4ffb5] px-4 py-2 rounded-md hover:bg-gray-700 text-white"
-                    onClick={() => copyToClipboard('#e4ffb5')}
-                  >
-                    LIGHT GREEN
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="bg-[#a9f3fe] px-4 py-2 rounded-md hover:bg-gray-700 text-white"
-                    onClick={() => copyToClipboard('#a9f3fe')}
-                  >
-                    SKY / LIGHT BLUE
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="bg-[#d8e4e4] px-4 py-2 rounded-md hover:bg-gray-700 text-white"
-                    onClick={() => copyToClipboard('#d8e4e4')}
-                  >
-                    LIGHT GREY
-                  </a>
-                </li>
+                {Object.entries(colors).map(([color, name], index) => (
+                  <li key={color}>
+                    <a
+                      href="#"
+                      className={`bg-[${color}] px-4 py-0 rounded-md hover:bg-red-400 text-[${(Object.entries(colors)[(15-index)][0])}]`}
+                      onClick={() => copyToClipboard("[" + color + "]")}
+                    >
+                      {name}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </li>
           </ul>
