@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import OpenAI from 'openai';
 // import UserSpace from './components/UserSpace';
 import ComponentVisualizer from './components/ComponentVisualizer';
+import { colors } from './components/colors';
 
 // Initialize OpenAI client with empty API key since we're using a proxy
 const client = new OpenAI({
@@ -16,10 +17,24 @@ type Message = {
   role: 'user' | 'assistant' | 'system';
   content: string;
 };
-
+ /* ${JSON.stringify(colors)}*/
 export default function Home() {
   const [userInput, setUserInput] = useState('');
-  const [chatHistory, setChatHistory] = useState<Message[]>([]);
+  const [chatHistory, setChatHistory] = useState<Message[]>([{
+    role: "system", 
+    content: 
+     `You are a helpful, kind and very compentent assistant. 
+      ## Respond by creating React component with Tailwind styling.
+       - Don't add any imports ststements.
+       - Don't add export statement.
+       - Don't use any hooks.
+       - Add constans ONLY inside of component function.
+      <example> 
+        function ComponentToRender() { const someConstArray = [...]; return (...); }
+      </example>
+      <important> Use ONLY form of component from example template!</important>
+      <important> Please use colors ONLY from the following pallete: ${ colors.map (color  => color.name + ": " + color.value).join(", ") } </important>
+    `}]);
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -40,9 +55,14 @@ export default function Home() {
       setUserInput('');
 
       const response = await client.chat.completions.create({
-        //model: "local/nvidia/nemotron-4-340b-instruct",
-        model: "local/mistral/mistral-large-latest",
-        messages: newHistory
+        // model: "local/nvidia/llama-3.1-nemotron-70b-instruct",
+        model: "local/nvidia/nemotron-4-340b-instruct",
+        // model: "local/mistral/mistral-large-latest",
+        messages: newHistory,
+        // temperature:0.5,
+        // top_p:1,
+        // max_tokens:1024,
+        // stream:true
       });
 
       const assistantResponse = response.choices[0].message.content;

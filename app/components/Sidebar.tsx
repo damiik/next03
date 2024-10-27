@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ChevronsRight, CornerRightDown, ChevronDown, Palette, FileCode2, Wrench } from 'lucide-react';
+import { ChevronsRight, CornerRightDown, Palette, FileCode2, Wrench } from 'lucide-react';
 import { colors } from './colors';
 
 const Sidebar: React.FC = () => {
@@ -67,13 +67,13 @@ const Sidebar: React.FC = () => {
                 
               </button>
               <ul className={`ml-4 ${expandedNodes.background ? '' : 'hidden'}`}>
-                {Object.entries(colors).map(([color, name], index) => (
-                  <li key={color}>
+                {colors.map((color, index) => (
+                  <li key={color.name}>
                     <button
-                      className={`bg-[${color}] px-4 py-0 rounded-md hover:bg-red-400 text-[${(Object.entries(colors)[(15-index)][0])}]`}
+                      className={`bg-[${color.value}] px-4 py-0 rounded-md hover:bg-red-400 text-[${colors[(15-index)].value}]`}
                       onClick={() => copyToClipboard("[" + color + "]")}
                     >
-                      {name}
+                      {color.name}
                     </button>
                   </li>
                 ))}
