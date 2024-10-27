@@ -78,9 +78,14 @@ export default function Home() {
 
         if (match) {
           const extractedCode = match[2].trim(); // Use const
-          console.log("Extracted Code:", extractedCode); // Log the extracted code
-          setEditableCode(prev => ({ ...prev, ['Component1']: extractedCode }));
-          setSelectedComponent('Component1');
+
+          // Extract the function name from the extracted code
+          const functionNameRegex = /function\s+(\w+)\s*\(/;
+          const functionNameMatch = extractedCode.match(functionNameRegex);
+          const componentName = functionNameMatch ? functionNameMatch[1] : 'Component1';
+
+          setEditableCode(prev => ({ ...prev, [componentName]: extractedCode }));
+          setSelectedComponent(componentName);
         }
       } else {
         setChatHistory(prevHistory => [...prevHistory, { role: "assistant", content: "No response from AI" }]);

@@ -69,7 +69,7 @@ const ComponentVisualizer = () => {
     <div className="w-full max-w-6xl p-6 bg-[#2c2d35] rounded-lg shadow-lg">
 
       <h3 className="text-lg font-semibold mb-2">Component Editor</h3>
-      <select className="w-full p-2 border rounded mb-4" value={selectedComponent} onChange={(e) => setSelectedComponent(e.target.value)}>
+      <select className="w-full p-2 border rounded mb-4 bg-[#b472d0]" value={selectedComponent} onChange={(e) => setSelectedComponent(e.target.value)}>
         <option value="">Select a component</option>
         {Object.keys(components).map(comp => <option key={comp} value={comp}>{comp}</option>)}
       </select>

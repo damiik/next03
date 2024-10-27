@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface ComponentContextProps {
   components: { [key: string]: string };
@@ -49,6 +49,15 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
   const [previewKey, setPreviewKey] = useState(0);
   const [editableCode, setEditableCode] = useState<{ [key: string]: string }>({});
   const [selectedComponent, setSelectedComponent] = useState('');
+
+  useEffect(() => {
+    console.log("Editable Code Updated:", editableCode);
+    // Update the components state with the new editable code
+    setComponents((prevComponents) => ({
+      ...prevComponents,
+      ...editableCode
+    }));
+  }, [editableCode]);
 
   const contextValue = {
     components,

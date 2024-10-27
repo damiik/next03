@@ -20,7 +20,7 @@ const Sidebar: React.FC = () => {
 
   return (
     <div className="md:w-64 bg-gray-800 p-4 shadow-md fixed md:static top-0 left-0 md:left-auto">
-      <h2 className="text-xl font-bold mb-4 text-white">Sidebar</h2>
+      <h2 className="text-xl font-bold mb-4 text-white">Sidebar 2</h2>
       <ul>
         <li>
         <div className="flex items-center">
@@ -48,7 +48,7 @@ const Sidebar: React.FC = () => {
           <ul className={`ml-4 ${expandedNodes.componentStyle ? '' : 'hidden'}`}>
             <li>
               <button
-                className="block py-2 px-4 rounded-md hover:bg-gray-700 text-white flex items-center"
+                className=" py-2 px-4 rounded-md hover:bg-gray-700 text-white flex items-center"
                 onClick={() => toggleNode('background')}
               >
                 {expandedNodes.background ? 
