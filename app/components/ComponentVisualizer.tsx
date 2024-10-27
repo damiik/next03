@@ -1,17 +1,17 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, ChevronDown, Code, Package, RotateCw } from 'lucide-react';
+import {  RotateCw } from 'lucide-react';
 import * as Babel from '@babel/standalone';
 import { useComponentContext } from '../context/ComponentContext';
 
 const ComponentVisualizer = () => {
   const { components, previewKey, isRefreshing, setEditableCode, selectedComponent, setSelectedComponent } = useComponentContext();
 
-  const [expandedNodes, setExpandedNodes] = useState<{ [key: string]: boolean }>({
-    root: true,
-    loader: false,
-    compiler: false,
-  });
+  // const [expandedNodes, setExpandedNodes] = useState<{ [key: string]: boolean }>({
+  //   root: true,
+  //   loader: false,
+  //   compiler: false,
+  // });
 
   const [editableCode, setEditableCodeLocal] = useState('');
   const [error, setError] = useState('');
@@ -25,9 +25,9 @@ const ComponentVisualizer = () => {
     }
   }, [selectedComponent, components]);
 
-  const toggleNode = (node: string) => {
-    setExpandedNodes(prev => ({ ...prev, [node]: !prev[node] }));
-  };
+  // const toggleNode = (node: string) => {
+  //   setExpandedNodes(prev => ({ ...prev, [node]: !prev[node] }));
+  // };
 
   const handleCodeChange = (newCode: string) => {
     setEditableCodeLocal(newCode);
@@ -36,6 +36,7 @@ const ComponentVisualizer = () => {
       ...prev,
       [selectedComponent]: newCode
     }));
+    compileAndRender(newCode); // Re-compile and render on code change
   };
 
   const compileAndRender = (code: string) => {
