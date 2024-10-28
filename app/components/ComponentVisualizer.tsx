@@ -16,11 +16,11 @@ const ThreeCanvas = () => {
     let geometry: THREE.BoxGeometry | undefined;
     let material: THREE.MeshBasicMaterial | undefined;
     let cube: THREE.Mesh | undefined;
-    let animate: FrameRequestCallback | undefined;
+    let animate: FrameRequestCallback;
 
     try {
       scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000); // Default aspect ratio
+      camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
       renderer = new THREE.WebGLRenderer();
       geometry = new THREE.BoxGeometry();
       material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
@@ -28,9 +28,7 @@ const ThreeCanvas = () => {
       scene.add(cube);
 
       animate = () => {
-        if (animate) {
-          requestAnimationFrame(animate);
-        }
+        requestAnimationFrame(animate);
         if (cube) {
           cube.rotation.x += 0.01;
           cube.rotation.y += 0.01;
@@ -42,20 +40,18 @@ const ThreeCanvas = () => {
     } catch (error) {
       console.error("Error creating WebGL renderer:", error);
       setRendererError("WebGL is not supported in this browser or environment. Please try a different browser or update your graphics drivers.");
-      return; // Exit early if WebGL initialization fails
+      return;
     }
-
 
     if (mountRef.current && renderer) {
       mountRef.current.appendChild(renderer.domElement);
-      const width = mountRef.current?.clientWidth || 400; // Default width
-      const height = mountRef.current?.clientHeight || 400; // Default height
+      const width = mountRef.current?.clientWidth || 400;
+      const height = mountRef.current?.clientHeight || 400;
       renderer.setSize(width, height);
       if (camera) {
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
       }
-
     }
 
     if (camera) {
@@ -77,14 +73,41 @@ const ThreeCanvas = () => {
     return <div className="text-red-500 p-4 bg-red-50 rounded border border-red-200">{rendererError}</div>;
   }
 
-  return <div ref={mountRef} style={{ width: '10px', height: '10px' }} />;
+  return <div ref={mountRef} style={{ width: '100%', height: '400px' }} />;
 };
 
 const ComponentVisualizer = () => {
-  const { components, previewKey, isRefreshing, setEditableCode, selectedComponent, setSelectedComponent, ...rest } = useComponentContext();
+  const { components, previewKey, isRefreshing, setEditableCode, ...rest } = useComponentContext();
   const [editableCode, setEditableCodeLocal] = useState('');
   const [error, setError] = useState('');
   const [compiledComponent, setCompiledComponent] = useState<React.ComponentType | null>(null);
+  const { selectedComponent } = useComponentContext();
+
+  const compileAndRender = (code: string) => {
+    try {
+      console.log("Code to compile:", code);
+      const transformedCode = Babel.transform(code, { presets: ['react'] }).code;
+      console.log("Transformed code:", transformedCode);
+      if (!transformedCode) {
+        throw new Error("Babel transformation failed.");
+      }
+
+      // Pass React, hooks, and other necessary variables to the compiled component
+      const Component = new Function('React', 'useState', 'useEffect', 'useRef', 'THREE', ...Object.keys(rest), `
+        return (${transformedCode})
+      `)(React, React.useState, React.useEffect, React.useRef, THREE, ...Object.values(rest));
+
+      if (typeof Component !== 'function' && typeof Component !== 'object') {
+        throw new Error('Compiled code did not return a valid component.');
+      }
+      setCompiledComponent(() => Component);
+      setError('');
+    } catch (err: unknown) {
+      console.error("Compilation error:", err);
+      setError((err as Error).message);
+      setCompiledComponent(null);
+    }
+  };
 
   useEffect(() => {
     if (selectedComponent) {
@@ -98,26 +121,8 @@ const ComponentVisualizer = () => {
 
   const handleCodeChange = (newCode: string) => {
     setEditableCodeLocal(newCode);
-    setEditableCode(prev => ({ ...prev, [selectedComponent]: newCode }));
+    setEditableCode((prev) => ({ ...prev, [selectedComponent]: newCode }));
     compileAndRender(newCode);
-  };
-
-  const compileAndRender = (code: string) => {
-    try {
-      const transformedCode = Babel.transform(code, { presets: ['react'] }).code;
-      // Create an array of argument names, including React and THREE
-      const argNames = ['React', 'THREE', ...Object.keys(rest)];
-      // Create a function that takes all the arguments and returns the component
-      const Component = new Function(...argNames, `return (${transformedCode})`)(React, THREE, ...Object.values(rest));
-      if (typeof Component !== 'function' && typeof Component !== 'object') {
-        throw new Error('Compiled code did not return a valid component.');
-      }
-      setCompiledComponent(() => Component);
-      setError('');
-    } catch (err: unknown) {
-      setError((err as Error).message);
-      setCompiledComponent(null);
-    }
   };
 
   const renderPreview = () => {
@@ -132,14 +137,9 @@ const ComponentVisualizer = () => {
   };
 
   return (
-    <div className="w-full max-w-6xl p-6 bg-[#2c2d35] rounded-lg shadow-lg">
-      <h3 className="text-lg font-semibold mb-2">Component Editor</h3>
-      <select className="w-full p-2 border rounded mb-4 bg-[#b472d0]" value={selectedComponent} onChange={(e) => setSelectedComponent(e.target.value)}>
-        <option value="">Select a component</option>
-        {Object.keys(components).map(comp => <option key={comp} value={comp}>{comp}</option>)}
-      </select>
+    <div className="w-full max-w-6xl  bg-[#2c2d35] rounded-lg shadow-lg">
       {selectedComponent && (
-        <div className="space-y-4">
+        <div>
           <div className="relative">
             <textarea className="w-full h-48 font-mono text-sm p-4 border rounded bg-[#1e1e1e] text-white" value={editableCode} onChange={(e) => handleCodeChange(e.target.value)} placeholder="Edit component code here..." />
           </div>
