@@ -55,75 +55,307 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
         </div>
       );
     }`,
+    VimCommandAnimation: `function VimCommandAnimation() {
+
+  const [step, setStep] = useState(0);
+  const [code, setCode] = useState(\`{ name: "LIGHT GREY", value: "#d8e4e4" },\`);
+  const [description, setDescription] = useState("");
+  const [highlightedCode, setHighlightedCode] = useState(null);
+
+  const highlight = (start, end) => {
+    if (typeof code !== 'string') {
+      throw new Error('code is not a string');
+    }
+    const before = code.slice(0, start);
+    const highlight = code.slice(start, end);
+    const after = code.slice(end);
+    return (
+      <>
+        {before}
+        <span className="bg-cyan-500 text-white">{highlight}</span>
+        {after}
+      </>
+    );
+  };
+
+  useEffect(() => {
+
+    const timer = setInterval(() => {
+
+      console.log('Current step:', step);
+      console.log('Current code:', code);
+      switch (step) {
+        case 0:
+          setCode(\`{ name: "LIGHT GREY", value: "#d8e4e4" },\`);
+          setDescription("Initial input sequence");
+          setHighlightedCode(null);
+          break;
+
+        case 1:
+          setHighlightedCode(
+            highlight(
+              \`{ name: "LIGHT GREY", value: "#d8e4e4" },\`.length,
+              \`{ name: "LIGHT GREY", value: "#d8e4e4" },$\`.length
+            )
+          );
+          setDescription("Move cursor to end of line with \`$\`");
+          break;
+
+        case 2:
+          setHighlightedCode(highlight(\`{ name: "LIGHT GREY", value: "#d8e4e4" },\`.length, code.length));
+          setDescription(
+            \`Search backwards for a pattern matching a key-value pair with .,$/{ name: "([^"]+)", value: "([^"]+)" },\`
+          );
+          break;
+
+        case 3:
+          setHighlightedCode(
+            highlight(
+              \`{ name: "LIGHT GREY", value: "#d8e4e4" },$/{ name: '([^']+)', value: '([^']+)' },/\`.length,
+              \`{ name: "LIGHT GREY", value: "#d8e4e4" },.,$/{ name: "([^"]+)", value: "([^"]+)" },/"\\\\2", \\/*\\\\1*\\/\`.length
+            )
+          );
+          setDescription(
+            \`Replace the matched pattern with the value and a comment with /"\\\\2", /*\\\\1*/\`
+          );
+          break;
+
+        case 4:
+          setCode(\`"#d8e4e4", /*LIGHT GREY*/\`);
+          setDescription("Final output sequence");
+          setHighlightedCode(null);
+          break;
+        default:
+          setStep(0);
+          break;
+      }
+      setStep((step + 1) % 6);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [step, code]);
+
+  return (
+    <div className="bg-black text-white p-4">
+      <pre>
+        <code className="text-sm">{highlightedCode || code}</code>
+      </pre>
+      <p className="mt-2 text-sm">{description}</p>
+    </div>
+  );
+}`,
+
     QuickSortComponent: `function QuickSortComponent() {
- const array = [34, 7, 23, 32, 5, 62, 14, 27, 18, 45, 56, 9];
+  const generateRandomArray = () => {
+    return Array.from({ length: 12 }, () => Math.floor(Math.random() * 95) + 5);
+  };
+
+  const initialArray = generateRandomArray();
+  const [array, setArray] = useState(initialArray);
+  const [start, setStart] = useState(0);
+  const [end, setEnd] = useState(array.length - 1);
+  const [pivotIndex, setPivotIndex] = useState(null);
+  const [currentI, setCurrentI] = useState(null);
+  const [currentJ, setCurrentJ] = useState(null);
+  const [stack, setStack] = useState([]);
+  const [phase, setPhase] = useState('initial'); // 'initial', 'scanning', 'swapping', 'final'
+  
   const colors = [
-    'bg-[#9a0000]', 'bg-[#a590e8]', 'bg-[#b472d0]', 'bg-[#9fe339]',
-    'bg-[#352879]', 'bg-[#fff780]', 'bg-[#d49a44]', 'bg-[#433900]',
-    'bg-[#f6ab96]', 'bg-[#656565]', 'bg-[#b1b1b1]', 'bg-[#e4ffb5]'
+    'bg-[#9a0000]',
+    'bg-[#a590e8]',
+    'bg-[#b472d0]',
+    'bg-[#9fe339]',
+    'bg-[#352879]',
+    'bg-[#fff780]',
+    'bg-[#d49a44]',
+    'bg-[#433900]',
+    'bg-[#f6ab96]',
+    'bg-[#656565]',
+    'bg-[#b1b1b1]',
+    'bg-[#e4ffb5]',
   ];
 
-  const stack = [];
-  let start = 0;
-  let end = array.length - 1;
-  let pivot = array[ end ];
 
-  const handleStep = () => {
-    if (stack.length === 0) {
-      stack.push({ start: 0, end: array.length - 1 });
+  const partitionStep = () => {
+    const newArray = [...array];
+    const pivot = newArray[end];
+
+    if (phase === 'initial') {
+      setCurrentI(start - 1);
+      setCurrentJ(start);
+      setPhase('scanning');
+      return;
     }
 
-    let { start1, end1 } = stack.pop();
-    start = start1;
-    end = end1;
-    if (start >= end) return;
-
-    pivot = array[end];
-    let index = start;
-
-    for (let i = start; i < end; i++) {
-      if (array[i] < pivot) {
-        [array[i], array[index]] = [array[index], array[i]];
-        index++;
+    if (phase === 'scanning') {
+      if (currentJ <= end) {
+        if (newArray[currentJ] < pivot) {
+          setCurrentI(currentI + 1);
+          [newArray[currentI + 1], newArray[currentJ]] = [newArray[currentJ], newArray[currentI + 1]];
+          setArray(newArray);
+        }
+        setCurrentJ(currentJ + 1);
+      } else {
+        [newArray[currentI + 1], newArray[end]] = [newArray[end], newArray[currentI + 1]];
+        setArray(newArray);
+        setPivotIndex(currentI + 1);
+        setPhase('final');
       }
+      return;
+    }
+  };
+
+  useEffect(() => { // Move useEffect outside partitionStep
+    if (phase === 'final') {
+      let newStack = [...stack];
+      if (currentI > start) {
+        newStack.push({ start, end: currentI });
+      }
+      if (currentI + 2 <= end) {
+        newStack.push({ start: currentI + 2, end });
+      }
+
+      if (newStack.length > 0) {
+        const nextSection = newStack.pop();
+        setTimeout(() => {
+          setStart(nextSection.start);
+          setEnd(nextSection.end);
+          setCurrentI(nextSection.start - 1);
+          setCurrentJ(nextSection.start);
+          setPivotIndex(null);
+          setPhase('initial');
+        }, 0);
+      } else {
+        setPhase('done');
+      }
+      setStack(newStack);
+    }
+  }, [phase, currentI, start, end, stack]);
+
+ 
+  const handleStep = () => {
+    if (stack.length === 0 && phase === 'initial') {
+      setStack([{ start: 0, end: array.length - 1 }]);
+      setStart(0);
+      setEnd(array.length - 1);
+      setPhase('scanning');
     }
 
-    [array[index], array[end]] = [array[end], array[index]];
+    partitionStep();
+  };
 
-    if (index > start) {
-      stack.push({ start, end: index - 1 });
-    }
-
-    if (index < end) {
-      stack.push({ start: index + 1, end });
-    }
-
-    console.log('Step', array);
+  const handleRefresh = () => {
+    const newArray = generateRandomArray();
+    setArray(newArray);
+    setStart(0);
+    setEnd(newArray.length - 1);
+    setPivotIndex(null);
+    setCurrentI(null);
+    setCurrentJ(null);
+    setStack([]);
+    setPhase('initial');
   };
 
   return (
     <div className="p-4">
-      <div className="flex space-x-2">
-        {array.map((num, index) => (
-          <div key={index} className="flex flex-col items-center">
-            {index === start && <div className="absolute top-0 left-0 text-[#9fe339] bg-[#000000]">&nbsp;S&nbsp;</div>}
-            {index === end && <div className="absolute top-0 right-0 text-[#000000] bg-[#656565]">&nbsp;E&nbsp;</div>}
-            {index === pivot && <div className="absolute top-0 left-1/2 transform -translate-x-1/2 text-[#9a0000] bg-[#a9f3fe]">&nbsp;P&nbsp;</div>}
-            {index !== start && index !== end && index !== pivot && <div className="absolute top-0 left-1/2 transform -translate-x-1/2 text-[#000000]">*</div>}
-            <div className={\`w-8 \${colors[index % colors.length]}\`} style={{ height: \`\${num * 5}px\` }}></div>
-            <span className="text-center text-[#d49a44] bg-[#433900]">{num}</span>
-          </div>
-        ))}
+      <div className="flex flex-col space-y-2">
+        {/* Pointers explanation */}
+        <div className="mb-4 text-sm space-y-1">
+          <div><span className="text-green-500 bg-black px-1">S</span> - Start pointer</div>
+          <div><span className="text-black bg-gray-500 px-1">E</span> - End pointer</div>
+          <div><span className="text-red-600 bg-cyan-200 px-1">P</span> - Pivot</div>
+          <div><span className="text-blue-600 bg-yellow-200 px-1">i</span> - Last smaller element index</div>
+          <div><span className="text-purple-600 bg-green-200 px-1">j</span> - Current scanning position</div>
+        </div>
+
+        {/* Start pointers row */}
+        <div className="flex space-x-2">
+          {array.map((_, index) => (
+            <div key={\`start-\${index}\`} className="w-8 text-center">
+              {index === start ? (
+                <div className="text-green-500 bg-black px-1">S</div>
+              ) : (
+                <div>&nbsp;</div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* End pointers row */}
+        <div className="flex space-x-2">
+          {array.map((_, index) => (
+            <div key={\`end-\${index}\`} className="w-8 text-center">
+              {index === end ? (
+                <div className="text-black bg-gray-500 px-1">E</div>
+              ) : (
+                <div>&nbsp;</div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Pivot pointers row */}
+        <div className="flex space-x-2">
+          {array.map((_, index) => (
+            <div key={\`pivot-\${index}\`} className="w-8 text-center">
+              {index === pivotIndex ? (
+                <div className="text-red-600 bg-cyan-200 px-1">P</div>
+              ) : (
+                <div>&nbsp;</div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* i and j pointers row */}
+        <div className="flex space-x-2">
+          {array.map((_, index) => (
+            <div key={\`ij-\${index}\`} className="w-8 text-center">
+              {index === currentI ? 
+                (<div className="text-blue-600 bg-yellow-200 px-1">i</div>) 
+               : index === currentJ ? 
+                  (<div className="text-purple-600 bg-green-200 px-1">j</div>) 
+                 :(<div>&nbsp;</div>)
+              }
+            </div>
+          ))}
+        </div>
+
+        {/* Bars */}
+        <div className="flex space-x-2">
+          {array.map((num, index) => (
+            <div key={\`bar-\${index}\`} className="flex flex-col items-center">
+              <div 
+                className={\`w-8 \${colors[index % colors.length]} transition-all duration-300\`} 
+                style={{ height: \`\${num * 3}px\` }}
+              />
+              <span className="text-center bg-gray-800 text-white px-1">{num}</span>
+            </div>
+          ))}
+        </div>
       </div>
-      <button
-        className="mt-4 px-4 py-2 bg-[#433900] text-[#ffffff] rounded"
-        onClick={handleStep}
-      >
-        Step
-      </button>
+
+      {/* Current phase display */}
+      <div className="mt-4 text-lg font-semibold">
+        Phase: {phase.charAt(0).toUpperCase() + phase.slice(1)}
+      </div>
+
+      <div className="mt-4 space-x-4">
+        <button 
+          className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+          onClick={handleStep}
+        >
+          Step
+        </button>
+        <button 
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          onClick={handleRefresh}
+        >
+          Random Array
+        </button>
+      </div>
     </div>
-  );
-}`
+  );}`
+  
   };
   const [components, setComponents] = useState<{ [key: string]: string }>({...defaultComponents});
   const [isRefreshing, setIsRefreshing] = useState(false);

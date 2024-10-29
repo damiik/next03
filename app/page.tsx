@@ -1,17 +1,26 @@
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, FormEvent, KeyboardEvent } from 'react';
 import OpenAI from 'openai';
 import ComponentVisualizer from './components/ComponentVisualizer';
 import { colors } from './components/colors';
 import { useComponentContext } from './context/ComponentContext';
 
-// Initialize OpenAI client with empty API key since we're using a proxy
+// // Initialize OpenAI client with empty API key since we're using a proxy
 const client = new OpenAI({
   apiKey: 'dummy',
   baseURL: 'http://0.0.0.0:4000',
   dangerouslyAllowBrowser: true
 });
+
+// Initialize OpenAI client with empty API key since we're using a proxy
+// const client = new OpenAI({
+//   apiKey: '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',
+//   baseURL: 'https://integrate.api.nvidia.com/v1',
+//   dangerouslyAllowBrowser: true
+// });
+
+
 
 type Message = {
   role: 'user' | 'assistant' | 'system';
@@ -25,14 +34,20 @@ export default function Home() {
     role: "system",
     content:
       `You are a helpful, kind and very compentent assistant.
-      ## Respond by creating React component with Tailwind styling.
-       - Don't add any imports statements.
+      ## If user asks for a React component, you will respond by creating React component with Tailwind styling.
+       - Don't add any import statements like import react from 'react' or import { useState } from 'react'.
        - Don't add export statement.
-       - Don't use any hooks.
+       - You can use react hooks.
        - Add constans ONLY inside of component function.
        - Don't define colors inside of component function.
       <example>
-        function ComponentToRender() { const someConstArray = [...]; return (...); }
+        function ComponentToRender() {
+           const someConstArray = [...]; 
+           const [start, setStart] = useState(0); // use hooks like this
+           return (
+             ...
+           ); 
+        }
       </example>
       <important> Use ONLY form of component from example template!</important>
       <important> Please use colors ONLY from the following pallete: ${colors.map(color => color.name + ": " + color.value).join(", ")} </important>
@@ -43,7 +58,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (userInput.trim() === '') return;
 
@@ -60,9 +75,9 @@ export default function Home() {
       setUserInput('');
 
       const response = await client.chat.completions.create({   // model: "local/nvidia/llama-3.1-nemotron-70b-instruct",
-        // model: "local/nvidia/llama-3.1-nemotron-70b-instruct",
-        // model: "local/nvidia/nemotron-4-340b-instruct",
-         model: "local/mistral/mistral-large-latest",
+          //model: "local/nvidia/llama-3.1-nemotron-70b-instruct",
+          model: "local/nvidia/nemotron-4-340b-instruct",
+         //model: "local/mistral/mistral-large-latest",
          messages: newHistory,
       });
 
@@ -107,6 +122,13 @@ export default function Home() {
 
   const formattedHistory = chatHistory.map(msg => `${msg.role === 'user' ? 'You' : 'Assistant'}: ${msg.content}`).join('\n\n');
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); // Prevent adding a newline character
+      handleSubmit(e as unknown as FormEvent<HTMLFormElement>); // Call handleSubmit
+    }
+  }
+
   return (
     <div className="flex flex-col h-full">
       <main className="flex-1 flex flex-col gap-8 items-center sm:items-start p-4">
@@ -120,13 +142,14 @@ export default function Home() {
           readOnly
         />
         <form onSubmit={handleSubmit} className="mt-2">
-          <input
-            type="text"
+          <textarea
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder={isLoading ? "Waiting for response..." : "Type your message..."}
             disabled={isLoading}
             className="w-full p-2 border-[3px] border-gray-800 rounded bg-[#2f2f2a] text-[#6FB150]"
+            rows={4}
           />
         </form>
       </div>
