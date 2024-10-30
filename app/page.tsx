@@ -1,18 +1,16 @@
 "use client";
 
-import { useState, useRef, useEffect, FormEvent, KeyboardEvent } from 'react';
+import { useState, useRef, useEffect, FormEvent, KeyboardEvent, useCallback } from 'react';
 import OpenAI from 'openai';
 import ComponentVisualizer from './components/ComponentVisualizer';
 import { colors } from './components/colors';
 import { useComponentContext } from './context/ComponentContext';
-
 // // Initialize OpenAI client with empty API key since we're using a proxy
 const client = new OpenAI({
   apiKey: 'dummy',
   baseURL: 'http://0.0.0.0:4000',
   dangerouslyAllowBrowser: true
 });
-
 // Initialize OpenAI client with empty API key since we're using a proxy
 // const client = new OpenAI({
 //   apiKey: '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',
@@ -28,7 +26,7 @@ type Message = {
 };
 
 export default function Home() {
-  const { setEditableCode, setSelectedComponent } = useComponentContext();
+  const { setEditableCode, setSelectedComponent, componentCompileError, setError } = useComponentContext();
   const [userInput, setUserInput] = useState('');
   const [chatHistory, setChatHistory] = useState<Message[]>([{
     role: "system",
@@ -58,11 +56,15 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (userInput.trim() === '') return;
+  // New state variable to mirror componentCompileError
+  const [pageComponentError, setPageComponentError] = useState('');
 
-    const cleanedInput = userInput.trim();
+  const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement> | KeyboardEvent<HTMLTextAreaElement>) => {
+    e.preventDefault();
+
+    // Get the user input from the form
+    const inputElement = (e.target as HTMLFormElement)?.elements?.namedItem('userInput') || e.target as HTMLTextAreaElement;
+    const cleanedInput = inputElement instanceof HTMLTextAreaElement ? inputElement.value.trim() : '';
     if (!cleanedInput) {
       console.log("Empty input after cleaning. Please try again.");
       return;
@@ -74,15 +76,16 @@ export default function Home() {
       setChatHistory(newHistory);
       setUserInput('');
 
-      const response = await client.chat.completions.create({   // model: "local/nvidia/llama-3.1-nemotron-70b-instruct",
+      const response = await client.chat.completions.create({
           //model: "local/nvidia/llama-3.1-nemotron-70b-instruct",
-          model: "local/nvidia/nemotron-4-340b-instruct",
+          //model: "local/nvidia/nemotron-4-340b-instruct",
+          model: "local/meta/llama-3.1-405b-instruct",
          //model: "local/mistral/mistral-large-latest",
          messages: newHistory,
       });
 
       const assistantResponse = response.choices[0].message?.content || null;
-      console.log("Assistant Response:", assistantResponse); // Log the assistant response
+      console.log("Assistant Response:", assistantResponse);
 
       if (assistantResponse) {
         setChatHistory(prevHistory => [...prevHistory, { role: "assistant", content: assistantResponse }]);
@@ -92,7 +95,7 @@ export default function Home() {
         const match = assistantResponse.match(codeRegex);
 
         if (match) {
-          const extractedCode = match[2].trim(); // Use const
+          const extractedCode = match[2].trim();
 
           // Extract the function name from the extracted code
           const functionNameRegex = /function\s+(\w+)\s*\(/;
@@ -111,7 +114,30 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [chatHistory, setEditableCode, setSelectedComponent]);
+
+  // useEffect to update pageComponentError and trigger re-render
+  useEffect(() => {
+    setPageComponentError(componentCompileError);
+  }, [componentCompileError]);
+
+  useEffect(() => {
+    if (pageComponentError) { // Use pageComponentError here
+      console.log("Submit Component Error:", pageComponentError);
+      // Clear the existing error in the context
+      setError('');
+
+      // Send the error as a new user message
+      handleSubmit({
+        preventDefault: () => {},
+        target: {
+          elements: {
+            namedItem: () => ({ value: `Compilation error: ${pageComponentError}` })
+          }
+        }
+      } as unknown as FormEvent<HTMLFormElement>);
+    }
+  }, [pageComponentError, setError, handleSubmit]);
 
   // Scroll to the bottom of the textarea after update
   useEffect(() => {
@@ -124,8 +150,8 @@ export default function Home() {
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault(); // Prevent adding a newline character
-      handleSubmit(e as unknown as FormEvent<HTMLFormElement>); // Call handleSubmit
+      e.preventDefault();
+      handleSubmit(e);
     }
   }
 
@@ -143,6 +169,7 @@ export default function Home() {
         />
         <form onSubmit={handleSubmit} className="mt-2">
           <textarea
+            name="userInput"
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
             onKeyDown={handleKeyDown}

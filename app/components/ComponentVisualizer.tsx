@@ -4,6 +4,7 @@ import { RotateCw } from 'lucide-react';
 import * as Babel from '@babel/standalone';
 import { useComponentContext } from '../context/ComponentContext';
 import * as THREE from 'three';
+import { Play, Pause, SkipForward, SkipBack } from 'lucide-react';
 
 const ThreeCanvas = () => {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -77,9 +78,9 @@ const ThreeCanvas = () => {
 };
 
 const ComponentVisualizer = () => {
-  const { components, previewKey, isRefreshing, setEditableCode, ...rest } = useComponentContext();
+  const { components, previewKey, isRefreshing, setEditableCode, setComponentCompileError, componentCompileError, ...rest } = useComponentContext();
   const [editableCode, setEditableCodeLocal] = useState('');
-  const [error, setError] = useState('');
+
   const [compiledComponent, setCompiledComponent] = useState<React.ComponentType | null>(null);
   const { selectedComponent } = useComponentContext();
 
@@ -93,18 +94,18 @@ const ComponentVisualizer = () => {
       }
 
       // Pass React, hooks, and other necessary variables to the compiled component
-      const Component = new Function('React', 'useState', 'useEffect', 'useRef', 'THREE', ...Object.keys(rest), `
+      const Component = new Function('React', 'useState', 'useEffect', 'useRef', 'THREE', 'Play', 'Pause', 'SkipForward', 'SkipBack', ...Object.keys(rest), `
         return (${transformedCode})
-      `)(React, React.useState, React.useEffect, React.useRef, THREE, ...Object.values(rest));
+      `)(React, React.useState, React.useEffect, React.useRef, THREE, Play, Pause, SkipForward, SkipBack,...Object.values(rest));
 
       if (typeof Component !== 'function' && typeof Component !== 'object') {
         throw new Error('Compiled code did not return a valid component.');
       }
       setCompiledComponent(() => Component);
-      setError('');
+      setComponentCompileError('');
     } catch (err: unknown) {
       console.error("Compilation error:", err);
-      setError((err as Error).message);
+      setComponentCompileError((err as Error).message);
       setCompiledComponent(null);
     }
   };
@@ -126,7 +127,7 @@ const ComponentVisualizer = () => {
   };
 
   const renderPreview = () => {
-    if (error) return <div className="text-red-500 p-4 bg-red-50 rounded border border-red-200">Error: {error}</div>;
+    if (componentCompileError) return <div className="text-red-500 p-4 bg-red-50 rounded border border-red-200">Error -->: {componentCompileError}</div>;
     if (isRefreshing) return <div className="flex items-center justify-center p-8"><RotateCw className="animate-spin text-blue-500" size={24} /></div>;
     if (compiledComponent) {
       const Component = compiledComponent;
