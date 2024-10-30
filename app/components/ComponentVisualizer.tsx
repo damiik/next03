@@ -15,7 +15,7 @@ const ThreeCanvas = () => {
     let camera: THREE.PerspectiveCamera | undefined;
     let renderer: THREE.WebGLRenderer | undefined;
     let geometry: THREE.BoxGeometry | undefined;
-    let material: THREE.MeshBasicMaterial | undefined;
+    let material: THREE.MeshStandardMaterial | undefined;
     let cube: THREE.Mesh | undefined;
     let animate: FrameRequestCallback;
 
@@ -23,16 +23,27 @@ const ThreeCanvas = () => {
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
       renderer = new THREE.WebGLRenderer();
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
       geometry = new THREE.BoxGeometry();
-      material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+      material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
       cube = new THREE.Mesh(geometry, material);
+      cube.castShadow = true;
+      cube.receiveShadow = true;
       scene.add(cube);
 
-      animate = () => {
+      // Add a light source to cast shadows
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(5, 10, 7.5);
+      light.castShadow = true;
+      scene.add(light);
+
+      animate = (time: number) => {
         requestAnimationFrame(animate);
         if (cube) {
-          cube.rotation.x += 0.01;
-          cube.rotation.y += 0.01;
+          cube.rotation.x += 0.01 + time * 0.000001;
+          cube.rotation.y += 0.01 + time * 0.000001;
         }
         if (renderer && scene && camera) {
           renderer.render(scene, camera);
@@ -60,7 +71,7 @@ const ThreeCanvas = () => {
     }
 
     if (animate) {
-      animate();
+      animate(0);
     }
 
     return () => {
@@ -127,7 +138,7 @@ const ComponentVisualizer = () => {
   };
 
   const renderPreview = () => {
-    if (componentCompileError) return <div className="text-red-500 p-4 bg-red-50 rounded border border-red-200">Error -->: {componentCompileError}</div>;
+    if (componentCompileError) return <div className="text-red-500 p-4 bg-red-50 rounded border border-red-200">Error --&ge;: {componentCompileError}</div>;
     if (isRefreshing) return <div className="flex items-center justify-center p-8"><RotateCw className="animate-spin text-blue-500" size={24} /></div>;
     if (compiledComponent) {
       const Component = compiledComponent;

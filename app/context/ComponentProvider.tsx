@@ -20,38 +20,37 @@ interface ComponentProviderProps {
   children: React.ReactNode;
 }
 
-
 export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }) => {
   const defaultComponents: { [key: string]: string } = {
     Component1: `function Component1() {
       return (
-        <div className="p-4 bg-blue-500 rounded">
+        <div className="p-4 bg-BLUE text-BLUE rounded">
           Hello from Component 1!
         </div>
       );
     }`,
     Component2: `function Component2() {
       return (
-        <div className="p-4 bg-green-500 rounded">
+        <div className="p-4 bg-GREEN text-GREEN rounded">
           Hello from Component 2!
         </div>
       );
     }`,
-    SimpleCounter: `function SimpleCouunter() {
+    SimpleCounter: `function SimpleCounter() {
       const [counter, setCounter] = useState(0);
       const buttonText = counter === 0 ? 'Click Me!' : \`Clicked \${counter} times!\`;
-    
+
       return (
-        <div className="flex justify-center items-center h-[200px] bg-[#d8e4e4]">
-          <div className="bg-[#ffffff] p-4 rounded-lg shadow-md w-1/2 md:w-1/3">
-            <h2 className="text-[#352879] text-2xl mb-4">Simple Counter</h2>
-            <button 
+        <div className="flex justify-center items-center h-[200px] bg-LIGHT_GREY">
+          <div className="bg-WHITE p-4 rounded-lg shadow-md w-1/2 md:w-1/3">
+            <h2 className="text-BLUE text-2xl mb-4">Simple Counter</h2>
+            <button
               onClick={() => setCounter(counter + 1)}
-              className={\`py-2 px-4 rounded-lg text-[#ffffff] \${counter % 2 === 0 ? 'bg-[#9a0000]' : 'bg-[#9fe339]'} hover:bg-[#b472d0] transition duration-300 ease-in-out\`}
+              className={\`py-2 px-4 rounded-lg text-WHITE \${counter % 2 === 0 ? 'bg-RED' : 'bg-GREEN'} hover:bg-PURPLE transition duration-300 ease-in-out\`}
             >
               {buttonText}
             </button>
-            <p className="mt-4 text-[#656565]">CURRENT COUNT: {counter}</p>
+            <p className="mt-4 text-DARK_GREY">CURRENT COUNT: {counter}</p>
           </div>
         </div>
       );
@@ -67,20 +66,20 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
       const [highlightedOutput, setHighlightedOutput] = useState('');
       const [description, setDescription] = useState('');
       const timerRef = useRef(null);
-    
+
       const highlightText = (text, start, end) => {
         const before = text.slice(0, start);
         const highlight = text.slice(start, end);
         const after = text.slice(end);
         return (
           <>
-            <span className="text-gray-300">{before}</span>
-            <span className="bg-blue-600 text-white px-1">{highlight}</span>
-            <span className="text-gray-300">{after}</span>
+            <span className="text-GRAY-300">{before}</span>
+            <span className="bg-ORANGE text-BLUE px-1">{highlight}</span>
+            <span className="text-GRAY-300">{after}</span>
           </>
         );
       };
-    
+
       const steps = [
         {
           description: "Initial state - looking at the input line",
@@ -143,90 +142,88 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
           outputHighlight: [11, outputLine.length]
         }
       ];
-    
+
       const updateDisplay = (currentStep) => {
         const stepData = steps[currentStep];
         setDescription(stepData.description);
-        
+
         setHighlightedInput(
-          stepData.inputHighlight 
+          stepData.inputHighlight
             ? highlightText(inputLine, stepData.inputHighlight[0], stepData.inputHighlight[1])
             : inputLine
         );
-        
+
         setHighlightedCommand(
           stepData.commandHighlight
             ? highlightText(command, stepData.commandHighlight[0], stepData.commandHighlight[1])
             : command
         );
-    
+
         setHighlightedOutput(
           stepData.outputHighlight
             ? highlightText(outputLine, stepData.outputHighlight[0], stepData.outputHighlight[1])
             : outputLine
         );
       };
-    
+
       useEffect(() => {
         updateDisplay(step);
-        
+
         if (isPlaying) {
           timerRef.current = setInterval(() => {
             setStep((prev) => (prev + 1) % steps.length);
           }, 3000);
-    
+
           return () => clearInterval(timerRef.current);
         }
       }, [step, isPlaying]);
-    
+
       const handlePlay = () => {
         setIsPlaying(!isPlaying);
       };
-    
+
       const handleForward = () => {
         setStep((prev) => (prev + 1) % steps.length);
       };
-    
+
       const handleBack = () => {
         setStep((prev) => (prev - 1 + steps.length) % steps.length);
       };
-    
+
       const ButtonControl = ({ onClick, children, title }) => (
-        <button 
+        <button
           onClick={onClick}
-          className="p-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
+          className="p-2 bg-GRAY-700 rounded-lg hover:bg-GRAY-600 transition-colors"
           title={title}
         >
           {children}
         </button>
       );
-    
+
       return (
-        <div className="bg-gray-900 p-6 rounded-lg space-y-4 font-mono">
-          <div className="m-4 text-lg text-[#fff780] text-center">
+        <div className="bg-GRAY-900 p-6 rounded-lg space-y-4 font-mono">
+          <div className="m-4 text-lg text-YELLOW text-center">
             {description}
           </div>
-    
+
           <div className="space-y-2">
-            <div className="text-blue-400  bg-[#9fe339] text-[#352879]">Input:</div>
+            <div className="text-BLUE bg-GREEN text-BLUE">Input:</div>
             <div className="p-4">{highlightedInput}</div>
-    
+
           </div>
-          
+
           <div className="space-y-8">
-    <p>&nbsp;</p>
-            <div className="text-blue-400  bg-[#9fe339] text-[#352879]">Vim Command:</div>
-            <div className="p-4 text-[#d49a44]">{highlightedCommand}</div>
+            <p>&nbsp;</p>
+            <div className="text-BLUE bg-GREEN text-BLUE">Vim Command:</div>
+            <div className="p-4 text-ORANGE">{highlightedCommand}</div>
           </div>
-    <p>&nbsp;</p>
+          <p>&nbsp;</p>
           <div className="space-y-2">
-    
-            <div className=" bg-[#9fe339] text-[#433900]">Output:</div>
-            <div className="p-4 text-[#9fe339] ">{highlightedOutput}</div>
+
+            <div className=" bg-GREEN text-BROWN">Output:</div>
+            <div className="p-4 text-GREEN ">{highlightedOutput}</div>
           </div>
-          
-    
-    
+
           <div className="flex space-x-4 justify-center mt-6">
             <ButtonControl onClick={handleBack} title="Previous Step">
               <SkipBack className="w-6 h-6" />
@@ -238,6 +235,62 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
               <SkipForward className="w-6 h-6" />
             </ButtonControl>
           </div>
+        </div>
+      );
+    }`,
+    MosfetTable: `function MosfetTable() {
+      const transistors = [
+        { name: "IRF540N", vds: 100, id: 25, rds: 0.04, qg: 67, Qgs: 26 },
+        { name: "IRF1010N", vds: 55, id: 85, rds: 0.01, qg: 135, Qgs: 45 },
+        { name: "IRF3205N", vds: 55, id: 110, rds: 0.008, qg: 210, Qgs: 65 },
+        { name: "IRFB3206N", vds: 60, id: 120, rds: 0.008, qg: 270, Qgs: 85 },
+        { name: "IRF1405N", vds: 55, id: 60, rds: 0.013, qg: 110, Qgs: 35 },
+        { name: "IRF3710N", vds: 100, id: 57, rds: 0.023, qg: 110, Qgs: 35 },
+        { name: "IRF5210N", vds: 100, id: 70, rds: 0.04, qg: 210, Qgs: 65 },
+        { name: "IRF620N", vds: 200, id: 10, rds: 0.16, qg: 37, Qgs: 12 },
+        { name: "IRF730N", vds: 200, id: 11, rds: 0.18, qg: 45, Qgs: 15 },
+        { name: "IRFL9014N", vds: 60, id: 116, rds: 0.009, qg: 272, Qgs: 85 },
+        { name: "IRFH8304N", vds: 80, id: 130, rds: 0.008, qg: 315, Qgs: 100 },
+      ];
+
+      return (
+        <div className="overflow-x-auto">
+          <table className="table-auto w-full bg-LIGHT_GREY" style={{ borderSpacing: 4 }}>
+            <thead className="bg-DARK_GREY text-ORANGE text-lg font-bold">
+              <tr>
+                <th className="px-4 py-2 border-BLACK border-[3px]">Transistor</th>
+                <th className="px-4 py-2 border-BLACK border-[3px]">Vds (V)</th>
+                <th className="px-4 py-2 border-BLACK border-[3px]">Id (A)</th>
+                <th className="px-4 py-2 border-BLACK border-[3px]">Rds (Ω)</th>
+                <th className="px-4 py-2 border-BLACK border-[3px]">Qg (nC)</th>
+                <th className="px-4 py-2 border-BLACK border-[3px]">Qgs (nC)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transistors.map((transistor, index) => (
+                <React.Fragment key={index}>
+                  <tr
+                    className={\`\${
+                      index % 2 === 0 ? "bg-LIGHT_GREY" : "bg-MID_GREY"
+                    } text-BLACK\`}
+                  >
+                    <td className="px-4 py-1 border-DARK_GREY border-[3px] bg-YELLOW">{transistor.name}</td>
+                    <td className="px-4 py-1 border-DARK_GREY border-[3px] bg-PINKY_LIGHT_RED">{transistor.vds}</td>
+                    <td className="px-4 py-1 border-DARK_GREY border-[3px] bg-GREEN">{transistor.id}</td>
+                    <td className="px-4 py-1 border-DARK_GREY border-[3px] bg-LIGHT_GREEN">{transistor.rds}</td>
+                    <td className="px-4 py-1 border-DARK_GREY border-[3px] bg-CYAN">{transistor.qg}</td>
+                    <td className="px-4 py-1 border-DARK_GREY border-[3px] bg-PURPLE">{transistor.Qgs}</td>
+                  </tr>
+                  {index < transistors.length - 1 && (
+                    <tr>
+                      <td colSpan={6} className="bg-BLACK">
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
         </div>
       );
     }`,
@@ -255,22 +308,21 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
       const [currentJ, setCurrentJ] = useState(null);
       const [stack, setStack] = useState([]);
       const [phase, setPhase] = useState('initial'); // 'initial', 'scanning', 'swapping', 'final'
-      
-      const colors = [
-        'bg-[#9a0000]',
-        'bg-[#a590e8]',
-        'bg-[#b472d0]',
-        'bg-[#9fe339]',
-        'bg-[#352879]',
-        'bg-[#fff780]',
-        'bg-[#d49a44]',
-        'bg-[#433900]',
-        'bg-[#f6ab96]',
-        'bg-[#656565]',
-        'bg-[#b1b1b1]',
-        'bg-[#e4ffb5]',
-      ];
 
+      const colors = [
+        'bg-RED',
+        'bg-CYAN',
+        'bg-PURPLE',
+        'bg-GREEN',
+        'bg-BLUE',
+        'bg-YELLOW',
+        'bg-ORANGE',
+        'bg-BROWN',
+        'bg-PINKY_LIGHT_RED',
+        'bg-DARK_GREY',
+        'bg-MID_GREY',
+        'bg-LIGHT_GREEN',
+      ];
 
       const partitionStep = () => {
         const newArray = [...array];
@@ -328,9 +380,8 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
         }
       }, [phase, currentI, start, end, stack]);
 
- 
       const handleStep = () => {
-        if (stack.length === 0 &amp;&amp; phase === 'initial') {
+        if (stack.length === 0 && phase === 'initial') {
           setStack([{ start: 0, end: array.length - 1 }]);
           setStart(0);
           setEnd(array.length - 1);
@@ -357,11 +408,11 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
           <div className="flex flex-col space-y-2">
             {/* Pointers explanation */}
             <div className="mb-4 text-sm space-y-1">
-              <div><span className="text-green-500 bg-black px-1">S</span> - Start pointer</div>
-              <div><span className="text-black bg-gray-500 px-1">E</span> - End pointer</div>
-              <div><span className="text-red-600 bg-cyan-200 px-1">P</span> - Pivot</div>
-              <div><span className="text-blue-600 bg-yellow-200 px-1">i</span> - Last smaller element index</div>
-              <div><span className="text-purple-600 bg-green-200 px-1">j</span> - Current scanning position</div>
+              <div><span className="text-GREEN bg-BLACK px-1">S</span> - Start pointer</div>
+              <div><span className="text-BLACK bg-GRAY-500 px-1">E</span> - End pointer</div>
+              <div><span className="text-RED bg-CYAN px-1">P</span> - Pivot</div>
+              <div><span className="text-BLUE bg-YELLOW px-1">i</span> - Last smaller element index</div>
+              <div><span className="text-PURPLE bg-GREEN px-1">j</span> - Current scanning position</div>
             </div>
 
             {/* Start pointers row */}
@@ -369,9 +420,9 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
               {array.map((_, index) => (
                 <div key={\`start-\${index}\`} className="w-8 text-center">
                   {index === start ? (
-                    <div className="text-green-500 bg-black px-1">S</div>
+                    <div className="text-GREEN bg-BLACK px-1">S</div>
                   ) : (
-                    <div>&amp;nbsp;</div>
+                    <div>&nbsp;</div>
                   )}
                 </div>
               ))}
@@ -382,9 +433,9 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
               {array.map((_, index) => (
                 <div key={\`end-\${index}\`} className="w-8 text-center">
                   {index === end ? (
-                    <div className="text-black bg-gray-500 px-1">E</div>
+                    <div className="text-BLACK bg-GRAY-500 px-1">E</div>
                   ) : (
-                    <div>&amp;nbsp;</div>
+                    <div>&nbsp;</div>
                   )}
                 </div>
               ))}
@@ -395,9 +446,9 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
               {array.map((_, index) => (
                 <div key={\`pivot-\${index}\`} className="w-8 text-center">
                   {index === pivotIndex ? (
-                    <div className="text-red-600 bg-cyan-200 px-1">P</div>
+                    <div className="text-RED bg-CYAN px-1">P</div>
                   ) : (
-                    <div>&amp;nbsp;</div>
+                    <div>&nbsp;</div>
                   )}
                 </div>
               ))}
@@ -407,11 +458,11 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
             <div className="flex space-x-2">
               {array.map((_, index) => (
                 <div key={\`ij-\${index}\`} className="w-8 text-center">
-                  {index === currentI ? 
-                    (<div className="text-blue-600 bg-yellow-200 px-1">i</div>) 
-                   : index === currentJ ? 
-                      (<div className="text-purple-600 bg-green-200 px-1">j</div>) 
-                     :(<div>&amp;nbsp;</div>)
+                  {index === currentI ?
+                    (<div className="text-BLUE bg-YELLOW px-1">i</div>)
+                   : index === currentJ ?
+                      (<div className="text-PURPLE bg-GREEN px-1">j</div>)
+                     :(<div>&nbsp;</div>)
                   }
                 </div>
               ))}
@@ -421,11 +472,11 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
             <div className="flex space-x-2">
               {array.map((num, index) => (
                 <div key={\`bar-\${index}\`} className="flex flex-col items-center">
-                  <div 
-                    className={\`w-8 \${colors[index % colors.length]} transition-all duration-300\`} 
+                  <div
+                    className={\`w-8 \${colors[index % colors.length]} transition-all duration-300\`}
                     style={{ height: \`\${num * 3}px\` }}
                   />
-                  <span className="text-center bg-gray-800 text-white px-1">{num}</span>
+                  <span className="text-center bg-GRAY-800 text-WHITE px-1">{num}</span>
                 </div>
               ))}
             </div>
@@ -437,14 +488,14 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
           </div>
 
           <div className="mt-4 space-x-4">
-            <button 
-              className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+            <button
+              className="px-4 py-2 bg-YELLOW text-WHITE rounded hover:bg-YELLOW-700"
               onClick={handleStep}
             >
               Step
             </button>
-            <button 
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            <button
+              className="px-4 py-2 bg-BLUE text-WHITE rounded hover:bg-BLUE-700"
               onClick={handleRefresh}
             >
               Random Array
@@ -454,7 +505,7 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
       );
     }`
   };
-  const [components, setComponents] = useState<{ [key: string]: string }>({...defaultComponents});
+  const [components, setComponents] = useState<{ [key: string]: string }>({ ...defaultComponents });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [previewKey, setPreviewKey] = useState(0);
   const [editableCode, setEditableCode] = useState<{ [key: string]: string }>({});
@@ -480,7 +531,7 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
     setEditableCode,
     selectedComponent,
     setSelectedComponent,
-   };
+  };
 
   return (
     <ComponentContext.Provider value={contextValue}>
@@ -488,3 +539,5 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
     </ComponentContext.Provider>
   );
 };
+
+

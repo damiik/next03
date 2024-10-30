@@ -9,12 +9,12 @@ export const colors = [
   { name: "YELLOW", value: "#fff780" },
   { name: "ORANGE", value: "#d49a44" },
   { name: "BROWN", value: "#433900" },
-  { name: "PINKY / LIGHT RED", value: "#f6ab96" },
-  { name: "DARK GREY", value: "#656565" },
-  { name: "MID GREY", value: "#b1b1b1" },
-  { name: "LIGHT GREEN", value: "#e4ffb5" },
-  { name: "SKY / LIGHT BLUE", value: "#a9f3fe" },
-  { name: "LIGHT GREY", value: "#d8e4e4" },
+  { name: "PINKY_LIGHT_RED", value: "#f6ab96" },
+  { name: "DARK_GREY", value: "#656565" },
+  { name: "MID_GREY", value: "#b1b1b1" },
+  { name: "LIGHT_GREEN", value: "#e4ffb5" },
+  { name: "SKY_LIGHT_BLUE", value: "#a9f3fe" },
+  { name: "LIGHT_GREY", value: "#d8e4e4" },
 ];
 
 export const colors_table = [

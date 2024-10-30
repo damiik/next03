@@ -5,6 +5,11 @@ import OpenAI from 'openai';
 import ComponentVisualizer from './components/ComponentVisualizer';
 import { colors } from './components/colors';
 import { useComponentContext } from './context/ComponentContext';
+
+// import Groq from "groq-sdk";
+// const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+// return groq.chat.completions.create({  messages: [] });
+
 // // Initialize OpenAI client with empty API key since we're using a proxy
 const client = new OpenAI({
   apiKey: 'dummy',
@@ -48,8 +53,8 @@ export default function Home() {
         }
       </example>
       <important> Use ONLY form of component from example template!</important>
-      <important> Please use colors ONLY from the following pallete: ${colors.map(color => color.name + ": " + color.value).join(", ")} </important>
-      <important> Please use colors ONLY in follwing format: bg-[#hexcode] </important>
+      <important> Please use colors ONLY from the following pallete: ${colors.map(color => color.name  ).join(", ")} </important>
+      <important> Please use colors ONLY in follwing format: bg-PINKY_LIGHT_RED </important>
 
     `
   }]);
@@ -79,7 +84,7 @@ export default function Home() {
       const response = await client.chat.completions.create({
           //model: "local/nvidia/llama-3.1-nemotron-70b-instruct",
           //model: "local/nvidia/nemotron-4-340b-instruct",
-          model: "local/meta/llama-3.1-405b-instruct",
+          model: "local/meta/llama-3.1-405b-instruct", //works good, little slow
          //model: "local/mistral/mistral-large-latest",
          messages: newHistory,
       });
