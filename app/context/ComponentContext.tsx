@@ -1,25 +1,77 @@
 "use client";
-import { useContext, useEffect, useState } from 'react';
-import { ComponentContext, ComponentProvider } from './ComponentProvider';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { defaultComponents } from './DefaultComponents';
 
-export { ComponentProvider };
+interface ComponentContextProps {
+  components: { [key: string]: string };
+  setComponents: React.Dispatch<React.SetStateAction<{ [key: string]: string }>>;
+  isRefreshing: boolean;
+  setIsRefreshing: React.Dispatch<React.SetStateAction<boolean>>;
+  previewKey: number;
+  setPreviewKey: React.Dispatch<React.SetStateAction<number>>;
+  editableCode: { [key: string]: string };
+  setEditableCode: React.Dispatch<React.SetStateAction<{ [key: string]: string }>>;
+  selectedComponent: string;
+  setSelectedComponent: React.Dispatch<React.SetStateAction<string>>;
+  componentCompileError: string;
+  setComponentCompileError: React.Dispatch<React.SetStateAction<string>>;
+  codeMirrorHeight: number;
+  setCodeMirrorHeight: React.Dispatch<React.SetStateAction<number>>;
+}
+
+export const ComponentContext = createContext<ComponentContextProps | undefined>(undefined);
+
+interface ComponentProviderProps {
+  children: React.ReactNode;
+}
+
+export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }) => {
+  const [components, setComponents] = useState<{ [key: string]: string }>({ ...defaultComponents });
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [previewKey, setPreviewKey] = useState(0);
+  const [editableCode, setEditableCode] = useState<{ [key: string]: string }>({});
+  const [selectedComponent, setSelectedComponent] = useState('');
+  const [componentCompileError, setComponentCompileError] = useState('');
+  const [codeMirrorHeight, setCodeMirrorHeight] = useState(200);
+
+
+  useEffect(() => {
+    console.log("Editable Code Updated:", editableCode);
+    setComponents((prevComponents) => ({
+      ...prevComponents,
+      ...editableCode
+    }));
+  }, [editableCode]);
+
+  const contextValue = {
+    components,
+    setComponents,
+    isRefreshing,
+    setIsRefreshing,
+    previewKey,
+    setPreviewKey,
+    editableCode,
+    setEditableCode,
+    selectedComponent,
+    setSelectedComponent,
+    componentCompileError,
+    setComponentCompileError,
+    codeMirrorHeight,
+    setCodeMirrorHeight
+  };
+
+  return (
+    <ComponentContext.Provider value={contextValue}>
+      {children}
+    </ComponentContext.Provider>
+  );
+};
+
 
 export const useComponentContext = () => {
   const context = useContext(ComponentContext);
   if (context === undefined) {
     throw new Error('useComponentContext must be used within a ComponentProvider');
   }
-
-  const [componentCompileError, setComponentCompileError] = useState('');
-  const [codeMirrorHeight, setCodeMirrorHeight] = useState(200); // Added state for CodeMirror height
-
-  useEffect(() => {
-    // Your error handling logic here
-    // For example, you can set the error state based on certain conditions
-    // setError('An error occurred');
-    console.log('Context --> User Component Compilation Error:', componentCompileError);
-  }, [componentCompileError]);
-
-  // Add error and CodeMirror height to the context
-  return { ...context, componentCompileError, setComponentCompileError, codeMirrorHeight, setCodeMirrorHeight };
+  return context;
 };

@@ -5,10 +5,10 @@ import * as Babel from '@babel/standalone';
 import { useComponentContext } from '../context/ComponentContext';
 import * as THREE from 'three';
 import { Play, Pause, SkipForward, SkipBack } from 'lucide-react';
-import CodeMirror from '@uiw/react-codemirror';
+import CodeMirror, { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { material } from '@uiw/codemirror-theme-material';
-import { EditorView } from "@codemirror/view";
+import { EditorView } from '@codemirror/view';
 import { ThreeCanvas } from './ThreeCanvas';
 
 const ComponentVisualizer = () => {
@@ -16,7 +16,10 @@ const ComponentVisualizer = () => {
   const [editableCode, setEditableCodeLocal] = useState('');
 
   const [compiledComponent, setCompiledComponent] = useState<React.ComponentType | null>(null);
-  const { selectedComponent } = useComponentContext();
+  const { selectedComponent } = useComponentContext(); 
+  
+  
+  const editorRef = useRef<ReactCodeMirrorRef | null>(null);
 
   const compileAndRender = (code: string) => {
     try {
@@ -61,7 +64,7 @@ const ComponentVisualizer = () => {
   };
 
   const renderPreview = () => {
-    if (componentCompileError) return <div className="text-red-500 p-4 bg-red-50 rounded border border-red-200">Error --&ge;: {componentCompileError}</div>;
+    if (componentCompileError) return <div className="text-red-500 p-4 bg-red-50 rounded border border-red-200">Error -->: {componentCompileError}</div>;
     if (isRefreshing) return <div className="flex items-center justify-center p-8"><RotateCw className="animate-spin text-blue-500" size={24} /></div>;
     if (compiledComponent) {
       const Component = compiledComponent;
@@ -71,23 +74,26 @@ const ComponentVisualizer = () => {
     }
   };
 
-  let fixedHeightEditor = EditorView.theme({
+  const fixedHeightEditor = EditorView.theme({
     "&": { height: `${codeMirrorHeight}px` },
     ".cm-scroller": { overflow: "auto" },
     ".cm-content, .cm-gutter": { minHeight: "200px" },
     ".cm-editor .cm-content": { fontFamily: "Cascadia Code", fontSize: "200%" },
   });
 
-  useEffect(() =>{
-   
-   fixedHeightEditor = EditorView.theme({
-    "&": { height: `${codeMirrorHeight}px` },
-    ".cm-scroller": { overflow: "auto" },
-    ".cm-content, .cm-gutter": { minHeight: "200px" },
-    ".cm-editor .cm-content": { fontFamily: "Cascadia Code", fontSize: "200%" },
-  }); 
 
-  }, [codeMirrorHeight])
+
+  useEffect(() => {
+
+    console.log("codeMirrorHeight changed:", codeMirrorHeight);
+    if (editorRef.current) {
+      // Access the DOM node directly and set the height.
+      const editorDOM = editorRef.current.editor?.getElementsByClassName("cm-editor");
+      if (editorDOM) {
+        editorDOM[0].setAttribute("height", `${codeMirrorHeight}px`); // style.height = `${codeMirrorHeight}px`;
+      }
+    }
+  }, [codeMirrorHeight]);
 
   return (
     <div className="w-full max-w-6xl bg-[#2c2d35] rounded-lg shadow-lg">
@@ -104,6 +110,7 @@ const ComponentVisualizer = () => {
                 lineNumbers: true,
                 highlightActiveLineGutter: true,
               }}
+              ref={editorRef}
             />
           </div>
           {isRefreshing && <span className="text-sm text-blue-500">Refreshing...</span>}
