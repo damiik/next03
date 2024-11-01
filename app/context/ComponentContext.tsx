@@ -11,14 +11,15 @@ export const useComponentContext = () => {
   }
 
   const [componentCompileError, setComponentCompileError] = useState('');
+  const [codeMirrorHeight, setCodeMirrorHeight] = useState(200); // Added state for CodeMirror height
 
   useEffect(() => {
     // Your error handling logic here
     // For example, you can set the error state based on certain conditions
     // setError('An error occurred');
-    console.log('User Component Compilation Error:', componentCompileError);
+    console.log('Context --> User Component Compilation Error:', componentCompileError);
   }, [componentCompileError]);
 
-  // Add error to the context
-  return { ...context, componentCompileError, setComponentCompileError, setError: setComponentCompileError };
+  // Add error and CodeMirror height to the context
+  return { ...context, componentCompileError, setComponentCompileError, codeMirrorHeight, setCodeMirrorHeight };
 };
