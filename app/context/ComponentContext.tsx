@@ -17,6 +17,8 @@ interface ComponentContextProps {
   setComponentCompileError: React.Dispatch<React.SetStateAction<string>>;
   codeMirrorHeight: number;
   setCodeMirrorHeight: React.Dispatch<React.SetStateAction<number>>;
+  isLoading: boolean;
+  setIsLoading : React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const ComponentContext = createContext<ComponentContextProps | undefined>(undefined);
@@ -33,14 +35,17 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
   const [selectedComponent, setSelectedComponent] = useState('');
   const [componentCompileError, setComponentCompileError] = useState('');
   const [codeMirrorHeight, setCodeMirrorHeight] = useState(200);
+  const [isLoading, setIsLoading] = useState(false);
 
 
   useEffect(() => {
     console.log("Editable Code Updated:", editableCode);
-    setComponents((prevComponents) => ({
-      ...prevComponents,
-      ...editableCode
-    }));
+    setComponents((prevComponents) => {
+      if (JSON.stringify(prevComponents) !== JSON.stringify({ ...prevComponents, ...editableCode })) {
+        return { ...prevComponents, ...editableCode };
+      }
+      return prevComponents;
+    });
   }, [editableCode]);
 
   const contextValue = {
@@ -57,7 +62,9 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
     componentCompileError,
     setComponentCompileError,
     codeMirrorHeight,
-    setCodeMirrorHeight
+    setCodeMirrorHeight,
+    isLoading,
+    setIsLoading,
   };
 
   return (

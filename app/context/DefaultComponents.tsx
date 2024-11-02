@@ -543,5 +543,105 @@ export const defaultComponents = {
         </filter>
       </defs>
     </svg>
-  );}`
+  );}`,
+
+  MPPT_Diagram: `
+function Component1() {
+
+    const s = {
+    f: "'Fantasque Sans Mono'",
+    s1: {
+      lineHeight:1.25,
+    },
+    s2: {
+      fontVariantCaps:'normal',
+      fontVariantEastAsian:'normal',
+      fontVariantLigatures:'normal',
+      fontVariantNumeric:'normal',
+    }
+  }
+    return (
+<svg width="220mm" height="150mm" version="1.1" viewBox="0 0 220 150" xmlns="http://www.w3.org/2000/svg">
+ <g fill="#00ff00" fontFamily={s.f} fontSize="6.27px" letterSpacing="0px" strokeWidth=".131" wordSpacing="0px">
+  <text transform="scale(1.03 .971)" x="16.047407" y="26.313488" style={s.s1} ><tspan x="16.047407" y="26.313488" fill="#00ff00" fontFamily={s.f} fontSize="6.27px" strokeWidth=".131" style={s.s2}>AC - in</tspan></text>
+  <text transform="scale(1.03 .971)" x="61.677643" y="54.194271" style={s.s1} ><tspan x="61.677643" y="54.194271" strokeWidth=".131">DC   AC</tspan></text>
+  <text transform="scale(1.03 .971)" x="176.71046" y="26.310429" style={s.s1} ><tspan x="176.71046" y="26.310429" fill="#00ff00" fontFamily={s.f} fontSize="6.27px" strokeWidth=".131" style={s.s2}>Loads</tspan></text>
+  <text transform="scale(1.03 .971)" x="104.90484" y="72.004921" style={s.s1} ><tspan x="104.90484" y="72.004921" strokeWidth=".131">DC Bus 340V</tspan></text>
+ </g>
+ <g fill="none">
+  <g stroke="#c7ff00" strokeWidth=".674">
+   <path d="m32.5 12.9h86.7l6.72-5.07"/>
+   <path d="m90 51h28.9l6.72-5.07"/>
+   <path d="m155 12.9h23.5"/>
+  </g>
+  <path d="m120 12.9a0.672 0.634 0 0 1-0.67 0.634 0.672 0.634 0 0 1-0.674-0.63 0.672 0.634 0 0 1 0.666-0.638 0.672 0.634 0 0 1 0.678 0.626l-0.672 0.0077z" stroke="#ffc500" strokeLinecap="square" strokeLinejoin="round" strokeWidth=".773"/>
+  <path d="m126 12.9 28.9 1e-6v38h-28.2" stroke="#c7ff00" strokeWidth=".674"/>
+  <path d="m59.7 50.9-16.1 0.0314v22.2" stroke="#c7ff00" strokeWidth=".674"/>
+  <g stroke="#ffc500" strokeLinecap="square" strokeLinejoin="round" strokeWidth=".773">
+   <path d="m127 12.9a0.672 0.634 0 0 1-0.67 0.634 0.672 0.634 0 0 1-0.674-0.63 0.672 0.634 0 0 1 0.666-0.638 0.672 0.634 0 0 1 0.678 0.626l-0.672 0.0077z"/>
+   <path d="m155 12.9a0.672 0.634 0 0 1-0.67 0.634 0.672 0.634 0 0 1-0.674-0.63 0.672 0.634 0 0 1 0.666-0.638 0.672 0.634 0 0 1 0.678 0.626l-0.672 0.0077z"/>
+   <path d="m179 12.9a0.672 0.634 0 0 1-0.67 0.634 0.672 0.634 0 0 1-0.674-0.63 0.672 0.634 0 0 1 0.666-0.638 0.672 0.634 0 0 1 0.678 0.626l-0.672 0.0077z"/>
+   <path d="m183 12.9a0.672 0.634 0 0 1-0.67 0.634 0.672 0.634 0 0 1-0.674-0.63 0.672 0.634 0 0 1 0.666-0.638 0.672 0.634 0 0 1 0.678 0.626l-0.672 0.0077z"/>
+   <path d="m127 51a0.672 0.634 0 0 1-0.67 0.634 0.672 0.634 0 0 1-0.674-0.63 0.672 0.634 0 0 1 0.666-0.638 0.672 0.634 0 0 1 0.678 0.626l-0.672 0.0077z"/>
+   <path d="m120 51a0.672 0.634 0 0 1-0.67 0.634 0.672 0.634 0 0 1-0.674-0.63 0.672 0.634 0 0 1 0.666-0.638 0.672 0.634 0 0 1 0.678 0.626l-0.672 0.0077z"/>
+  </g>
+  <g>
+   <path d="m63.1 43 23.5-1e-6c2.02 1e-6 3.36 1.27 3.36 3.17v9.51c0 1.9-1.34 3.17-3.36 3.17h-23.5c-2.02 0-3.36-1.27-3.36-3.17v-9.51c0-1.9 1.34-3.17 3.36-3.17z" stroke="#00b77d" strokeWidth=".674"/>
+   <path d="m87.9 43-25.6 15.8" stroke="#00b77d" strokeWidth=".624"/>
+   <path d="m23.4 73.1h171" stroke="#ff2e00" strokeWidth="1.12"/>
+  </g>
+  <path d="m44.2 73.1a0.672 0.634 0 0 1-0.67 0.634 0.672 0.634 0 0 1-0.674-0.63 0.672 0.634 0 0 1 0.666-0.638 0.672 0.634 0 0 1 0.678 0.626l-0.672 0.0077z" stroke="#ffc500" strokeLinecap="square" strokeLinejoin="round" strokeWidth=".773"/>
+ </g>
+ <text transform="scale(1.03 .971)" x="44.379013" y="93.972885" fill="#00ff00" fontFamily={s.f} fontSize="6.27px" letterSpacing="0px" strokeWidth=".131" wordSpacing="0px" style={s.s1} ><tspan x="44.379013" y="93.972885" strokeWidth=".131">DC   DC</tspan></text>
+ <text transform="scale(1.03 .971)" x="35.441048" y="115.33003" fill="#00ff00" fontFamily={s.f} fontSize="6.27px" letterSpacing="0px" strokeWidth=".131" wordSpacing="0px" style={s.s1} ><tspan x="35.441048" y="115.33003">PV 100VDC-400VDC</tspan><tspan x="35.441048" y="123.16337"/></text>
+ <g fill="none">
+  <path d="m72.1 89.6 11.8 7e-6v-16.5" stroke="#c7ff00" strokeWidth=".674"/>
+  <path d="m41.9 89.6-16.1 0.0397v22.2" stroke="#c7ff00" strokeWidth=".674"/>
+  <path d="m84.6 73.1a0.672 0.634 0 0 1-0.67 0.634 0.672 0.634 0 0 1-0.674-0.63 0.672 0.634 0 0 1 0.666-0.638 0.672 0.634 0 0 1 0.678 0.626l-0.672 0.0077z" stroke="#ffc500" strokeLinecap="square" strokeLinejoin="round" strokeWidth=".773"/>
+  <path d="m45.2 81.6h23.5c2.02 0 3.36 1.27 3.36 3.17v9.51c0 1.9-1.34 3.17-3.36 3.17h-23.5c-2.02 0-3.36-1.27-3.36-3.17v-9.51c0-1.9 1.34-3.17 3.36-3.17z" stroke="#00b77d" strokeWidth=".674"/>
+  <path d="m70.1 81.6-25.6 15.8" stroke="#00b77d" strokeWidth=".624"/>
+  <path d="m26.4 112a0.672 0.634 0 0 1-0.67 0.634 0.672 0.634 0 0 1-0.674-0.63 0.672 0.634 0 0 1 0.666-0.638 0.672 0.634 0 0 1 0.678 0.626l-0.672 8e-3z" stroke="#ffc500" strokeLinecap="square" strokeLinejoin="round" strokeWidth=".773"/>
+  <path d="m33.1 12.9a0.672 0.634 0 0 1-0.67 0.634 0.672 0.634 0 0 1-0.674-0.63 0.672 0.634 0 0 1 0.666-0.638 0.672 0.634 0 0 1 0.678 0.626l-0.672 0.0077z" stroke="#ffc500" strokeLinecap="square" strokeLinejoin="round" strokeWidth=".773"/>
+ </g>
+ <text transform="scale(1.03 .971)" x="136.74716" y="94.013748" fill="#00ff00" fontFamily={s.f} fontSize="6.27px" letterSpacing="0px" strokeWidth=".131" wordSpacing="0px" style={s.s1} ><tspan x="136.74716" y="94.013748" strokeWidth=".131">DC   DC</tspan></text>
+ <text transform="scale(1.03 .971)" x="133.41595" y="115.63296" fill="#00ff00" fontFamily={s.f} fontSize="6.27px" letterSpacing="0px" strokeWidth=".131" wordSpacing="0px" style={s.s1} ><tspan x="133.41595" y="115.63296">Battery 12V/24V/48V</tspan><tspan x="133.41595" y="123.4663"/></text>
+ <g fill="none">
+  <path d="m167 89.6h11.8l1e-5 -16.5" stroke="#c7ff00" strokeWidth=".674"/>
+  <path d="m137 89.5-16.1 0.0789v28.5" stroke="#c7ff00" strokeWidth=".674"/>
+  <path d="m180 73.1a0.672 0.634 0 0 1-0.67 0.634 0.672 0.634 0 0 1-0.674-0.63 0.672 0.634 0 0 1 0.666-0.638 0.672 0.634 0 0 1 0.678 0.626l-0.672 0.0077z" stroke="#ffc500" strokeLinecap="square" strokeLinejoin="round" strokeWidth=".773"/>
+  <path d="m140 81.7h23.5c2.02 0 3.36 1.27 3.36 3.17v9.51c0 1.9-1.34 3.17-3.36 3.17h-23.5c-2.02 0-3.36-1.27-3.36-3.17v-9.51c0-1.9 1.34-3.17 3.36-3.17z" stroke="#00b77d" strokeWidth=".674"/>
+  <path d="m165 81.7-25.6 15.8" stroke="#00b77d" strokeWidth=".624"/>
+  <path d="m122 118a0.672 0.634 0 0 1-0.67 0.634 0.672 0.634 0 0 1-0.674-0.63 0.672 0.634 0 0 1 0.666-0.638 0.672 0.634 0 0 1 0.678 0.626l-0.672 8e-3z" stroke="#ffc500" strokeLinecap="square" strokeLinejoin="round" strokeWidth=".773"/>
+ </g>
+ <g fill="#ff7d00" stroke="#000">
+  <path d="m25.7 10.4h-3.36c-0.672 0-1.34 0-1.34 0.634s0.672 0.634 1.34 0.634h3.36z" strokeWidth=".131px"/>
+  <path d="m25.7 16.1-3.36 1e-6c-0.649-5.75e-4 -1.34 0-1.34-0.634s0.672-0.634 1.34-0.634h3.36z" strokeWidth=".131px"/>
+  <path d="m105 118v-3.09c2e-3 -0.597 0-1.24 2.27-1.24s2.27 0.619 2.27 1.24v3.09z" strokeWidth=".237px"/>
+  <path d="m132 118v-3.09c2e-3 -0.597 0-1.24 2.27-1.24s2.27 0.619 2.27 1.24v3.09z" strokeWidth=".237px"/>
+ </g>
+ <g>
+  <path d="m178 16.1v-6.34c0-3.17 0-3.17 3.36-3.17h20.2c3.36 1e-7 3.36 1e-7 3.36 3.17l-1e-5 6.34c0 3.17 0 3.17-3.36 3.17h-20.2c-3.36 0-3.36 0-3.36-3.17z" fill="#5972b0" stroke="#000" strokeWidth=".131px"/>
+  <path d="m189 12.9a4.71 4.44 0 0 1-4.69 4.44 4.71 4.44 0 0 1-4.72-4.41 4.71 4.44 0 0 1 4.66-4.46 4.71 4.44 0 0 1 4.75 4.38l-4.71 0.0536z" fill="#00263b" stroke="#00263b" strokeLinecap="square" strokeLinejoin="bevel" strokeWidth="1.12"/>
+  <path d="m203 12.9a4.71 4.44 0 0 1-4.69 4.44 4.71 4.44 0 0 1-4.72-4.41 4.71 4.44 0 0 1 4.66-4.46 4.71 4.44 0 0 1 4.75 4.38l-4.71 0.0536z" fill="#00263b" stroke="#00263b" strokeLinecap="square" strokeLinejoin="bevel" strokeWidth="1.12"/>
+ </g>
+ <g fill="none" stroke="#000" strokeLinecap="square" strokeLinejoin="round" strokeWidth=".773">
+  <path d="m183 12.9a0.672 0.634 0 0 1-0.67 0.634 0.672 0.634 0 0 1-0.674-0.63 0.672 0.634 0 0 1 0.666-0.638 0.672 0.634 0 0 1 0.678 0.626l-0.672 0.0077z"/>
+  <path d="m196 12.9a0.672 0.634 0 0 1-0.67 0.634 0.672 0.634 0 0 1-0.674-0.63 0.672 0.634 0 0 1 0.666-0.638 0.672 0.634 0 0 1 0.678 0.626l-0.672 0.0077z"/>
+  <path d="m202 12.9a0.672 0.634 0 0 1-0.67 0.634 0.672 0.634 0 0 1-0.674-0.63 0.672 0.634 0 0 1 0.666-0.638 0.672 0.634 0 0 1 0.678 0.626l-0.672 0.0077z"/>
+  <path d="m188 12.9a0.672 0.634 0 0 1-0.67 0.634 0.672 0.634 0 0 1-0.674-0.63 0.672 0.634 0 0 1 0.666-0.638 0.672 0.634 0 0 1 0.678 0.626l-0.672 0.0077z"/>
+ </g>
+ <g>
+  <path d="m25.4 9.12h4.03c1.24-0.0303 2.69 1.27 2.69 3.17v1.9c0.0512 1.84-1.34 3.17-2.69 3.17h-4.03z" fill="#ff3a00" stroke="#000" strokeWidth=".131px"/>
+  <path d="m103 118h35c2.02 0 3.36 1.27 3.36 3.17v15.2c0 1.9-1.34 3.17-3.36 3.17l-35-1e-5c-2.02 0-3.36-1.27-3.36-3.17v-15.2c0-1.9 1.34-3.17 3.36-3.17z" fill="#002ca2" stroke="#002ca2" strokeWidth=".674"/>
+  <text transform="scale(1.04 .958)" x="100.84686" y="126.88381" fill="#00ff00" fontFamily={s.f} fontSize="6.35px" letterSpacing="0px" strokeWidth=".132" wordSpacing="0px" style={s.s1} ><tspan x="100.84686" y="126.88381" strokeWidth=".132">+       -</tspan></text>
+ </g>
+ <g fill="#040404" stroke="#8d8d8d" strokeWidth=".131px">
+  <path d="m13.3 117h10.1l-6.72 19h-10.1z"/>
+  <path d="m24.7 117h10.1l-6.72 19h-10.1z"/>
+  <path d="m36.2 117h10.1l-6.72 19h-10.1z"/>
+ </g>
+</svg>
+
+    );
+  }  `
 };

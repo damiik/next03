@@ -10,10 +10,11 @@ import { javascript } from '@codemirror/lang-javascript';
 import { material } from '@uiw/codemirror-theme-material';
 import { EditorView } from '@codemirror/view';
 import { ThreeCanvas } from './ThreeCanvas';
+import { select } from 'three/webgpu';
 
 const ComponentVisualizer = () => {
-  const { components, previewKey, isRefreshing, setEditableCode, setComponentCompileError, componentCompileError, codeMirrorHeight, ...rest } = useComponentContext();
-  const [editableCode, setEditableCodeLocal] = useState('');
+  const { components, previewKey, isRefreshing, editableCode, setEditableCode, setComponentCompileError, componentCompileError, codeMirrorHeight, ...rest } = useComponentContext();
+  // const [editableCode, setEditableCodeLocal] = useState('');
 
   const [compiledComponent, setCompiledComponent] = useState<React.ComponentType | null>(null);
   const { selectedComponent } = useComponentContext(); 
@@ -50,7 +51,7 @@ const ComponentVisualizer = () => {
   useEffect(() => {
     if (selectedComponent) {
       const componentCode = components[selectedComponent] || '';
-      setEditableCodeLocal(componentCode);
+      setEditableCode((prev) => ({ ...prev, [selectedComponent]:componentCode}));
       compileAndRender(componentCode);
     } else {
       setCompiledComponent(() => ThreeCanvas);
@@ -58,13 +59,13 @@ const ComponentVisualizer = () => {
   }, [selectedComponent, components]);
 
   const handleCodeChange = (newCode: string) => {
-    setEditableCodeLocal(newCode);
+    // setEditableCodeLocal(newCode);
     setEditableCode((prev) => ({ ...prev, [selectedComponent]: newCode }));
     compileAndRender(newCode);
   };
 
   const renderPreview = () => {
-    if (componentCompileError) return <div className="text-red-500 p-4 bg-red-50 rounded border border-red-200">Error -->: {componentCompileError}</div>;
+    if (componentCompileError) return <div className="text-red-500 p-4 bg-red-50 rounded border border-red-200">{`Error -->: ${componentCompileError}`}</div>;
     if (isRefreshing) return <div className="flex items-center justify-center p-8"><RotateCw className="animate-spin text-blue-500" size={24} /></div>;
     if (compiledComponent) {
       const Component = compiledComponent;
@@ -101,7 +102,7 @@ const ComponentVisualizer = () => {
         <div>
           <div className="relative">
             <CodeMirror
-              value={editableCode}
+              value={editableCode[selectedComponent]}
               extensions={[javascript(), fixedHeightEditor]}
               onChange={(value) => handleCodeChange(value)}
               theme={material}

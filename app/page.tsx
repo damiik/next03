@@ -32,7 +32,7 @@ import { useComponentContext } from './context/ComponentContext';
   };
   
   export default function Home() {
-  const { setEditableCode, setSelectedComponent, componentCompileError, setComponentCompileError, editableCode, selectedComponent } = useComponentContext();
+  const { setEditableCode, setSelectedComponent, componentCompileError, setComponentCompileError, editableCode, selectedComponent, isLoading, setIsLoading  } = useComponentContext();
   const [userInput, setUserInput] = useState('');
   const [chatHistory, setChatHistory] = useState<Message[]>([{
     role: "system",
@@ -59,12 +59,12 @@ import { useComponentContext } from './context/ComponentContext';
   
     `
   }]);
-  const [isLoading, setIsLoading] = useState(false);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
   const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement> | KeyboardEvent<HTMLTextAreaElement> | {preventDefault: () => void, type: false, target: {elements: {namedItem: (name: string) => ({value: string})}}}) => {
     e.preventDefault();
-  
+    if(isLoading) return;
     // Get the user input from the form
     let cleanedInput = '';
     if (e.type ?? true) {
@@ -74,9 +74,9 @@ import { useComponentContext } from './context/ComponentContext';
     }
     else {
 
-      cleanedInput = `Can you fix error four user component: ${componentCompileError}
-      user component [${editableCode.key}] code: ${editableCode.code}
-      `
+      cleanedInput = `Can you fix error: ${componentCompileError}
+      
+      ${Object.entries(editableCode).map(([key, value]) => `\n\n for user component [${key}]\n code: ${value}\n`).join('')}`;
     }
   
   
@@ -89,9 +89,11 @@ import { useComponentContext } from './context/ComponentContext';
   
       const response = await client.chat.completions.create({
         //model: "local/nvidia/llama-3.1-nemotron-70b-instruct",
-         //model: "local/nvidia/nemotron-4-340b-instruct",
+        //model: "local/nvidia/nemotron-4-340b-instruct",
         // model: "local/meta/llama-3.1-405b-instruct", //works good, little slow
-        model: "local/mistral/mistral-large-latest",
+        //model: "local/mistral/mistral-large-latest",
+        // model: "local/github/gpt-4o",
+        model: "local/sambanova/Meta-Llama-3.1-405B-Instruct",
   
          messages: newHistory,
      });
@@ -152,7 +154,7 @@ import { useComponentContext } from './context/ComponentContext';
         }
       });
     }
-  }, [componentCompileError, setComponentCompileError, handleSubmit, editableCode, selectedComponent]);
+  }, [componentCompileError, setComponentCompileError, editableCode, selectedComponent]);
   
   // Scroll to the bottom of the textarea after update
   useEffect(() => {
