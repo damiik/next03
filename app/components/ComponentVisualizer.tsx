@@ -7,10 +7,10 @@ import * as THREE from 'three';
 import { Play, Pause, SkipForward, SkipBack } from 'lucide-react';
 import CodeMirror, { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
-import { material } from '@uiw/codemirror-theme-material';
+import { darcula } from '@uiw/codemirror-theme-darcula';
 import { EditorView } from '@codemirror/view';
 import { ThreeCanvas } from './ThreeCanvas';
-import { select } from 'three/webgpu';
+// import { select } from 'three/webgpu';
 
 const ComponentVisualizer = () => {
   const { components, previewKey, isRefreshing, editableCode, setEditableCode, setComponentCompileError, componentCompileError, codeMirrorHeight, ...rest } = useComponentContext();
@@ -103,9 +103,9 @@ const ComponentVisualizer = () => {
           <div className="relative">
             <CodeMirror
               value={editableCode[selectedComponent]}
-              extensions={[javascript(), fixedHeightEditor]}
+              extensions={[javascript({ jsx: true }), fixedHeightEditor]}
               onChange={(value) => handleCodeChange(value)}
-              theme={material}
+              theme={darcula}
               basicSetup={{
                 foldGutter: true,
                 lineNumbers: true,

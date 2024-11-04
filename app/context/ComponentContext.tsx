@@ -19,6 +19,7 @@ interface ComponentContextProps {
   setCodeMirrorHeight: React.Dispatch<React.SetStateAction<number>>;
   isLoading: boolean;
   setIsLoading : React.Dispatch<React.SetStateAction<boolean>>;
+  resetChatHistory: () => void; // function to reset chat history -->  The context declares the function, page.tsx implemen function (have acces to history), and the UI component triggers the update.  
 }
 
 export const ComponentContext = createContext<ComponentContextProps | undefined>(undefined);
@@ -65,6 +66,7 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
     setCodeMirrorHeight,
     isLoading,
     setIsLoading,
+    resetChatHistory: () => {}, // Initialize with empty function. Will be overwritten in page.tsx.
   };
 
   return (
