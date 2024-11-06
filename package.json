@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
     "@babel/standalone": "^7.26.0",
     "@codemirror/lang-javascript": "^6.2.2",
     "@uiw/codemirror-theme-darcula": "^4.23.6",

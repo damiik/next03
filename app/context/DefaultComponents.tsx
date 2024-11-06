@@ -282,7 +282,7 @@ export const defaultComponents = {
   }`,
   QuickSortComponent: `function QuickSortComponent() {
     const generateRandomArray = () => {
-      return Array.from({ length: 12 }, () => Math.floor(Math.random() * 95) + 5);
+        return Array.from({ length: 12 }, () => Math.floor(Math.random() * 95) + 5);
     };
 
     const initialArray = generateRandomArray();
@@ -293,203 +293,246 @@ export const defaultComponents = {
     const [currentI, setCurrentI] = useState(null);
     const [currentJ, setCurrentJ] = useState(null);
     const [stack, setStack] = useState([]);
-    const [phase, setPhase] = useState('initial'); // 'initial', 'scanning', 'swapping', 'final'
+    const [phase, setPhase] = useState('initial');
 
     const colors = [
-      'bg-RED',
-      'bg-CYAN',
-      'bg-PURPLE',
-      'bg-GREEN',
-      'bg-BLUE',
-      'bg-YELLOW',
-      'bg-ORANGE',
-      'bg-BROWN',
-      'bg-PINKY_LIGHT_RED',
-      'bg-DARK_GREY',
-      'bg-MID_GREY',
-      'bg-LIGHT_GREEN',
+        'bg-RED',
+        'bg-CYAN',
+        'bg-PURPLE',
+        'bg-GREEN',
+        'bg-BLUE',
+        'bg-YELLOW',
+        'bg-ORANGE',
+        'bg-BROWN',
+        'bg-PINKY_LIGHT_RED',
+        'bg-DARK_GREY',
+        'bg-MID_GREY',
+        'bg-LIGHT_GREEN',
     ];
 
     const partitionStep = () => {
-      const newArray = [...array];
-      const pivot = newArray[end];
+        const newArray = [...array];
+        const pivot = newArray[end];
 
-      if (phase === 'initial') {
-        setCurrentI(start - 1);
-        setCurrentJ(start);
-        setPhase('scanning');
-        return;
-      }
-
-      if (phase === 'scanning') {
-        if (currentJ <= end) {
-          if (newArray[currentJ] < pivot) {
-            setCurrentI(currentI + 1);
-            [newArray[currentI + 1], newArray[currentJ]] = [newArray[currentJ], newArray[currentI + 1]];
-            setArray(newArray);
-          }
-          setCurrentJ(currentJ + 1);
-        } else {
-          [newArray[currentI + 1], newArray[end]] = [newArray[end], newArray[currentI + 1]];
-          setArray(newArray);
-          setPivotIndex(currentI + 1);
-          setPhase('final');
+        if (phase === 'initial') {
+            setCurrentI(start - 1);
+            setCurrentJ(start);
+            setPhase('scanning');
+            return;
         }
-        return;
-      }
+
+        if (phase === 'scanning') {
+            if (currentJ <= end) {
+                if (newArray[currentJ] < pivot) {
+                    setCurrentI(currentI + 1);
+                    [newArray[currentI + 1], newArray[currentJ]] = [newArray[currentJ], newArray[currentI + 1]];
+                    setArray(newArray);
+                }
+                setCurrentJ(currentJ + 1);
+            } else {
+                [newArray[currentI + 1], newArray[end]] = [newArray[end], newArray[currentI + 1]];
+                setArray(newArray);
+                setPivotIndex(currentI + 1);
+                setPhase('final');
+            }
+            return;
+        }
     };
 
-    useEffect(() => { // Move useEffect outside partitionStep
-      if (phase === 'final') {
-        let newStack = [...stack];
-        if (currentI > start) {
-          newStack.push({ start, end: currentI });
-        }
-        if (currentI + 2 <= end) {
-          newStack.push({ start: currentI + 2, end });
-        }
+    useEffect(() => {
+        if (phase === 'final') {
+            let newStack = [...stack];
+            if (currentI > start) {
+                newStack.push({ start, end: currentI });
+            }
+            if (currentI + 2 <= end) {
+                newStack.push({ start: currentI + 2, end });
+            }
 
-        if (newStack.length > 0) {
-          const nextSection = newStack.pop();
-          setTimeout(() => {
-            setStart(nextSection.start);
-            setEnd(nextSection.end);
-            setCurrentI(nextSection.start - 1);
-            setCurrentJ(nextSection.start);
-            setPivotIndex(null);
-            setPhase('initial');
-          }, 0);
-        } else {
-          setPhase('done');
+            if (newStack.length > 0) {
+                const nextSection = newStack.pop();
+                setTimeout(() => {
+                    setStart(nextSection.start);
+                    setEnd(nextSection.end);
+                    setCurrentI(nextSection.start - 1);
+                    setCurrentJ(nextSection.start);
+                    setPhase('initial');
+                }, 0);
+            } else {
+                setPhase('done');
+            }
+            setStack(newStack);
         }
-        setStack(newStack);
-      }
     }, [phase, currentI, start, end, stack]);
 
     const handleStep = () => {
-      if (stack.length === 0 && phase === 'initial') {
-        setStack([{ start: 0, end: array.length - 1 }]);
-        setStart(0);
-        setEnd(array.length - 1);
-        setPhase('scanning');
-      }
+        if (stack.length === 0 && phase === 'initial') {
+            setStack([{ start: 0, end: array.length - 1 }]);
+            setStart(0);
+            setEnd(array.length - 1);
+            setPhase('scanning');
+        }
 
-      partitionStep();
+        partitionStep();
     };
 
     const handleRefresh = () => {
-      const newArray = generateRandomArray();
-      setArray(newArray);
-      setStart(0);
-      setEnd(newArray.length - 1);
-      setPivotIndex(null);
-      setCurrentI(null);
-      setCurrentJ(null);
-      setStack([]);
-      setPhase('initial');
+        const newArray = generateRandomArray();
+        setArray(newArray);
+        setStart(0);
+        setEnd(newArray.length - 1);
+        setPivotIndex(null);
+        setCurrentI(null);
+        setCurrentJ(null);
+        setStack([]);
+        setPhase('initial');
+    };
+
+    const getPhaseDescription = () => {
+        switch (phase) {
+            case 'initial':
+                return "This is when the algorithm is first set up; current-I and current-J are initialized, and the phase moves to scanning.";
+            case 'scanning':
+                return "During scanning, the algorithm compares the current element with the pivot and rearranges elements accordingly.";
+            case 'final':
+                return "In the final phase, the pivot is positioned correctly, and the algorithm prepares to sort the next subarrays by pushing them into the stack.";
+            case 'done':
+                return "The sorting process is complete, and the array is fully sorted.";
+            default:
+                return "";
+        }
     };
 
     return (
-      <div className="p-4">
-        <div className="flex flex-col space-y-2">
-          {/* Pointers explanation */}
-          <div className="mb-4 text-sm space-y-1">
-            <div><span className="text-GREEN bg-BLACK px-1">S</span> - Start pointer</div>
-            <div><span className="text-BLACK bg-GRAY-500 px-1">E</span> - End pointer</div>
-            <div><span className="text-RED bg-CYAN px-1">P</span> - Pivot</div>
-            <div><span className="text-BLUE bg-YELLOW px-1">i</span> - Last smaller element index</div>
-            <div><span className="text-PURPLE bg-GREEN px-1">j</span> - Current scanning position</div>
-          </div>
+        <div className="flex p-4">
+            {/* Left Side - Grouped Content */}
+            <div className="w-1/2 pr-4 flex flex-col">
+                {/* Top section with ELEM divided into two parts */}
+                <div className="flex mb-4">
+                    {/* Left part of ELEM - Pointer Descriptions */}
+                    <div className="w-1/2 pr-2 text-sm space-y-1">
+                        <div><span className="text-GREEN bg-BLACK px-1">S</span> - Start pointer</div>
+                        <div><span className="text-BLACK bg-GRAY-500 px-1">E</span> - End pointer</div>
+                        <div><span className="text-RED bg-CYAN px-1">P</span> - Pivot</div>
+                        <div><span className="text-BLUE bg-YELLOW px-1">i</span> - Last smaller element index</div>
+                        <div><span className="text-PURPLE bg-GREEN px-1">j</span> - Current scanning position</div>
+                        {/* Buttons Section */}
+                        <div className="flex space-x-4 mb-4">
+                            <button
+                                className="px-4 py-2 bg-YELLOW text-WHITE rounded hover:bg-YELLOW-700"
+                                onClick={handleStep}
+                            >
+                                Step
+                            </button>
+                            <button
+                                className="px-4 py-2 bg-BLUE text-WHITE rounded hover:bg-BLUE-700"
+                                onClick={handleRefresh}
+                            >
+                                Random Array
+                            </button>
+                        </div>
 
-          {/* Start pointers row */}
-          <div className="flex space-x-2">
-            {array.map((_, index) => (
-              <div key={\`start-\${index}\`} className="w-8 text-center">
-                {index === start ? (
-                  <div className="text-GREEN bg-BLACK px-1">S</div>
-                ) : (
-                  <div>&nbsp;</div>
-                )}
-              </div>
-            ))}
-          </div>
+                        {/* Phase Section */}
+                        <div className="mt-4 text-lg font-semibold">
+                            Phase: {phase.charAt(0).toUpperCase() + phase.slice(1)}
+                        </div>
+                    </div>
 
-          {/* End pointers row */}
-          <div className="flex space-x-2">
-            {array.map((_, index) => (
-              <div key={\`end-\${index}\`} className="w-8 text-center">
-                {index === end ? (
-                  <div className="text-BLACK bg-GRAY-500 px-1">E</div>
-                ) : (
-                  <div>&nbsp;</div>
-                )}
-              </div>
-            ))}
-          </div>
+                    {/* Right part of ELEM - Stack */}
+                    <div className="w-1/2 pl-2">
+                        <div className="text-sm font-semibold mb-2">Stack:</div>
+                        <div className="border border-MID_GREY bg-DARK_GREY text-YELLOW p-2 h-auto max-h-80 overflow-auto">
+                            {stack.map((item, index) => (
+                                <div key={index}>
+                                    [{item.start}, {item.end}]
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
 
-          {/* Pivot pointers row */}
-          <div className="flex space-x-2">
-            {array.map((_, index) => (
-              <div key={\`pivot-\${index}\`} className="w-8 text-center">
-                {index === pivotIndex ? (
-                  <div className="text-RED bg-CYAN px-1">P</div>
-                ) : (
-                  <div>&nbsp;</div>
-                )}
-              </div>
-            ))}
-          </div>
 
-          {/* i and j pointers row */}
-          <div className="flex space-x-2">
-            {array.map((_, index) => (
-              <div key={\`ij-\${index}\`} className="w-8 text-center">
-                {index === currentI ?
-                  (<div className="text-BLUE bg-YELLOW px-1">i</div>)
-                 : index === currentJ ?
-                    (<div className="text-PURPLE bg-GREEN px-1">j</div>)
-                   :(<div>&nbsp;</div>)
-                }
-              </div>
-            ))}
-          </div>
-
-          {/* Bars */}
-          <div className="flex space-x-2">
-            {array.map((num, index) => (
-              <div key={\`bar-\${index}\`} className="flex flex-col items-center">
-                <div
-                  className={\`w-8 \${colors[index % colors.length]} transition-all duration-300\`}
-                  style={{ height: \`\${num * 3}px\` }}
+                {/* Phase Description */}
+                <textarea
+                    readOnly
+                    className="mt-4 w-full h-64 p-2 border border-MID_GREY bg-DARK_GREY text-YELLOW"
+                    value={getPhaseDescription()}
                 />
-                <span className="text-center bg-GRAY-800 text-WHITE px-1">{num}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        {/* Current phase display */}
-        <div className="mt-4 text-lg font-semibold">
-          Phase: {phase.charAt(0).toUpperCase() + phase.slice(1)}
-        </div>
 
-        <div className="mt-4 space-x-4">
-          <button
-            className="px-4 py-2 bg-YELLOW text-WHITE rounded hover:bg-YELLOW-700"
-            onClick={handleStep}
-          >
-            Step
-          </button>
-          <button
-            className="px-4 py-2 bg-BLUE text-WHITE rounded hover:bg-BLUE-700"
-            onClick={handleRefresh}
-          >
-            Random Array
-          </button>
+            {/* Right Side */}
+            <div className="w-1/2">
+                {/* Start pointers row */}
+                <div className="flex space-x-2">
+                    {array.map((_, index) => (
+                        <div key={\`start-\${index}\`} className="w-8 text-center">
+                            {index === start ? (
+                                <div className="text-GREEN bg-BLACK px-1">S</div>
+                            ) : (
+                                <div>&nbsp;</div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+
+                {/* End pointers row */}
+                <div className="flex space-x-2">
+                    {array.map((_, index) => (
+                        <div key={\`end-\${index}\`} className="w-8 text-center">
+                            {index === end ? (
+                                <div className="text-BLACK bg-GRAY-500 px-1">E</div>
+                            ) : (
+                                <div>&nbsp;</div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+
+                {/* Pivot pointers row */}
+                <div className="flex space-x-2">
+                    {array.map((_, index) => (
+                        <div key={\`pivot-\${index}\`} className="w-8 text-center">
+                            {index === pivotIndex ? (
+                                <div className="text-RED bg-CYAN px-1">P</div>
+                            ) : (
+                                <div>&nbsp;</div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+
+                {/* i and j pointers row */}
+                <div className="flex space-x-2">
+                    {array.map((_, index) => (
+                        <div key={\`ij-\${index}\`} className="w-8 text-center">
+                            {index === currentI ? (
+                                <div className="text-BLUE bg-YELLOW px-1">i</div>
+                            ) : index === currentJ ? (
+                                <div className="text-PURPLE bg-GREEN px-1">j</div>
+                            ) : (
+                                <div>&nbsp;</div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+
+                {/* Bars */}
+                <div className="flex space-x-2">
+                    {array.map((num, index) => (
+                        <div key={\`bar-\${index}\`} className="flex flex-col items-center">
+                            <div
+                                className={\`w-8 \${colors[index % colors.length]} transition-all duration-300\`}
+                                style={{ height: \`\${num * 3}px\` }}
+                            />
+                            <span className="text-center bg-GRAY-800 text-WHITE px-1">{num}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
         </div>
-      </div>
     );
-  }`,
+}`,
   HexagoCircles: `
 
   function HexagonCircles() {

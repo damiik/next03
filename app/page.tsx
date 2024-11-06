@@ -38,10 +38,13 @@ export default function Home() {
 
   const [userInput, setUserInput] = useState('');
   const [waitingForAnswer, setWaitingForAnswer] = useState(false);
-  const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "system", content: defaultSystemPrompt }]);
+  const [handlingError, setHandlingError] = useState(false); // Add state for error handling
+  // const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "system", content: defaultSystemPrompt }]);
+  const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "user", content: defaultSystemPrompt }]);
 
   const resetChatHistory = useCallback(() => {
-    setChatHistory([{ role: "system", content: defaultSystemPrompt }]);
+    // setChatHistory([{ role: "system", content: defaultSystemPrompt }]);
+    setChatHistory([{ role: "user", content: defaultSystemPrompt }]);
   }, []);
 
   // synchronizes the local resetChatHistory function with the context's resetChatHistory function.
@@ -93,7 +96,8 @@ export default function Home() {
       });
 
       const data = await response.json();
-      const assistantResponse = data.choices[0].message?.content || null;
+      // const assistantResponse = data.choices[0].message?.content || null;
+      const assistantResponse = data.content;
       console.log("Assistant Response:", assistantResponse);
 
       if (assistantResponse) {
@@ -118,25 +122,25 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Error:", error);
-      setChatHistory(prevHistory => [...prevHistory, { role: "system", content: `Error: ${error}` }]);
+      // setChatHistory(prevHistory => [...prevHistory, { role: "system", content: `Error: ${error}` }]);
+      setChatHistory(prevHistory => [...prevHistory, { role: "user", content: `Error: ${error}` }]);
     } finally {
       setIsLoading(false);
       setWaitingForAnswer(false);
+      setHandlingError(false); // Reset error handling flag
     }
-  }, [chatHistory, setEditableCode, setSelectedComponent, isLoading, setIsLoading, componentCompileError, editableCode, waitingForAnswer]);
+  }, [chatHistory, setEditableCode, setSelectedComponent, isLoading, setIsLoading, componentCompileError, editableCode, waitingForAnswer, handlingError]); // Add handlingError to dependency array
 
   // Update the user input state when the textarea value changes
 
   useEffect(() => {
-    // Check if the componentCompileError is not empty and handle the submission
-    if (componentCompileError) {
+    if (componentCompileError && !handlingError) { // Check if already handling an error
+      setHandlingError(true); // Set error handling to true
       console.log("onSubmit --> Customer Component Compilation error:", componentCompileError);
       const err_msg = componentCompileError;
-      // Clear the existing error in the context
-      setComponentCompileError('');
+      setComponentCompileError(''); // Clear the error
 
-      // Simulate a form submission event with the error message
-      handleSubmit({
+      handleSubmit({ // Call handleSubmit
         preventDefault: () => {},
         type: false,
         target: {
