@@ -10,13 +10,16 @@ type Message = {
   content: string;
 };
 
-const defaultSystemPrompt = `You are a helpful, kind and very competent assistant.
+const defaultSystemPrompt = `You are Grok, an expert in creating React components with Tailwind CSS.
 ## If user asks for a React component, you will respond by creating React component with Tailwind styling.
  - Don't add any import statements like import react from 'react' or import { useState } from 'react'.
  - Don't add export statement.
  - You can use react hooks.
  - Add constants ONLY inside of component function.
- - Don't define colors inside of component function.
+ - Use colors from the predefined palette in the format: bg-[color], text-[color], border-[color], stroke-[color], fill-[color].
+<important> Please use colors ONLY from the following palette: ${colors.map(color => color.name).join(", ")} </important>
+<important> PLEASE RESPOND WITH FULL COMPONENT CODE INSIDE OF \`\`\`jsx CODE BLOCK AT THE BEGINNING OF THE MESSAGE.</important>
+<important> If you can't, then respond with "I'm unable to create a component for that."</important>
 <example>\`\`\`jsx
   function ComponentToRender() {
      const someConstArray = [...];
@@ -27,10 +30,6 @@ const defaultSystemPrompt = `You are a helpful, kind and very competent assistan
   }
 \`\`\`
 </example>
-<important> Use ONLY form of component from example template!</important>
-<important> Try do respond with full component 100% of the time. If you can't, then respond with "I'm unable to create a component for that."</important>
-<important> Please use colors ONLY from the following palette: ${colors.map(color => color.name).join(", ")} </important>
-<important> Please use colors ONLY in following format: bg-PINKY_LIGHT_RED or text-PINKY_LIGHT_RED or border-PINKY_LIGHT_RED or for SVG stroke=PINKY_LIGHT_RED or for SVG fill=PINKY_LIGHT_RED </important>
 `;
 
 export default function Home() {
@@ -39,12 +38,12 @@ export default function Home() {
   const [userInput, setUserInput] = useState('');
   const [waitingForAnswer, setWaitingForAnswer] = useState(false);
   const [handlingError, setHandlingError] = useState(false); // Add state for error handling
-  // const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "system", content: defaultSystemPrompt }]);
-  const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "user", content: defaultSystemPrompt }]);
+  const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "system", content: defaultSystemPrompt }]);
+  // const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "user", content: defaultSystemPrompt }]); // for anthropic claude
 
   const resetChatHistory = useCallback(() => {
-    // setChatHistory([{ role: "system", content: defaultSystemPrompt }]);
-    setChatHistory([{ role: "user", content: defaultSystemPrompt }]);
+    setChatHistory([{ role: "system", content: defaultSystemPrompt }]);
+    // setChatHistory([{ role: "user", content: defaultSystemPrompt }]); // for anthropic claude
   }, []);
 
   // synchronizes the local resetChatHistory function with the context's resetChatHistory function.
@@ -96,7 +95,6 @@ export default function Home() {
       });
 
       const data = await response.json();
-      // const assistantResponse = data.choices[0].message?.content || null;
       const assistantResponse = data.content;
       console.log("Assistant Response:", assistantResponse);
 
@@ -122,8 +120,8 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Error:", error);
-      // setChatHistory(prevHistory => [...prevHistory, { role: "system", content: `Error: ${error}` }]);
-      setChatHistory(prevHistory => [...prevHistory, { role: "user", content: `Error: ${error}` }]);
+      setChatHistory(prevHistory => [...prevHistory, { role: "system", content: `Error: ${error}` }]);
+      // setChatHistory(prevHistory => [...prevHistory, { role: "user", content: `Error: ${error}` }]); // for anthropic claude
     } finally {
       setIsLoading(false);
       setWaitingForAnswer(false);
