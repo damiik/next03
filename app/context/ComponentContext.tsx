@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { defaultComponents } from './DefaultComponents';
 
 interface ComponentContextProps {
@@ -9,8 +9,6 @@ interface ComponentContextProps {
   setIsRefreshing: React.Dispatch<React.SetStateAction<boolean>>;
   previewKey: number;
   setPreviewKey: React.Dispatch<React.SetStateAction<number>>;
-  editableCode: { [key: string]: string };
-  setEditableCode: React.Dispatch<React.SetStateAction<{ [key: string]: string }>>;
   selectedComponent: string;
   setSelectedComponent: React.Dispatch<React.SetStateAction<string>>;
   componentCompileError: string;
@@ -18,8 +16,8 @@ interface ComponentContextProps {
   codeMirrorHeight: number;
   setCodeMirrorHeight: React.Dispatch<React.SetStateAction<number>>;
   isLoading: boolean;
-  setIsLoading : React.Dispatch<React.SetStateAction<boolean>>;
-  resetChatHistory: () => void; // function to reset chat history -->  The context declares the function, page.tsx implemen function (have acces to history), and the UI component triggers the update.  
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  resetChatHistory: () => void;
 }
 
 export const ComponentContext = createContext<ComponentContextProps | undefined>(undefined);
@@ -32,22 +30,11 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
   const [components, setComponents] = useState<{ [key: string]: string }>({ ...defaultComponents });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [previewKey, setPreviewKey] = useState(0);
-  const [editableCode, setEditableCode] = useState<{ [key: string]: string }>({});
   const [selectedComponent, setSelectedComponent] = useState('');
   const [componentCompileError, setComponentCompileError] = useState('');
-  const [codeMirrorHeight, setCodeMirrorHeight] = useState(200);
+  const [codeMirrorHeight, setCodeMirrorHeight] = useState(400);
   const [isLoading, setIsLoading] = useState(false);
 
-
-  useEffect(() => {
-    console.log("Editable Code Updated:", editableCode);
-    setComponents((prevComponents) => {
-      if (JSON.stringify(prevComponents) !== JSON.stringify({ ...prevComponents, ...editableCode })) {
-        return { ...prevComponents, ...editableCode };
-      }
-      return prevComponents;
-    });
-  }, [editableCode]);
 
   const contextValue = {
     components,
@@ -56,8 +43,6 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
     setIsRefreshing,
     previewKey,
     setPreviewKey,
-    editableCode,
-    setEditableCode,
     selectedComponent,
     setSelectedComponent,
     componentCompileError,

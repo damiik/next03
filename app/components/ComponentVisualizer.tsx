@@ -13,20 +13,18 @@ import { ThreeCanvas } from './ThreeCanvas';
 // import { select } from 'three/webgpu';
 
 const ComponentVisualizer = () => {
-  const { components, previewKey, isRefreshing, editableCode, setEditableCode, setComponentCompileError, componentCompileError, codeMirrorHeight, ...rest } = useComponentContext();
-  // const [editableCode, setEditableCodeLocal] = useState('');
+  const { components, setComponents, previewKey, isRefreshing, setComponentCompileError, componentCompileError, codeMirrorHeight, ...rest } = useComponentContext();
 
   const [compiledComponent, setCompiledComponent] = useState<React.ComponentType | null>(null);
-  const { selectedComponent } = useComponentContext(); 
+  const { selectedComponent } = useComponentContext();
   
   
   const editorRef = useRef<ReactCodeMirrorRef | null>(null);
 
   const compileAndRender = (code: string) => {
     try {
-      console.log("Code to compile:", code);
+      console.log("Babel transform code..");
       const transformedCode = Babel.transform(code, { presets: ['react'] }).code;
-      console.log("Transformed code:", transformedCode);
       if (!transformedCode) {
         throw new Error("Babel transformation failed.");
       }
@@ -50,18 +48,19 @@ const ComponentVisualizer = () => {
 
   useEffect(() => {
     if (selectedComponent) {
+      console.log(`ComponentVisualizer - compileAndRender:", ${selectedComponent}`);
       const componentCode = components[selectedComponent] || '';
-      setEditableCode((prev) => ({ ...prev, [selectedComponent]:componentCode}));
-      compileAndRender(componentCode);
+
+      if (componentCode) {
+        compileAndRender(componentCode);
+      }
     } else {
       setCompiledComponent(() => ThreeCanvas);
     }
-  }, [selectedComponent, components]);
+  }, [selectedComponent, components[selectedComponent]]);
 
   const handleCodeChange = (newCode: string) => {
-    // setEditableCodeLocal(newCode);
-    setEditableCode((prev) => ({ ...prev, [selectedComponent]: newCode }));
-    compileAndRender(newCode);
+    setComponents(prev => ({ ...prev, [selectedComponent]: newCode }));
   };
 
   const renderPreview = () => {
@@ -102,7 +101,7 @@ const ComponentVisualizer = () => {
         <div>
           <div className="relative">
             <CodeMirror
-              value={editableCode[selectedComponent]}
+              value={components[selectedComponent]}
               extensions={[javascript({ jsx: true }), fixedHeightEditor]}
               onChange={(value) => handleCodeChange(value)}
               theme={darcula}

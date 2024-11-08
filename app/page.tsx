@@ -33,7 +33,7 @@ const defaultSystemPrompt = `You are Grok, an expert in creating React component
 `;
 
 export default function Home() {
-  const { setEditableCode, setSelectedComponent, componentCompileError, setComponentCompileError, editableCode, selectedComponent, isLoading, setIsLoading, resetChatHistory: contextResetChatHistory } = useComponentContext();
+  const { setComponents, setSelectedComponent, componentCompileError, setComponentCompileError, components, selectedComponent, isLoading, setIsLoading, resetChatHistory: contextResetChatHistory } = useComponentContext();
 
   const [userInput, setUserInput] = useState('');
   const [waitingForAnswer, setWaitingForAnswer] = useState(false);
@@ -74,7 +74,7 @@ export default function Home() {
       }
       else {
         cleanedInput = `Can you fix error: ${componentCompileError}
-        ${editableCode[selectedComponent]}
+        ${components[selectedComponent]}
         `
 
         //${Object.entries(editableCode).map(([key, value]) => `\n\n for user component ${key} with code: ${value}\n`).join('')}`;
@@ -86,7 +86,7 @@ export default function Home() {
 
       setUserInput('');
 
-      const response = await fetch('/api', {
+      const response = await fetch('/api2', {    //api is off now!
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ export default function Home() {
           const functionNameMatch = extractedCode.match(functionNameRegex);
           const componentName = functionNameMatch ? functionNameMatch[1] : 'Component1';
 
-          setEditableCode(prev => ({ ...prev, [componentName]: extractedCode }));
+          setComponents(prev => ({ ...prev, [componentName]: extractedCode }));
           setSelectedComponent(componentName);
         }
       } else {
@@ -121,13 +121,12 @@ export default function Home() {
     } catch (error) {
       console.error("Error:", error);
       setChatHistory(prevHistory => [...prevHistory, { role: "system", content: `Error: ${error}` }]);
-      // setChatHistory(prevHistory => [...prevHistory, { role: "user", content: `Error: ${error}` }]); // for anthropic claude
     } finally {
       setIsLoading(false);
       setWaitingForAnswer(false);
-      setHandlingError(false); // Reset error handling flag
+      setHandlingError(false);
     }
-  }, [chatHistory, setEditableCode, setSelectedComponent, isLoading, setIsLoading, componentCompileError, editableCode, waitingForAnswer, handlingError]); // Add handlingError to dependency array
+  }, [chatHistory, setComponents, setSelectedComponent, isLoading, setIsLoading, componentCompileError, components, waitingForAnswer, handlingError]);
 
   // Update the user input state when the textarea value changes
 
@@ -143,12 +142,12 @@ export default function Home() {
         type: false,
         target: {
           elements: {
-            namedItem: () => ({ value: `Compilation error: ${err_msg}\n\nCurrent user component code:\n\n${editableCode[selectedComponent]}` })
+            namedItem: () => ({ value: `Compilation error: ${err_msg}\n\nCurrent user component code:\n\n${components[selectedComponent]}` })
           }
         }
       });
     }
-  }, [componentCompileError, setComponentCompileError, editableCode, selectedComponent, handleSubmit]);
+  }, [componentCompileError, setComponentCompileError, selectedComponent, handleSubmit]);
 
   // Scroll to the bottom of the textarea when the chat history changes
   useEffect(() => {

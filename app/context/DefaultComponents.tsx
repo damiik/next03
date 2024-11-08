@@ -280,258 +280,253 @@ export const defaultComponents = {
       </div>
     );
   }`,
-  QuickSortComponent: `function QuickSortComponent() {
-    const generateRandomArray = () => {
-        return Array.from({ length: 12 }, () => Math.floor(Math.random() * 95) + 5);
-    };
+  QuickSortComponent: `function QuickSortVisualization () {
+  const [array, setArray] = useState(generateRandomArray());
+  const [state, setState] = useState({
+    stack: [[0, array.length - 1]],
+    phase: 'partitioning',
+    swapIndices: [],
+    pivotIndex: null,
+    startPointer: null,
+    endPointer: null,
+    currentJ: null,
+    currentI: null,
+    isStepComplete: true
+  });
+  const colors = [
+    'bg-RED',
+    'bg-CYAN',
+    'bg-PURPLE',
+    'bg-GREEN',
+    'bg-BLUE',
+    'bg-YELLOW',
+    'bg-ORANGE',
+    'bg-BROWN',
+    'bg-PINKY_LIGHT_RED',
+    'bg-DARK_GREY',
+    'bg-MID_GREY',
+    'bg-LIGHT_GREEN',
+  ];
 
-    const initialArray = generateRandomArray();
-    const [array, setArray] = useState(initialArray);
-    const [start, setStart] = useState(0);
-    const [end, setEnd] = useState(array.length - 1);
-    const [pivotIndex, setPivotIndex] = useState(null);
-    const [currentI, setCurrentI] = useState(null);
-    const [currentJ, setCurrentJ] = useState(null);
-    const [stack, setStack] = useState([]);
-    const [phase, setPhase] = useState('initial');
+  const isBarAnimated = (index) => {
+    return state.swapIndices.includes(index);
+  };
 
-    const colors = [
-        'bg-RED',
-        'bg-CYAN',
-        'bg-PURPLE',
-        'bg-GREEN',
-        'bg-BLUE',
-        'bg-YELLOW',
-        'bg-ORANGE',
-        'bg-BROWN',
-        'bg-PINKY_LIGHT_RED',
-        'bg-DARK_GREY',
-        'bg-MID_GREY',
-        'bg-LIGHT_GREEN',
-    ];
+  function generateRandomArray() {
+    return Array.from({ length: 12 }, () => Math.floor(Math.random() * 95) + 5);
+  }
 
-    const partitionStep = () => {
-        const newArray = [...array];
-        const pivot = newArray[end];
+  const getStepDescription = () => {
+    if (state.phase === 'done') {
+      return 'Sorting complete! The array is now sorted.';
+    }
 
-        if (phase === 'initial') {
-            setCurrentI(start - 1);
-            setCurrentJ(start);
-            setPhase('scanning');
-            return;
+    if (!state.isStepComplete) {
+      return 'Processing step...';
+    }
+
+    if (state.pivotIndex === null) {
+      return 'Click "Step" to begin sorting.';
+    }
+
+    let description = \`Current pivot: \${array[state.pivotIndex]}\n\`;
+    
+    if (state.currentJ !== null) {
+      description += \`\nComparing element at j (\${state.currentJ}): \${array[state.currentJ]} with pivot\`;
+      
+      if (state.currentI !== null) {
+        description += \`\nCurrent i position: \${state.currentI}\`;
+      }
+    }
+
+    if (state.swapIndices.length > 0) {
+      description += \`\nSwapping elements...\`;
+    }
+
+    return description;
+  };
+
+  
+  const handleStep = () => {
+
+    if (!state.isStepComplete) return;
+
+    const stackTop = state.stack[state.stack.length - 1];
+    if (stackTop) {
+
+      const [low, high] = stackTop;
+      if (low < high) {
+
+        let i = low - 1;
+        setState((prevState) => ({ ...prevState, currentI: i, currentJ: low}))
+
+        for (let j = low; j < high; j++) {
+          if (array[j] <= array[high]) {
+            setState((prevState) => ({...prevState, currentI: i, currentJ: j}))
+            i++;
+            [array[i], array[j]] = [array[j], array[i]];
+          }
         }
+        const pivotIndex = i + 1;
+        [array[ pivotIndex ], array[ high ]] = [array[ high ], array[ pivotIndex ]];
+        
+        setArray([...array]);
+        setState((prevState) => ({
+          ...prevState,
+          swapIndices: [low, pivotIndex - 1, pivotIndex],
+          pivotIndex,
+          startPointer: low,
+          endPointer: high,
+          isStepComplete: true
+        }));
 
-        if (phase === 'scanning') {
-            if (currentJ <= end) {
-                if (newArray[currentJ] < pivot) {
-                    setCurrentI(currentI + 1);
-                    [newArray[currentI + 1], newArray[currentJ]] = [newArray[currentJ], newArray[currentI + 1]];
-                    setArray(newArray);
-                }
-                setCurrentJ(currentJ + 1);
-            } else {
-                [newArray[currentI + 1], newArray[end]] = [newArray[end], newArray[currentI + 1]];
-                setArray(newArray);
-                setPivotIndex(currentI + 1);
-                setPhase('final');
-            }
-            return;
-        }
-    };
+        const newStack = [...state.stack];
+        newStack.pop();
 
-    useEffect(() => {
-        if (phase === 'final') {
-            let newStack = [...stack];
-            if (currentI > start) {
-                newStack.push({ start, end: currentI });
-            }
-            if (currentI + 2 <= end) {
-                newStack.push({ start: currentI + 2, end });
-            }
+        if (pivotIndex - 1 > low) { newStack.push([low, pivotIndex - 1]); }
+        if (high > pivotIndex + 1) { newStack.push([pivotIndex + 1, high]); }
 
-            if (newStack.length > 0) {
-                const nextSection = newStack.pop();
-                setTimeout(() => {
-                    setStart(nextSection.start);
-                    setEnd(nextSection.end);
-                    setCurrentI(nextSection.start - 1);
-                    setCurrentJ(nextSection.start);
-                    setPhase('initial');
-                }, 0);
-            } else {
-                setPhase('done');
-            }
-            setStack(newStack);
-        }
-    }, [phase, currentI, start, end, stack]);
+        setState((prevState) => ({
+          ...prevState,
+          stack: newStack,
+          isStepComplete: true
+        }));
+      } 
+      else {
+      
+        setState((prevState) => ({
+          ...prevState,
+          stack: prevState.stack.slice(0, -1),
+          phase: prevState.stack.length > 0 ? 'partitioning' : 'done',
+          isStepComplete: true
+        }));
+      }
+    } 
+    else {
+    
+      setState((prevState) => ({
+        ...prevState,
+        phase: 'done',
+        isStepComplete: true
+      }));
+    }
+  };
 
-    const handleStep = () => {
-        if (stack.length === 0 && phase === 'initial') {
-            setStack([{ start: 0, end: array.length - 1 }]);
-            setStart(0);
-            setEnd(array.length - 1);
-            setPhase('scanning');
-        }
+  const handleRefresh = () => {
+    const newArray = generateRandomArray();
+    setState({
+      stack: [[0, newArray.length - 1]],
+      phase: 'partitioning',
+      swapIndices: [],
+      pivotIndex: null,
+      startPointer: null,
+      endPointer: null,
+      currentJ: null,
+      currentI: null,
+      isStepComplete: true
+    });
+    setArray(newArray);
+  };
 
-        partitionStep();
-    };
-
-    const handleRefresh = () => {
-        const newArray = generateRandomArray();
-        setArray(newArray);
-        setStart(0);
-        setEnd(newArray.length - 1);
-        setPivotIndex(null);
-        setCurrentI(null);
-        setCurrentJ(null);
-        setStack([]);
-        setPhase('initial');
-    };
-
-    const getPhaseDescription = () => {
-        switch (phase) {
-            case 'initial':
-                return "This is when the algorithm is first set up; current-I and current-J are initialized, and the phase moves to scanning.";
-            case 'scanning':
-                return "During scanning, the algorithm compares the current element with the pivot and rearranges elements accordingly.";
-            case 'final':
-                return "In the final phase, the pivot is positioned correctly, and the algorithm prepares to sort the next subarrays by pushing them into the stack.";
-            case 'done':
-                return "The sorting process is complete, and the array is fully sorted.";
-            default:
-                return "";
-        }
-    };
-
-    return (
-        <div className="flex p-4">
-            {/* Left Side - Grouped Content */}
-            <div className="w-1/2 pr-4 flex flex-col">
-                {/* Top section with ELEM divided into two parts */}
-                <div className="flex mb-4">
-                    {/* Left part of ELEM - Pointer Descriptions */}
-                    <div className="w-1/2 pr-2 text-sm space-y-1">
-                        <div><span className="text-GREEN bg-BLACK px-1">S</span> - Start pointer</div>
-                        <div><span className="text-BLACK bg-GRAY-500 px-1">E</span> - End pointer</div>
-                        <div><span className="text-RED bg-CYAN px-1">P</span> - Pivot</div>
-                        <div><span className="text-BLUE bg-YELLOW px-1">i</span> - Last smaller element index</div>
-                        <div><span className="text-PURPLE bg-GREEN px-1">j</span> - Current scanning position</div>
-                        {/* Buttons Section */}
-                        <div className="flex space-x-4 mb-4">
-                            <button
-                                className="px-4 py-2 bg-YELLOW text-WHITE rounded hover:bg-YELLOW-700"
-                                onClick={handleStep}
-                            >
-                                Step
-                            </button>
-                            <button
-                                className="px-4 py-2 bg-BLUE text-WHITE rounded hover:bg-BLUE-700"
-                                onClick={handleRefresh}
-                            >
-                                Random Array
-                            </button>
-                        </div>
-
-                        {/* Phase Section */}
-                        <div className="mt-4 text-lg font-semibold">
-                            Phase: {phase.charAt(0).toUpperCase() + phase.slice(1)}
-                        </div>
-                    </div>
-
-                    {/* Right part of ELEM - Stack */}
-                    <div className="w-1/2 pl-2">
-                        <div className="text-sm font-semibold mb-2">Stack:</div>
-                        <div className="border border-MID_GREY bg-DARK_GREY text-YELLOW p-2 h-auto max-h-80 overflow-auto">
-                            {stack.map((item, index) => (
-                                <div key={index}>
-                                    [{item.start}, {item.end}]
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-
-                {/* Phase Description */}
-                <textarea
-                    readOnly
-                    className="mt-4 w-full h-64 p-2 border border-MID_GREY bg-DARK_GREY text-YELLOW"
-                    value={getPhaseDescription()}
-                />
+  return (
+    <div className="p-6 bg-slate-900">
+      <div className="flex">
+        <div className="w-1/2 pr-4 flex flex-col">
+          <div className="flex mb-4">
+            <div className="w-1/2 pr-2 text-sm space-y-2">
+              <div className="flex items-center space-x-2">
+                <span className="bg-green-500 text-white px-2 py-1 rounded">S</span>
+                <span className="text-white">Start pointer</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="bg-gray-500 text-white px-2 py-1 rounded">E</span>
+                <span className="text-white">End pointer</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="bg-cyan-500 text-red-500 px-2 py-1 rounded">P</span>
+                <span className="text-white">Pivot</span>
+              </div>
+              
+              <div className="flex space-x-4 mt-4">
+                <button 
+                  className="text-BLACK bg-PURPLE hover:bg-blue-600 disabled:opacity-50 p-2 rounded"
+                  onClick={handleStep}
+                  disabled={!state.isStepComplete || state.phase === 'done'}
+                >
+                  Step {!state.isStepComplete ? '(Processing...)' : ''}
+                </button>
+                <button
+                  className="bg-BROWN hover:bg-blue-600 p-2 rounded"
+                  onClick={handleRefresh}
+                >
+                  Random Array
+                </button>
+              </div>
+              
+              <div className="mt-4 text-lg font-semibold text-white">
+                Phase: {state.phase.charAt(0).toUpperCase() + state.phase.slice(1)}
+              </div>
             </div>
-
-
-            {/* Right Side */}
-            <div className="w-1/2">
-                {/* Start pointers row */}
-                <div className="flex space-x-2">
-                    {array.map((_, index) => (
-                        <div key={\`start-\${index}\`} className="w-8 text-center">
-                            {index === start ? (
-                                <div className="text-GREEN bg-BLACK px-1">S</div>
-                            ) : (
-                                <div>&nbsp;</div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-
-                {/* End pointers row */}
-                <div className="flex space-x-2">
-                    {array.map((_, index) => (
-                        <div key={\`end-\${index}\`} className="w-8 text-center">
-                            {index === end ? (
-                                <div className="text-BLACK bg-GRAY-500 px-1">E</div>
-                            ) : (
-                                <div>&nbsp;</div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-
-                {/* Pivot pointers row */}
-                <div className="flex space-x-2">
-                    {array.map((_, index) => (
-                        <div key={\`pivot-\${index}\`} className="w-8 text-center">
-                            {index === pivotIndex ? (
-                                <div className="text-RED bg-CYAN px-1">P</div>
-                            ) : (
-                                <div>&nbsp;</div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-
-                {/* i and j pointers row */}
-                <div className="flex space-x-2">
-                    {array.map((_, index) => (
-                        <div key={\`ij-\${index}\`} className="w-8 text-center">
-                            {index === currentI ? (
-                                <div className="text-BLUE bg-YELLOW px-1">i</div>
-                            ) : index === currentJ ? (
-                                <div className="text-PURPLE bg-GREEN px-1">j</div>
-                            ) : (
-                                <div>&nbsp;</div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-
-                {/* Bars */}
-                <div className="flex space-x-2">
-                    {array.map((num, index) => (
-                        <div key={\`bar-\${index}\`} className="flex flex-col items-center">
-                            <div
-                                className={\`w-8 \${colors[index % colors.length]} transition-all duration-300\`}
-                                style={{ height: \`\${num * 3}px\` }}
-                            />
-                            <span className="text-center bg-GRAY-800 text-WHITE px-1">{num}</span>
-                        </div>
-                    ))}
-                </div>
+            
+            <div className="w-1/2 p-4">
+              <div className="text-sm font-semibold mb-2 text-white">Stack:</div>
+              <div className="border border-gray-600 bg-gray-800 text-yellow-400 p-2 h-64 overflow-auto rounded">
+                {state.stack.map((item, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                  <div>{item[0]}</div>&nbsp; ⟾⟽
+                  <div>{item[1]}</div>
+                  </div>
+                ))}
+              </div>
             </div>
+          </div>
+          
+          <div className="mt-4 w-full h-32 p-2 border border-gray-600 bg-gray-800 text-yellow-400 rounded">
+            {getStepDescription()}
+          </div>
         </div>
-    );
+
+        <div className="w-1/2 flex flex-col items-center">
+          <div className="flex space-x-2 mb-2">
+            {array.map((_, index) => (
+              <div key={\`marker-\${index}\`} className="w-8 text-center">
+                {index === state.pivotIndex && (
+                  <div className="text-red-500 bg-cyan-500 px-1 rounded">P</div>
+                )}
+                {index === state.startPointer && (
+                  <div className="text-white bg-green-500 px-1 rounded">S</div>
+                )}
+                {index === state.endPointer && (
+                  <div className="text-white bg-gray-500 px-1 rounded">E</div>
+                )}
+                {index === state.currentJ && (
+                  <div className="text-white bg-yellow-500 px-1 rounded">j</div>
+                )}
+                {index === state.currentI && (
+                  <div className="text-white bg-purple-500 px-1 rounded">i</div>
+                )}
+              </div>
+            ))}
+          </div>
+          
+          <div className="flex space-x-2">
+            {array.map((num, index) => (
+              <div key={\`bar-\${index}\`} className="flex flex-col items-center">
+                <div
+                  className={\`w-8 \${colors[index % colors.length]} transition-all duration-300 rounded-t
+                    \${isBarAnimated(index) ? 'animate-pulse' : ''}\`}
+                  style={{ height: \`\${num * 3}px\` }}
+                />
+                <span className="text-center bg-gray-800 text-white px-2 rounded">
+                  {num}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }`,
   HexagoCircles: `
 

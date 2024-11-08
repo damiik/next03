@@ -5,13 +5,9 @@ import { Save, PlayCircle, RotateCw, ChevronUp, ChevronDown } from 'lucide-react
 import { useComponentContext } from '../context/ComponentContext';
 
 const Topbar: React.FC = () => {
-  const { setComponents, setIsRefreshing, setPreviewKey, editableCode, selectedComponent, setCodeMirrorHeight, resetChatHistory } = useComponentContext();
+  const { setComponents, setIsRefreshing, setPreviewKey, components, selectedComponent, setCodeMirrorHeight, resetChatHistory } = useComponentContext();
   const handleSave = () => {
-    // Update components with the current editableCode
-    setComponents(prev => ({
-      ...prev,
-      [selectedComponent]: editableCode[selectedComponent]
-    }));
+    // This function is now simplified as components is directly modified in the editor
   };
 
   const handleRefresh = () => {
@@ -19,7 +15,7 @@ const Topbar: React.FC = () => {
     // Update components with the current editableCode
     setComponents(prev => ({
       ...prev,
-      [selectedComponent]: editableCode[selectedComponent]
+      [selectedComponent]: components[selectedComponent]
     }));
     setTimeout(() => {
       setIsRefreshing(false);
