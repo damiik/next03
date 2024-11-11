@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Component } from 'react';
+import { ErrorBoundary } from "react-error-boundary";
 import { RotateCw } from 'lucide-react';
 import * as Babel from '@babel/standalone';
 import { useComponentContext } from '../context/ComponentContext';
@@ -12,13 +13,28 @@ import { EditorView } from '@codemirror/view';
 import { ThreeCanvas } from './ThreeCanvas';
 // import { select } from 'three/webgpu';
 
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+class ErrorFallback extends Component<any> {  // Error Boundary Component
+  render() {
+    return (
+      <div className="text-red-500 p-4 bg-red-50 rounded border border-red-200">
+        <p>Something went wrong:</p>
+        <pre>{((this.props.error as Error) ).message}</pre>
+      </div>
+    );
+  }
+}
+
+
+
 const ComponentVisualizer = () => {
   const { components, setComponents, previewKey, isRefreshing, setComponentCompileError, componentCompileError, codeMirrorHeight, ...rest } = useComponentContext();
 
   const [compiledComponent, setCompiledComponent] = useState<React.ComponentType | null>(null);
   const { selectedComponent } = useComponentContext();
-  
-  
+
+
   const editorRef = useRef<ReactCodeMirrorRef | null>(null);
 
   const compileAndRender = (code: string) => {
@@ -28,24 +44,53 @@ const ComponentVisualizer = () => {
       if (!transformedCode) {
         throw new Error("Babel transformation failed.");
       }
-
+      //console.log("Babel transformed code:", transformedCode);
       // Pass React, hooks, and other necessary variables to the compiled component
-      const Component = new Function('React', 'useState', 'useEffect', 'useRef', 'THREE', 'Play', 'Pause', 'SkipForward', 'SkipBack', ...Object.keys(rest), `
-        return (${transformedCode})
-      `)(React, React.useState, React.useEffect, React.useRef, THREE, Play, Pause, SkipForward, SkipBack, ...Object.values(rest));
+      // Wrap the evaluation in a try...catch
 
-      if (typeof Component !== 'function' && typeof Component !== 'object') {
-        throw new Error('Compiled code did not return a valid component.');
+      try {
+        const Component = new Function('React', 'useState', 'useEffect', 'useRef', 'THREE', 'Play', 'Pause', 'SkipForward', 'SkipBack', ...Object.keys(rest), `
+          return (${transformedCode}); // Added semicolon here for safety
+        `)(React, React.useState, React.useEffect, React.useRef, THREE, Play, Pause, SkipForward, SkipBack, ...Object.values(rest));
+
+        if (typeof Component !== 'function' && typeof Component !== 'object' ) { // Added check for object to allow functional components
+          throw new Error('Compiled code did not return a valid component. Make sure it returns a React functional component or a class component.');
+        }
+ 
+        
+              // Create a wrapper component
+        // const SafeComponent: React.FC = () => {
+        //   try {
+        //     return <Component />; // Render the user's component
+        //   } catch (renderError) {
+        //     console.error("Component render error:", (renderError as Error).message);
+        //     return <div className="text-red-500 p-4 bg-red-50 rounded border border-red-200">Error: {(renderError as Error).message}</div>;
+        //   }
+        // };
+        const SafeComponent = () => (
+          <ErrorBoundary FallbackComponent={ErrorFallback}> {/* Use Error Boundary */}
+            <Component />
+          </ErrorBoundary>
+        );
+
+        console.log("ComponentVisualizer - compileAndRender - Setting SafeComponent...");        
+        setCompiledComponent(() => SafeComponent);
+        setComponentCompileError('');
+      } catch (evalError) {
+        console.error("Component evaluation error:", (evalError as Error).message);
+        setComponentCompileError((evalError as Error).message);
+        setCompiledComponent(null); // Important: Reset the component to prevent rendering broken code
       }
-      setCompiledComponent(() => Component);
-      setComponentCompileError('');
-    } catch (err: unknown) {
-      console.error("compileAndRender(..) --> Customer Component Compilation error:", err);
-      setComponentCompileError((err as Error).message);
-      setCompiledComponent(null);
+
+    } catch (transformError) {
+      console.error("Babel transformation error:", (transformError as Error).message);
+      setComponentCompileError((transformError as Error).message);
+      setCompiledComponent(null); // Important: Reset the component
     }
   };
 
+  
+// component code changed - recompile and render
   useEffect(() => {
     if (selectedComponent) {
       console.log(`ComponentVisualizer - compileAndRender:", ${selectedComponent}`);
@@ -59,9 +104,21 @@ const ComponentVisualizer = () => {
     }
   }, [selectedComponent, components[selectedComponent]]);
 
+
   const handleCodeChange = (newCode: string) => {
     setComponents(prev => ({ ...prev, [selectedComponent]: newCode }));
   };
+
+  // function lolizer() {
+  //   return {
+  //     visitor: {
+  //       Identifier(path) {
+  //         path.node.name = "LOL";
+  //       },
+  //     },
+  //   };
+  // }
+  // Babel.registerPlugin("lolizer", lolizer);
 
   const renderPreview = () => {
     if (componentCompileError) return <div className="text-red-500 p-4 bg-red-50 rounded border border-red-200">{`Error -->: ${componentCompileError}`}</div>;

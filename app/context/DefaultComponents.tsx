@@ -429,48 +429,48 @@ export const defaultComponents = {
   };
 
   return (
-    <div className="p-6 bg-slate-900">
+    <div className="p-6 bg-GREY_600">
       <div className="flex">
         <div className="w-1/2 pr-4 flex flex-col">
           <div className="flex mb-4">
-            <div className="w-1/2 pr-2 text-sm space-y-2">
-              <div className="flex items-center space-x-2">
-                <span className="bg-green-500 text-white px-2 py-1 rounded">S</span>
+            <div className="w-1/2 p-4 text-sm space-y-2 shadow-xl">
+              <div className="flex items-center space-x-2 shadow-lg">
+                <span className="bg-GREY_400 text-white px-2 py-1 rounded">S</span>
                 <span className="text-white">Start pointer</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 shadow-lg">
                 <span className="bg-gray-500 text-white px-2 py-1 rounded">E</span>
                 <span className="text-white">End pointer</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 shadow-lg">
                 <span className="bg-cyan-500 text-red-500 px-2 py-1 rounded">P</span>
                 <span className="text-white">Pivot</span>
               </div>
               
               <div className="flex space-x-4 mt-4">
                 <button 
-                  className="text-BLACK bg-PURPLE hover:bg-blue-600 disabled:opacity-50 p-2 rounded"
+                  className="text-BLACK bg-PURPLE hover:bg-SKY_LIGHT_BLUE hover:shadow-inherit disabled:opacity-50 p-2 rounded shadow-lg"
                   onClick={handleStep}
                   disabled={!state.isStepComplete || state.phase === 'done'}
                 >
                   Step {!state.isStepComplete ? '(Processing...)' : ''}
                 </button>
                 <button
-                  className="bg-BROWN hover:bg-blue-600 p-2 rounded"
+                  className="bg-ORANGE hover:bg-SKY_LIGHT_BLUE hover:text-BLACK hover:shadow-inherit p-2 rounded shadow-lg"
                   onClick={handleRefresh}
                 >
                   Random Array
                 </button>
               </div>
               
-              <div className="mt-4 text-lg font-semibold text-white">
+              <div className="ml-4 text-lg font-semibold text-white">
                 Phase: {state.phase.charAt(0).toUpperCase() + state.phase.slice(1)}
               </div>
             </div>
             
-            <div className="w-1/2 p-4">
+            <div className="w-1/2 p-2 shadow-xl">
               <div className="text-sm font-semibold mb-2 text-white">Stack:</div>
-              <div className="border border-gray-600 bg-gray-800 text-yellow-400 p-2 h-64 overflow-auto rounded">
+              <div className="border border-gray-600 bg-gray-800 text-yellow-400 p-2 h-64 overflow-auto rounded shadow-2xl">
                 {state.stack.map((item, index) => (
                   <div key={index} className="flex items-center space-x-2">
                   <div>{item[0]}</div>&nbsp; ⟾⟽
@@ -480,9 +480,10 @@ export const defaultComponents = {
               </div>
             </div>
           </div>
-          
+          <div className="p-2 shadow-xl">
           <div className="mt-4 w-full h-32 p-2 border border-gray-600 bg-gray-800 text-yellow-400 rounded">
             {getStepDescription()}
+          </div>
           </div>
         </div>
 
@@ -513,11 +514,11 @@ export const defaultComponents = {
             {array.map((num, index) => (
               <div key={\`bar-\${index}\`} className="flex flex-col items-center">
                 <div
-                  className={\`w-8 \${colors[index % colors.length]} transition-all duration-300 rounded-t
+                  className={\`w-8 \${colors[index % colors.length]} transition-all duration-300 rounded shadow-inherit
                     \${isBarAnimated(index) ? 'animate-pulse' : ''}\`}
                   style={{ height: \`\${num * 3}px\` }}
                 />
-                <span className="text-center bg-gray-800 text-white px-2 rounded">
+                <span className="text-center bg-GREY_800 text-white px-2 rounded shadow-2xl">
                   {num}
                 </span>
               </div>
@@ -681,5 +682,40 @@ function Component1() {
 </svg>
 
     );
-  }  `
-};
+  }`
+    ,
+  Chessboard:`function Chessboard() {
+    const headerRow = (
+      <tr>
+        <th className="bg-GREY_700 text-BLACK w-[60px] h-[60px] text-center"></th>
+        {['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].map((letter, index) => (
+          <th 
+            key={index}
+            className="bg-GREY_600 text-BLACK w-[60px] h-[60px] text-center"
+          >
+            {letter}
+          </th>
+        ))}
+      </tr>
+    );
+
+    const rows = Array(8).fill().map((_, row) => (
+      <tr key={row}>
+        <td className="bg-GREY_600 text-BLACK w-[60px] h-[60px] text-center">{row + 1}</td>
+        {Array(8).fill().map((_, col) => (
+          <td 
+            key={col} 
+            className={\`\${(row + col) % 2 === 0 ? 'bg-WHITE' : 'bg-BLACK'} w-[60px] h-[60px]\`}
+          ></td>
+        ))}
+      </tr>
+    ));
+
+    return (
+      <table className="border-collapse m-4">
+        <thead>{headerRow}</thead>
+        <tbody>{rows}</tbody>
+      </table>
+    );
+  }`
+}

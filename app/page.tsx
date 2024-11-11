@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, FormEvent, KeyboardEvent, useCallback } from 'react';
 import ComponentVisualizer from './components/ComponentVisualizer';
-import { colors } from './components/colors';
+import { defaultSystemPrompts } from './prompts/system-prompts';
 import { useComponentContext } from './context/ComponentContext';
 
 type Message = {
@@ -10,39 +10,16 @@ type Message = {
   content: string;
 };
 
-const defaultSystemPrompt = `You are Grok, an expert in creating React components with Tailwind CSS.
-## If user asks for a React component, you will respond by creating React component with Tailwind styling.
- - Don't add any import statements like import react from 'react' or import { useState } from 'react'.
- - Don't add export statement.
- - You can use react hooks.
- - Add constants ONLY inside of component function.
- - Use colors from the predefined palette in the format: bg-[color], text-[color], border-[color], stroke-[color], fill-[color].
-<important> Please use colors ONLY from the following palette: ${colors.map(color => color.name).join(", ")} </important>
-<important> PLEASE RESPOND WITH FULL COMPONENT CODE INSIDE OF \`\`\`jsx CODE BLOCK AT THE BEGINNING OF THE MESSAGE.</important>
-<important> If you can't, then respond with "I'm unable to create a component for that."</important>
-<example>\`\`\`jsx
-  function ComponentToRender() {
-     const someConstArray = [...];
-     const [start, setStart] = useState(0); // use hooks like this
-     return (
-       ...
-     );
-  }
-\`\`\`
-</example>
-`;
 
 export default function Home() {
-  const { setComponents, setSelectedComponent, componentCompileError, setComponentCompileError, components, selectedComponent, isLoading, setIsLoading, resetChatHistory: contextResetChatHistory } = useComponentContext();
+  const { setComponents, setSelectedComponent, componentCompileError, setComponentCompileError, components, selectedComponent, isLoading, setIsLoading, resetChatHistory: contextResetChatHistory, handlingError, setHandlingError } = useComponentContext();
 
   const [userInput, setUserInput] = useState('');
   const [waitingForAnswer, setWaitingForAnswer] = useState(false);
-  const [handlingError, setHandlingError] = useState(false); // Add state for error handling
-  const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "system", content: defaultSystemPrompt }]);
-  // const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "user", content: defaultSystemPrompt }]); // for anthropic claude
+  const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "system", content: defaultSystemPrompts[1] }]);
 
   const resetChatHistory = useCallback(() => {
-    setChatHistory([{ role: "system", content: defaultSystemPrompt }]);
+    setChatHistory([{ role: "system", content: defaultSystemPrompts[1] }]);
     // setChatHistory([{ role: "user", content: defaultSystemPrompt }]); // for anthropic claude
   }, []);
 
@@ -70,11 +47,18 @@ export default function Home() {
       if (e.type ?? true) {
         const inputElement = (e.target as HTMLFormElement)?.elements?.namedItem('userInput') || e.target as HTMLTextAreaElement;
         cleanedInput = inputElement instanceof HTMLTextAreaElement ? inputElement.value.trim() : '';
-       if( inputElement instanceof HTMLTextAreaElement ) inputElement.value.trim()
+        const codeRegex = /([\s\S]*?)\{\{code\}\}([\s\S]*)/; // extract {{comp}}
+        const matchess = cleanedInput.match(codeRegex);
+        if( matchess ) {
+          const codeLines : string[]  = components[selectedComponent]?.split('\n') ?? [];
+          // Reconstruct cleanedInput by combining text before {{comp}},adding numbered component lines, and text after {{comp}}
+          cleanedInput = matchess[1] + codeLines.flatMap((line, index) => [`${index + 1}. ${line}`]).join('\n') + matchess[2];
+        }
       }
       else {
         cleanedInput = `Can you fix error: ${componentCompileError}
-        ${components[selectedComponent]}
+        in component code:
+        ${components[selectedComponent]?.split('\n').flatMap((line, index) => [`${index + 1}. ${line}`]).join('\n')}
         `
 
         //${Object.entries(editableCode).map(([key, value]) => `\n\n for user component ${key} with code: ${value}\n`).join('')}`;
@@ -86,7 +70,7 @@ export default function Home() {
 
       setUserInput('');
 
-      const response = await fetch('/api2', {    //api is off now!
+      const response = await fetch('/api', {    //api is off now!
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -103,9 +87,25 @@ export default function Home() {
 
         // Extract the code from the assistant's response
         const codeRegex = /```(javascript|tsx|jsx)([\s\S]*?)```/;
+        const partsRegex = /```(javascript-lines-|tsx-lines-|jsx-lines-)([0-9]+)-([0-9]+)\n([\s\S]*?)\n```/;
         const match = assistantResponse.match(codeRegex);
+        const partsMatch = assistantResponse.match(partsRegex);
+        if(partsMatch) {
 
-        if (match) {
+          const startLine = parseInt(partsMatch[2]);
+          const endLine = parseInt(partsMatch[3]);
+          const code = partsMatch[4];
+          const lines = code.split('\n');
+
+          // Replace the specified lines in the selected component's code
+          let newCode = components[selectedComponent];
+          const newLines = newCode.split('\n');
+           newLines.splice(startLine - 1, endLine - startLine + 1, ...lines);
+           newCode = newLines.join('\n');
+
+          setComponents(prev => ({ ...prev, [selectedComponent]: newCode }));
+        }
+        else if (match) {
           const extractedCode = match[2].trim();
           // Extract the component name from the function declaration
           const functionNameRegex = /function\s+(\w+)\s*\(/;
@@ -124,20 +124,20 @@ export default function Home() {
     } finally {
       setIsLoading(false);
       setWaitingForAnswer(false);
-      setHandlingError(false);
+      setHandlingError(false); // Cline: setHandlingError to false in finally block
     }
-  }, [chatHistory, setComponents, setSelectedComponent, isLoading, setIsLoading, componentCompileError, components, waitingForAnswer, handlingError]);
+  }, [chatHistory, setComponents, setSelectedComponent, isLoading, setIsLoading, componentCompileError, components, waitingForAnswer, handlingError, setHandlingError]);
+
 
   // Update the user input state when the textarea value changes
-
   useEffect(() => {
-    if (componentCompileError && !handlingError) { // Check if already handling an error
-      setHandlingError(true); // Set error handling to true
+    if (componentCompileError && handlingError) { // Check if already handling an error
+      //setHandlingError(true); // Set error handling to true
       console.log("onSubmit --> Customer Component Compilation error:", componentCompileError);
       const err_msg = componentCompileError;
       setComponentCompileError(''); // Clear the error
 
-      handleSubmit({ // Call handleSubmit
+      handleSubmit({ // Call handleSubmit with a fake event object (todo: must be refactored in the future)
         preventDefault: () => {},
         type: false,
         target: {
@@ -147,7 +147,7 @@ export default function Home() {
         }
       });
     }
-  }, [componentCompileError, setComponentCompileError, selectedComponent, handleSubmit]);
+  }, [componentCompileError, setComponentCompileError, selectedComponent, handleSubmit, handlingError, setHandlingError]); // Cline: Added handlingError and setHandlingError to dependencies
 
   // Scroll to the bottom of the textarea when the chat history changes
   useEffect(() => {
@@ -167,14 +167,14 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <main className="flex-1 flex flex-col gap-8 items-center sm:items-start p-4">
+    <div className="flex flex-col h-full w-full max-w[95%]">
+      <main className="flex-1 flex flex-col gap-8 items-center sm:items-start p-4 font-[family-name:var(--font-cascadia-code)]">
         <ComponentVisualizer />
       </main>
-      <div className="flex flex-col w-full max-w-[95%] h-[40%] m-4 p-2 border-[3px] border-[#483AA4] rounded bg-[#282824] text-[#CB993B] text-xl font-[family-name:var(--font-cascadia-code)] overflow-y-auto">
+      <div className="flex flex-col w-full max-w-[95%] min-h-[400px] m-4 p-2 border-[3px] border-[#483AA4] rounded bg-[#282824] text-[#CB993B] text-xl font-[family-name:var(--font-cascadia-code)] overflow-y-auto">
         <textarea
           ref={textareaRef}
-          className="flex-1 resize-none bg-transparent outline-none"
+          className="flex-1 h-full bg-transparent outline-none"
           value={formattedHistory}
           readOnly
         />
@@ -186,7 +186,7 @@ export default function Home() {
             onKeyDown={handleKeyDown}
             placeholder={isLoading ? "Waiting for response..." : "Type your message..."}
             disabled={isLoading || waitingForAnswer}
-            className="w-full p-2 border-[3px] border-gray-800 rounded bg-[#2f2f2a] text-[#6FB150]"
+            className="w-full h-full p-2 border-[3px] border-gray-800 rounded bg-[#2f2f2a] text-[#6FB150]"
             rows={4}
           />
         </form>

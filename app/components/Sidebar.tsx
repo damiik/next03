@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { ChevronsRight, CornerRightDown, Palette, FileCode2, Wrench } from 'lucide-react';
 import { colors } from './colors';
+//import Styles from './Styles';
 import { useComponentContext } from '../context/ComponentContext';
 
 const Sidebar: React.FC = () => {
@@ -79,7 +80,7 @@ const Sidebar: React.FC = () => {
                 {colors.map((color, index) => (
                   <li key={color.name}>
                     <button
-                      className={`bg-[${color.value}] px-4 py-0 rounded-md hover:bg-red-400 text-[${colors[(15 - index)].value}]`}
+                      className={`bg-${color.name} px-4 py-0 rounded-md hover:bg-[#555555] min-w-[200px] text-${colors[(index+16) % colors.length].name}`}
                       onClick={() => copyToClipboard("[" + color.value + "]")}
                     >
                       {color.name}
@@ -97,6 +98,7 @@ const Sidebar: React.FC = () => {
           </select>
         </li>
       </ul>
+
     </div>
   );
 };

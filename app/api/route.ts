@@ -6,6 +6,7 @@ import OpenAI from 'openai';
 //   throw new Error('OPENAI_API_KEY is not set. Please set it in your environment variables.');
 // }
 
+// grok
 if (!process.env.XAI_API_KEY) {
   throw new Error('OPENAI_API_KEY is not set. Please set it in your environment variables.');
 }
@@ -13,21 +14,32 @@ if (!process.env.XAI_API_BASE) {
   throw new Error('XAI_API_BASE is not set. Please set it in your environment variables.');
 }
 
+
 // if (!process.env.ANTHROPIC_API_KEY) {
 //   throw new Error('ANTHROPIC_API_KEY is not set. Please set it in your environment variables.');
 // }
 
+// openai
 // const client = new OpenAI({
 //   apiKey: process.env.OPENAI_API_KEY,
 //   // baseURL: 'http://0.0.0.0:4000',
 //   dangerouslyAllowBrowser: true
 // });
 
+// grok
 const client = new OpenAI({
   apiKey: process.env.XAI_API_KEY,
   baseURL: process.env.XAI_API_BASE,
   dangerouslyAllowBrowser: true // Only for development. Remove this line in production.
 });
+
+// liteLLM proxy
+// const client = new OpenAI({
+//   apiKey: "EMPTY",
+//   baseURL: 'http://0.0.0.0:4000',
+//   dangerouslyAllowBrowser: true
+// });
+
 
 // const anthropic = new Anthropic({
 //   apiKey: process.env.ANTHROPIC_API_KEY, // defaults to process.env["ANTHROPIC_API_KEY"]
@@ -49,6 +61,16 @@ export async function POST(req: NextRequest) {
     //   messages: messages, //[{ role: "user", content: "Hello, Claude" }],
     // });
 
+    // const response = await client.chat.completions.create({
+    //   //model: 'nvidia/llama-3.1-nemotron-70b-instruct',
+    //   model: 'meta/llama-3.1-405b-instruct',
+    //   messages: messages,
+    //   temperature:0.75,
+    //   top_p:1,
+    //   //max_tokens:1024,
+    //   // stream:true,
+    // });
+    
     const response = await client.chat.completions.create({
       model: 'grok-beta',
       messages: messages,

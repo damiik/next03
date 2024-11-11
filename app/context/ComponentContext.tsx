@@ -18,6 +18,8 @@ interface ComponentContextProps {
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   resetChatHistory: () => void;
+  handlingError: boolean; // Cline: Added handlingError to the context
+  setHandlingError: React.Dispatch<React.SetStateAction<boolean>>; // Cline: Added setHandlingError to the context
 }
 
 export const ComponentContext = createContext<ComponentContextProps | undefined>(undefined);
@@ -34,6 +36,7 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
   const [componentCompileError, setComponentCompileError] = useState('');
   const [codeMirrorHeight, setCodeMirrorHeight] = useState(400);
   const [isLoading, setIsLoading] = useState(false);
+  const [handlingError, setHandlingError] = useState(false); // Cline: Added handlingError state
 
 
   const contextValue = {
@@ -52,6 +55,8 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
     isLoading,
     setIsLoading,
     resetChatHistory: () => {}, // Initialize with empty function. Will be overwritten in page.tsx.
+    handlingError, // Cline: Added handlingError to the context value
+    setHandlingError, // Cline: Added setHandlingError to the context value
   };
 
   return (

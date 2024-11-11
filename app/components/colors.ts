@@ -15,6 +15,17 @@ export const colors = [
   { name: "LIGHT_GREEN", value: "#e4ffb5" },
   { name: "SKY_LIGHT_BLUE", value: "#a9f3fe" },
   { name: "LIGHT_GREY", value: "#d8e4e4" },
+  { name: "GREY_50", value: "#fafaf9" },
+  { name: "GREY_100", value: "#f5f5f4" },
+  { name: "GREY_200", value: "#e7e5e4" },
+  { name: "GREY_300", value: "#d6d3d1" },
+  { name: "GREY_400", value: "#a8a29e" },
+  { name: "GREY_500", value: "#78716c" },
+  { name: "GREY_600", value: "#57534e" },
+  { name: "GREY_700", value: "#44403c" },
+  { name: "GREY_800", value: "#292524" },
+  { name: "GREY_900", value: "#1c1917" },
+  { name: "GREY_950", value: "#0c0a09" },
 ];
 
 export const colors_table = [
@@ -34,4 +45,15 @@ export const colors_table = [
   "#e4ffb5", /*LIGHT GREEN*/
   "#a9f3fe", /*SKY / LIGHT BLUE*/
   "#d8e4e4", /*LIGHT GREY*/
+  "#fafaf9", /*GREY-50*/
+  "#f5f5f4", /*GREY-100*/
+  "#e7e5e4", /*GREY-200*/
+  "#d6d3d1", /*GREY-300*/
+  "#a8a29e", /*GREY-400*/
+  "#78716c", /*GREY-500*/
+  "#57534e", /*GREY-600*/
+  "#44403c", /*GREY-700*/
+  "#292524", /*GREY-800*/
+  "#34312f", /*GREY-900*/
+  "#0c0a09", /*GREY-950*/
 ];
