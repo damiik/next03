@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, FormEvent, KeyboardEvent, useCallback } fr
 import ComponentVisualizer from './components/ComponentVisualizer';
 import { defaultSystemPrompts } from './prompts/system-prompts';
 import { useComponentContext } from './context/ComponentContext';
+import { diffLines } from 'diff';
 
 type Message = {
   role: 'user' | 'assistant' | 'system';
@@ -11,7 +12,8 @@ type Message = {
 };
 
 // currenly only supports replacing a single fragment
-function replaceFragments(fragments: string, componentCode: string) :  string | undefined {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function replaceFragment(fragments: string, componentCode: string) :  string | undefined {
 
   const partsMatch = fragments.match(/```(javascript-lines-|typescript-lines-|tsx-lines-|jsx-lines-)([0-9]+)-([0-9]+)\n([\s\S]*?)\n```/);
   if( partsMatch ) {
@@ -29,15 +31,40 @@ function replaceFragments(fragments: string, componentCode: string) :  string | 
   return undefined
 }
 
+function replaceFragments(fragments: string, componentCode: string) :  string | undefined {
+  let updatedCode = componentCode;
+  let diffFound = false;
+
+  const regex = /```(diff)\n([\s\S]*?)\n```/g;
+  let match;
+
+  while ((match = regex.exec(fragments)) !== null) {
+    diffFound = true;
+    const diffString = match[2];
+    const changes = diffLines(componentCode, diffString);
+
+    updatedCode = changes.reduce((acc, change) => {
+      if (!change.removed) {
+        return acc + change.value;
+      }
+      return acc;
+    }, '');
+
+    //componentCode = updatedCode; // Update componentCode for subsequent matches
+  }
+
+  return diffFound ? updatedCode : undefined;
+}
+
 export default function Home() {
   const { setComponents, setSelectedComponent, componentCompileError, setComponentCompileError, components, selectedComponent, isLoading, setIsLoading, resetChatHistory: contextResetChatHistory, handlingError, setHandlingError } = useComponentContext();
 
   const [userInput, setUserInput] = useState('');
   const [waitingForAnswer, setWaitingForAnswer] = useState(false);
-  const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "system", content: defaultSystemPrompts[1] }]);
+  const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "system", content: defaultSystemPrompts[2] }]);
 
   const resetChatHistory = useCallback(() => {
-    setChatHistory([{ role: "system", content: defaultSystemPrompts[1] }]);
+    setChatHistory([{ role: "system", content: defaultSystemPrompts[2] }]);
     // setChatHistory([{ role: "user", content: defaultSystemPrompt }]); // for anthropic claude
   }, []);
 
@@ -69,8 +96,12 @@ export default function Home() {
         const matchess = cleanedInput.match(codeRegex);
         if( matchess ) {
           const codeLines : string[]  = components[selectedComponent]?.split('\n') ?? [];
-          // Reconstruct cleanedInput by combining text before {{comp}},adding numbered component lines, and text after {{comp}}
-          cleanedInput = matchess[1] + codeLines.flatMap((line, index) => [`${index + 1}. ${line}`]).join('\n') + matchess[2];
+          if (codeLines.length === 0) {
+            cleanedInput = matchess[1] + 'No component code available' + matchess[2];
+          } else {
+            // Reconstruct cleanedInput by combining text before {{comp}},adding numbered component lines, and text after {{comp}}
+            cleanedInput = matchess[1] + codeLines.flatMap((line, index) => [`${index + 1}. ${line}`]).join('\n') + matchess[2];
+          }
         }
       }
       else {
@@ -129,7 +160,6 @@ export default function Home() {
       setHandlingError(false); // Cline: setHandlingError to false in finally block
     }
   }, [chatHistory, setComponents, setSelectedComponent, isLoading, setIsLoading, componentCompileError, components, waitingForAnswer, handlingError, setHandlingError]);
-
 
   // Update the user input state when the textarea value changes
   useEffect(() => {
