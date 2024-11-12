@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef, Component } from 'react';
+import ts from 'typescript';
 import { ErrorBoundary } from "react-error-boundary";
 import { RotateCw } from 'lucide-react';
 import * as Babel from '@babel/standalone';
@@ -39,8 +40,23 @@ const ComponentVisualizer = () => {
 
   const compileAndRender = (code: string) => {
     try {
-      console.log("Babel transform code..");
-      const transformedCode = Babel.transform(code, { presets: ['react'] }).code;
+
+
+      // Kompilacja TypeScript do JavaScript
+      const jsCode = ts.transpileModule(code, {
+        compilerOptions: {
+          target: ts.ScriptTarget.ESNext,
+          module: ts.ModuleKind.ESNext,
+          jsx: ts.JsxEmit.React,
+          strict: false // Added this line to disable strict mode
+        },
+        fileName: 'component.tsx'
+      }).outputText;
+
+
+      console.log("Babel transform code:\n"+jsCode);
+      const transformedCode = Babel.transform(jsCode, { presets: ['react'] }).code; 
+      console.log("Babel transformed code:\n"+transformedCode);
       if (!transformedCode) {
         throw new Error("Babel transformation failed.");
       }
@@ -132,10 +148,19 @@ const ComponentVisualizer = () => {
   };
 
   const fixedHeightEditor = EditorView.theme({
-    "&": { height: `${codeMirrorHeight}px` },
-    ".cm-scroller": { overflow: "auto" },
+    "&": { 
+      height: `${codeMirrorHeight}px`,  
+      fontFamily: "var(--font-cascadia-mono-nf), monospace", 
+      fontSize: "1.1rem" 
+    },
+    ".cm-scroller": { 
+      fontFamily: "var(--font-cascadia-mono-nf), monospace", 
+      background: "#292524",//[#292524]
+      // borderRadius: "0.5rem",
+      // padding: "1rem",
+      // boxShadow: "0 0 10px rgba(0, 0, 0, 0.2)",
+    },
     ".cm-content, .cm-gutter": { minHeight: "200px" },
-    ".cm-editor .cm-content": { fontFamily: "Cascadia Code", fontSize: "200%" },
   });
 
 
@@ -157,7 +182,8 @@ const ComponentVisualizer = () => {
       {selectedComponent && (
         <div>
           <div className="relative">
-            <CodeMirror
+            <CodeMirror className='font-[family-name:var(--font-cascadia-code)], monospace'
+
               value={components[selectedComponent]}
               extensions={[javascript({ jsx: true }), fixedHeightEditor]}
               onChange={(value) => handleCodeChange(value)}

@@ -16,10 +16,10 @@ export default function Home() {
 
   const [userInput, setUserInput] = useState('');
   const [waitingForAnswer, setWaitingForAnswer] = useState(false);
-  const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "system", content: defaultSystemPrompts[1] }]);
+  const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "system", content: defaultSystemPrompts[0] }]);
 
   const resetChatHistory = useCallback(() => {
-    setChatHistory([{ role: "system", content: defaultSystemPrompts[1] }]);
+    setChatHistory([{ role: "system", content: defaultSystemPrompts[0] }]);
     // setChatHistory([{ role: "user", content: defaultSystemPrompt }]); // for anthropic claude
   }, []);
 
@@ -86,8 +86,8 @@ export default function Home() {
         setChatHistory(prevHistory => [...prevHistory, { role: "assistant", content: assistantResponse }]);
 
         // Extract the code from the assistant's response
-        const codeRegex = /```(javascript|tsx|jsx)([\s\S]*?)```/;
-        const partsRegex = /```(javascript-lines-|tsx-lines-|jsx-lines-)([0-9]+)-([0-9]+)\n([\s\S]*?)\n```/;
+        const codeRegex = /```(javascript|typescript|tsx|jsx)([\s\S]*?)```/;
+        const partsRegex = /```(javascript-lines-|typescript-lines-|tsx-lines-|jsx-lines-)([0-9]+)-([0-9]+)\n([\s\S]*?)\n```/;
         const match = assistantResponse.match(codeRegex);
         const partsMatch = assistantResponse.match(partsRegex);
         if(partsMatch) {

@@ -6,13 +6,26 @@ export const defaultComponents = {
       </div>
     );
   }`,
-  Component2: `function Component2() {
-    return (
-      <div className="p-4 bg-GREEN text-GREEN rounded">
-        Hello from Component 2!
-      </div>
-    );
-  }`,
+  MonadComponent: `function MonadComponent()  : React.FC<Props> {
+  
+  type Maybe<T> = { value: T } | { value: null };
+
+  function map<T, U>(m: Maybe<T>, f: (t: T) => U): Maybe<U> {
+    if (m.value === null) {
+      return { value: null };
+    }
+    return { value: f(m.value) };
+  }
+
+  let maybeName: Maybe<string> = { value: "Andżela" };
+  let maybeAge: Maybe<number> = { value: null };
+
+  return (
+    <div className="p-4 bg-GREY_600 text-GREEN rounded">
+      {map(maybeName, (name) => name).value || "No name provided"}
+    </div>
+  );
+}`,
   SimpleCounter: `function SimpleCounter() {
     const [counter, setCounter] = useState(0);
     const buttonText = counter === 0 ? 'Click Me!' : \`Clicked \${counter} times!\`;
