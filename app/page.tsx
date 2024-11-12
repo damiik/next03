@@ -10,16 +10,34 @@ type Message = {
   content: string;
 };
 
+// currenly only supports replacing a single fragment
+function replaceFragments(fragments: string, componentCode: string) :  string | undefined {
+
+  const partsMatch = fragments.match(/```(javascript-lines-|typescript-lines-|tsx-lines-|jsx-lines-)([0-9]+)-([0-9]+)\n([\s\S]*?)\n```/);
+  if( partsMatch ) {
+
+    const startLine = parseInt(partsMatch[2]);
+    const endLine = parseInt(partsMatch[3]);
+    const code = partsMatch[4];
+    const lines = code.split('\n');
+    console.log("component code to split:\n" +   componentCode);
+    // Replace the specified lines in the selected component's code
+    const newLines = componentCode.split('\n');
+    newLines.splice(startLine - 1, endLine - startLine + 1, ...lines);
+    return newLines.join('\n');
+  }
+  return undefined
+}
 
 export default function Home() {
   const { setComponents, setSelectedComponent, componentCompileError, setComponentCompileError, components, selectedComponent, isLoading, setIsLoading, resetChatHistory: contextResetChatHistory, handlingError, setHandlingError } = useComponentContext();
 
   const [userInput, setUserInput] = useState('');
   const [waitingForAnswer, setWaitingForAnswer] = useState(false);
-  const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "system", content: defaultSystemPrompts[0] }]);
+  const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "system", content: defaultSystemPrompts[1] }]);
 
   const resetChatHistory = useCallback(() => {
-    setChatHistory([{ role: "system", content: defaultSystemPrompts[0] }]);
+    setChatHistory([{ role: "system", content: defaultSystemPrompts[1] }]);
     // setChatHistory([{ role: "user", content: defaultSystemPrompt }]); // for anthropic claude
   }, []);
 
@@ -60,9 +78,6 @@ export default function Home() {
         in component code:
         ${components[selectedComponent]?.split('\n').flatMap((line, index) => [`${index + 1}. ${line}`]).join('\n')}
         `
-
-        //${Object.entries(editableCode).map(([key, value]) => `\n\n for user component ${key} with code: ${value}\n`).join('')}`;
-
       }
 
       const newHistory : Message[] = [...chatHistory, { role: "user", content: cleanedInput }];
@@ -82,28 +97,15 @@ export default function Home() {
       const assistantResponse = data.content;
       console.log("Assistant Response:", assistantResponse);
 
-      if (assistantResponse) {
+      if( assistantResponse ) {
+        
         setChatHistory(prevHistory => [...prevHistory, { role: "assistant", content: assistantResponse }]);
 
         // Extract the code from the assistant's response
-        const codeRegex = /```(javascript|typescript|tsx|jsx)([\s\S]*?)```/;
-        const partsRegex = /```(javascript-lines-|typescript-lines-|tsx-lines-|jsx-lines-)([0-9]+)-([0-9]+)\n([\s\S]*?)\n```/;
-        const match = assistantResponse.match(codeRegex);
-        const partsMatch = assistantResponse.match(partsRegex);
-        if(partsMatch) {
-
-          const startLine = parseInt(partsMatch[2]);
-          const endLine = parseInt(partsMatch[3]);
-          const code = partsMatch[4];
-          const lines = code.split('\n');
-
-          // Replace the specified lines in the selected component's code
-          let newCode = components[selectedComponent];
-          const newLines = newCode.split('\n');
-           newLines.splice(startLine - 1, endLine - startLine + 1, ...lines);
-           newCode = newLines.join('\n');
-
-          setComponents(prev => ({ ...prev, [selectedComponent]: newCode }));
+        const match = assistantResponse.match(/```(javascript|typescript|tsx|jsx)([\s\S]*?)```/);
+        const frResult = replaceFragments(assistantResponse, components[selectedComponent]);
+        if(frResult !== undefined) {
+          setComponents(prev => ({ ...prev, [selectedComponent]: frResult }));
         }
         else if (match) {
           const extractedCode = match[2].trim();
