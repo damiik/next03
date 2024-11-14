@@ -12,6 +12,7 @@ import { javascript } from '@codemirror/lang-javascript';
 import { darcula } from '@uiw/codemirror-theme-darcula';
 import { EditorView } from '@codemirror/view';
 import { ThreeCanvas } from './ThreeCanvas';
+import { diffLines } from 'diff'; // for components
 // import { select } from 'three/webgpu';
 
 
@@ -54,9 +55,9 @@ const ComponentVisualizer = () => {
       }).outputText;
 
 
-      console.log("Babel transform code:\n"+jsCode);
+      console.log("Babel transform code..\n"); //+jsCode);
       const transformedCode = Babel.transform(jsCode, { presets: ['react'] }).code; 
-      console.log("Babel transformed code:\n"+transformedCode);
+      console.log("Babel code transformed.\n");//+transformedCode);
       if (!transformedCode) {
         throw new Error("Babel transformation failed.");
       }
@@ -65,9 +66,9 @@ const ComponentVisualizer = () => {
       // Wrap the evaluation in a try...catch
 
       try {
-        const Component = new Function('React', 'useState', 'useEffect', 'useRef', 'THREE', 'Play', 'Pause', 'SkipForward', 'SkipBack', ...Object.keys(rest), `
+        const Component = new Function('React', 'useState', 'useEffect', 'useRef', 'THREE', 'Play', 'Pause', 'SkipForward', 'SkipBack', 'diffLines', ...Object.keys(rest), `
           return (${transformedCode}); // Added semicolon here for safety
-        `)(React, React.useState, React.useEffect, React.useRef, THREE, Play, Pause, SkipForward, SkipBack, ...Object.values(rest));
+        `)(React, React.useState, React.useEffect, React.useRef, THREE, Play, Pause, SkipForward, SkipBack, diffLines, ...Object.values(rest));
 
         if (typeof Component !== 'function' && typeof Component !== 'object' ) { // Added check for object to allow functional components
           throw new Error('Compiled code did not return a valid component. Make sure it returns a React functional component or a class component.');
@@ -151,7 +152,7 @@ const ComponentVisualizer = () => {
     "&": { 
       height: `${codeMirrorHeight}px`,  
       fontFamily: "var(--font-cascadia-mono-nf), monospace", 
-      fontSize: "1.1rem" 
+      fontSize: "1.2rem" 
     },
     ".cm-scroller": { 
       fontFamily: "var(--font-cascadia-mono-nf), monospace", 

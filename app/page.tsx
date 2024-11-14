@@ -4,67 +4,22 @@ import { useState, useRef, useEffect, FormEvent, KeyboardEvent, useCallback } fr
 import ComponentVisualizer from './components/ComponentVisualizer';
 import { defaultSystemPrompts } from './prompts/system-prompts';
 import { useComponentContext } from './context/ComponentContext';
-import { diffLines } from 'diff';
+import { replaceFragments } from './tools/diff';
 
 type Message = {
   role: 'user' | 'assistant' | 'system';
   content: string;
 };
 
-// currenly only supports replacing a single fragment
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function replaceFragment(fragments: string, componentCode: string) :  string | undefined {
-
-  const partsMatch = fragments.match(/```(javascript-lines-|typescript-lines-|tsx-lines-|jsx-lines-)([0-9]+)-([0-9]+)\n([\s\S]*?)\n```/);
-  if( partsMatch ) {
-
-    const startLine = parseInt(partsMatch[2]);
-    const endLine = parseInt(partsMatch[3]);
-    const code = partsMatch[4];
-    const lines = code.split('\n');
-    console.log("component code to split:\n" +   componentCode);
-    // Replace the specified lines in the selected component's code
-    const newLines = componentCode.split('\n');
-    newLines.splice(startLine - 1, endLine - startLine + 1, ...lines);
-    return newLines.join('\n');
-  }
-  return undefined
-}
-
-function replaceFragments(fragments: string, componentCode: string) :  string | undefined {
-  let updatedCode = componentCode;
-  let diffFound = false;
-
-  const regex = /```(diff)\n([\s\S]*?)\n```/g;
-  let match;
-
-  while ((match = regex.exec(fragments)) !== null) {
-    diffFound = true;
-    const diffString = match[2];
-    const changes = diffLines(componentCode, diffString);
-
-    updatedCode = changes.reduce((acc, change) => {
-      if (!change.removed) {
-        return acc + change.value;
-      }
-      return acc;
-    }, '');
-
-    //componentCode = updatedCode; // Update componentCode for subsequent matches
-  }
-
-  return diffFound ? updatedCode : undefined;
-}
-
 export default function Home() {
   const { setComponents, setSelectedComponent, componentCompileError, setComponentCompileError, components, selectedComponent, isLoading, setIsLoading, resetChatHistory: contextResetChatHistory, handlingError, setHandlingError } = useComponentContext();
 
   const [userInput, setUserInput] = useState('');
   const [waitingForAnswer, setWaitingForAnswer] = useState(false);
-  const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "system", content: defaultSystemPrompts[2] }]);
+  const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "system", content: defaultSystemPrompts[3] }]);
 
   const resetChatHistory = useCallback(() => {
-    setChatHistory([{ role: "system", content: defaultSystemPrompts[2] }]);
+    setChatHistory([{ role: "system", content: defaultSystemPrompts[3] }]);
     // setChatHistory([{ role: "user", content: defaultSystemPrompt }]); // for anthropic claude
   }, []);
 
@@ -87,20 +42,22 @@ export default function Home() {
     setIsLoading(true);
 
     try {
+      console.log("Selected Component in handleSubmit:", selectedComponent); // Add console log here
       // Get the user input from the form or textarea
       let cleanedInput = '';
       if (e.type ?? true) {
         const inputElement = (e.target as HTMLFormElement)?.elements?.namedItem('userInput') || e.target as HTMLTextAreaElement;
         cleanedInput = inputElement instanceof HTMLTextAreaElement ? inputElement.value.trim() : '';
-        const codeRegex = /([\s\S]*?)\{\{code\}\}([\s\S]*)/; // extract {{comp}}
-        const matchess = cleanedInput.match(codeRegex);
+        const matchess = cleanedInput.match(/([\s\S]*?)\{\{code\}\}([\s\S]*)/);
         if( matchess ) {
           const codeLines : string[]  = components[selectedComponent]?.split('\n') ?? [];
           if (codeLines.length === 0) {
-            cleanedInput = matchess[1] + 'No component code available' + matchess[2];
+            console.log(`No component code available for selected component: ${selectedComponent}`);
+            cleanedInput = "";//matchess[1] + 'No component code available' + matchess[2];
           } else {
             // Reconstruct cleanedInput by combining text before {{comp}},adding numbered component lines, and text after {{comp}}
-            cleanedInput = matchess[1] + codeLines.flatMap((line, index) => [`${index + 1}. ${line}`]).join('\n') + matchess[2];
+            // cleanedInput = matchess[1] + codeLines.flatMap((line, index) => [`${index + 1}. ${line}`]).join('\n') + matchess[2];
+            cleanedInput = matchess[1] + "\n" + codeLines.join('\n') + matchess[2]; // no line numbering
           }
         }
       }
@@ -111,45 +68,52 @@ export default function Home() {
         `
       }
 
-      const newHistory : Message[] = [...chatHistory, { role: "user", content: cleanedInput }];
-      setChatHistory(newHistory);
-
       setUserInput('');
 
-      const response = await fetch('/api', {    //api is off now!
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ messages: newHistory }),
-      });
+      if (cleanedInput !== '') { // Cline: Added condition to check if cleanedInput is empty
 
-      const data = await response.json();
-      const assistantResponse = data.content;
-      console.log("Assistant Response:", assistantResponse);
+        const newHistory : Message[] = [...chatHistory, { role: "user", content: cleanedInput }];
+        setChatHistory(newHistory);
 
-      if( assistantResponse ) {
-        
-        setChatHistory(prevHistory => [...prevHistory, { role: "assistant", content: assistantResponse }]);
+        const response = await fetch('/api', {    //api is off now!
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ messages: newHistory }),
+        });
 
-        // Extract the code from the assistant's response
-        const match = assistantResponse.match(/```(javascript|typescript|tsx|jsx)([\s\S]*?)```/);
-        const frResult = replaceFragments(assistantResponse, components[selectedComponent]);
-        if(frResult !== undefined) {
-          setComponents(prev => ({ ...prev, [selectedComponent]: frResult }));
+        const data = await response.json();
+        const assistantResponse = data.content;
+        console.log("Assistant Response:", assistantResponse);
+
+        if( assistantResponse ) {
+          
+          setChatHistory(prevHistory => [...prevHistory, { role: "assistant", content: assistantResponse }]);
+
+          // Extract the code from the assistant's response
+          const match = assistantResponse.match(/```(javascript|typescript|tsx|jsx)([\s\S]*?)```/);
+          const frResult = replaceFragments(assistantResponse, components[selectedComponent]);
+          if(frResult.success) {
+            console.log("diff success with code:", frResult.code??""); // Add console log here
+            setComponents(prev => ({ ...prev, [selectedComponent]: frResult.code??"" }));
+          }
+          else { 
+            if(frResult.error) console.log(frResult.error);
+            if (match) {
+              const extractedCode = match[2].trim();
+              // Extract the component name from the function declaration
+              const functionNameRegex = /function\s+(\w+)\s*\(/;
+              const functionNameMatch = extractedCode.match(functionNameRegex);
+              const componentName = functionNameMatch ? functionNameMatch[1] : 'Component1';
+
+              setComponents(prev => ({ ...prev, [componentName]: extractedCode }));
+              setSelectedComponent(componentName);
+            }
+          }
+        } else {
+          setChatHistory(prevHistory => [...prevHistory, { role: "assistant", content: "No response from AI" }]);
         }
-        else if (match) {
-          const extractedCode = match[2].trim();
-          // Extract the component name from the function declaration
-          const functionNameRegex = /function\s+(\w+)\s*\(/;
-          const functionNameMatch = extractedCode.match(functionNameRegex);
-          const componentName = functionNameMatch ? functionNameMatch[1] : 'Component1';
-
-          setComponents(prev => ({ ...prev, [componentName]: extractedCode }));
-          setSelectedComponent(componentName);
-        }
-      } else {
-        setChatHistory(prevHistory => [...prevHistory, { role: "assistant", content: "No response from AI" }]);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -179,7 +143,7 @@ export default function Home() {
         }
       });
     }
-  }, [componentCompileError, setComponentCompileError, selectedComponent, handleSubmit, handlingError, setHandlingError]); // Cline: Added handlingError and setHandlingError to dependencies
+  }, [componentCompileError, setComponentCompileError, selectedComponent, handlingError, setHandlingError]); // Removed handleSubmit from the dependency array
 
   // Scroll to the bottom of the textarea when the chat history changes
   useEffect(() => {
@@ -189,7 +153,7 @@ export default function Home() {
   }, [chatHistory]);
 
   //
-  const formattedHistory = chatHistory.map(msg => `${msg.role === 'user' ? 'You' : 'Assistant'}: ${msg.content}`).join('\n\n');
+  const formattedHistory = chatHistory.map(msg => `${msg.role === 'user' ? 'You:\n' : 'Assistant:\n'}: ${msg.content}`).join('\n\n');
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
