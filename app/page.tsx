@@ -2,12 +2,11 @@
 
 import { useState, useRef, useEffect, FormEvent, KeyboardEvent, useCallback } from 'react';
 import ComponentVisualizer from './components/ComponentVisualizer';
-import { defaultSystemPrompts } from './prompts/system-prompts';
 import { useComponentContext } from './context/ComponentContext';
 import { replaceFragments } from './tools/diff';
 
 type Message = {
-  role: 'user' | 'assistant' | 'system';
+  role: 'user' | 'assistant' | 'system' | 'model';
   content: string;
 };
 
@@ -16,11 +15,10 @@ export default function Home() {
 
   const [userInput, setUserInput] = useState('');
   const [waitingForAnswer, setWaitingForAnswer] = useState(false);
-  const [chatHistory, setChatHistory] = useState<Message[]>([{ role: "system", content: defaultSystemPrompts[3] }]);
+  const [chatHistory, setChatHistory] = useState<Message[]>([]);
 
   const resetChatHistory = useCallback(() => {
-    setChatHistory([{ role: "system", content: defaultSystemPrompts[3] }]);
-    // setChatHistory([{ role: "user", content: defaultSystemPrompt }]); // for anthropic claude
+    setChatHistory([]);
   }, []);
 
   // synchronizes the local resetChatHistory function with the context's resetChatHistory function.
@@ -72,24 +70,27 @@ export default function Home() {
 
       if (cleanedInput !== '') { // Cline: Added condition to check if cleanedInput is empty
 
-        const newHistory : Message[] = [...chatHistory, { role: "user", content: cleanedInput }];
-        setChatHistory(newHistory);
 
-        const response = await fetch('/api', {    //api is off now!
+        const response = await fetch('/api', {    //api is called now!
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ messages: newHistory }),
+          body: JSON.stringify({ messages: chatHistory, query: cleanedInput}),
         });
 
         const data = await response.json();
         const assistantResponse = data.content;
         console.log("Assistant Response:", assistantResponse);
 
+
+        const newHistory : Message[] = [...chatHistory, { role: "user", content: cleanedInput }];
+        setChatHistory(newHistory);
+
         if( assistantResponse ) {
           
-          setChatHistory(prevHistory => [...prevHistory, { role: "assistant", content: assistantResponse }]);
+          // setChatHistory(prevHistory => [...prevHistory, { role: "assistant", content: assistantResponse }]);
+          setChatHistory(prevHistory => [...prevHistory, { role: "model", content: assistantResponse }]); //gemini
 
           // Extract the code from the assistant's response
           const match = assistantResponse.match(/```(javascript|typescript|tsx|jsx)([\s\S]*?)```/);
@@ -117,7 +118,7 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Error:", error);
-      setChatHistory(prevHistory => [...prevHistory, { role: "system", content: `Error: ${error}` }]);
+      setChatHistory(prevHistory => [...prevHistory, { role: "user", content: `Error: ${error}` }]);
     } finally {
       setIsLoading(false);
       setWaitingForAnswer(false);

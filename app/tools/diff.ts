@@ -89,6 +89,7 @@ function replaceFragments(fragments: string, componentCode: string): DiffResult 
       }
 
       for (const change of changes) {
+
         if (change.removed) {
           const numLinesToRemove = change.value.split('\n').length - 1;
           updatedCode.splice(codeIndex, numLinesToRemove);

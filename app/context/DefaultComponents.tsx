@@ -197,14 +197,14 @@ export const defaultComponents = {
         </div>
 
         <div className="space-y-2">
-          <div className="text-BLUE bg-GREEN text-BLUE">Input:</div>
+          <div className="text-BLUE bg-GREEN ">Input:</div>
           <div className="p-4">{highlightedInput}</div>
 
         </div>
 
         <div className="space-y-8">
           <p>&nbsp;</p>
-          <div className="text-BLUE bg-GREEN text-BLUE">Vim Command:</div>
+          <div className="text-BLUE bg-GREEN >Vim Command:</div>
           <div className="p-4 text-ORANGE">{highlightedCommand}</div>
         </div>
         <p>&nbsp;</p>
@@ -280,12 +280,7 @@ export const defaultComponents = {
                   <td className="px-4 py-1 border-DARK_GREY border-[3px] bg-CYAN">{transistor.qg}</td>
                   <td className="px-4 py-1 border-DARK_GREY border-[3px] bg-PURPLE">{transistor.Qgs}</td>
                 </tr>
-                {index < transistors.length - 1 && (
-                  <tr>
-                    <td colSpan={6} className="bg-BLACK">
-                    </td>
-                  </tr>
-                )}
+
               </React.Fragment>
             ))}
           </tbody>

@@ -431,8 +431,8 @@ function VideoComponent() {
 ## Your Task
 
 Assist users with:
-1. **React Component Creation**: Build new React components.
-2. **Component Modification**: Modify existing React components using structured \`diff\` blocks.
+1. **React Component Creation**: Build new React components as a \`tsx\` block with function without included import statements and without included export statements.
+2. **Component Modification**: Modify existing React components using separated structured \`diff\` blocks for every part of code modification.
 3. **Troubleshooting**: Identify and fix issues in existing components, using \`diff\` blocks where appropriate.
 
 ---
@@ -452,9 +452,13 @@ Use the following steps to create each \`diff\` block to modify a React componen
      b. line breaks
      c. leading spaces.
      d. code indentation
-   - Do not add placeholders or comments like \`...\` inside the \`diff\` block.
+   - Do not add placeholders or comments like \`...\` or \`// ... other\`  or \`// ... (truncated for brevity)\` inside the \`diff\` block.
    - Maintain leading/trailing spaces precisely as in the original code. 
+   - Maintain context lines precisely as in the original code. 
    - The first character \`-\` or \`+\` counts as part of trailing space formatting.
+   - For every block of code modification create separated \`diff\` block.
+
+
 
 ---
 
@@ -463,9 +467,13 @@ Use the following steps to create each \`diff\` block to modify a React componen
 1. **Component Code Analysis**: Identify areas in the component that require modifications.
 2. **Build \`diff\` Blocks**: Add necessary modifications using \`diff\` format as above.
 3. **Compliance Checks**:
-   - Use correct color names and spacing in Tailwind CSS.
+   - Build new component as \`\`\`tsx block with component function but WITHOUHT import statements and WIHTOUT export statements.
+   - Modify existing components using separated \`diff\` blocks. 
+   - For for every separated modified block of code create separated \`diff\` block.
+   - Use correct color names and spacing uses from the provided Tailwind CSS.
+   - Use colors ONLY from the following palette: ${colors.map(color => color.name).join(", ")} or defined directly like #000000.
    - Ensure \`diff\` block structure is precise, following indentation, line breaks, and spacing accurately.
-4. **Critical Checking**: Carefuly verify proper \`diff\` block formating with leading spaces and line breaks  
+4. **Critical Checking**: Carefuly verify proper \`diff\` block formating and extra context lines with leading spaces and line breaks  
 
 ---
 
@@ -478,11 +486,16 @@ Wrap your response with \`<component_analysis>\` tags, including:
 4. Relevant Tailwind CSS classes.
 5. Any React hooks needed.
 6. Potential issues.
-7. Verified \`diff\` block formatting.
+7. Confirmation that there is no \`...\` placeholders or comments in \`diff\` block.  
+8. Confirmation that you added 2-3 lines of IMMEDIATE, surrounding, unchanged, code if available.
+3. Confirmation that modified lines have relevant prefix \`-\` or \`+\`.
+8. Verified \`diff\` block formatting.
 
 Example:
 
 \`\`\`diff
+function ExampleCompnent() {
+
   return (
 -   <div className="w-full h-full flex justify-center items-center bg-DARK_GREY m-10">
 +   <div className="w-full h-full flex justify-center items-center bg-LIGHT_GREY m-10">
@@ -492,6 +505,14 @@ Example:
       src="https://www.youtube.com/embed/scGS3NnmSH0"
 \`\`\`
 
+\`\`\`diff
+  return (
+    <div className="w-full h-full flex justify-center items-center bg-DARK_GREY m-10">
+    <iframe
+      className="w-3/4 h-auto shadow-[0px_0px_10px_rgba(255,0,0,0.5)]"
+-      src="https://www.youtube.com/embed/scGS3NnmSH0"
++      src="https://www.youtube.com/embed/anotherVideoId"
+\`\`\`
+
 `
-  ];
-  
+];
