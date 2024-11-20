@@ -10,6 +10,9 @@ type Message = {
   content: string;
 };
 
+const assistant = 'model'; // for gemini //
+// const assistant = 'assistant'; // for rest of the world
+
 export default function Home() {
   const { setComponents, setSelectedComponent, componentCompileError, setComponentCompileError, components, selectedComponent, isLoading, setIsLoading, resetChatHistory: contextResetChatHistory, handlingError, setHandlingError } = useComponentContext();
 
@@ -89,8 +92,7 @@ export default function Home() {
 
         if( assistantResponse ) {
           
-          // setChatHistory(prevHistory => [...prevHistory, { role: "assistant", content: assistantResponse }]);
-          setChatHistory(prevHistory => [...prevHistory, { role: "model", content: assistantResponse }]); //gemini
+          setChatHistory(prevHistory => [...prevHistory, { role: assistant, content: assistantResponse }]); //gemini
 
           // Extract the code from the assistant's response
           const match = assistantResponse.match(/```(javascript|typescript|tsx|jsx)([\s\S]*?)```/);
@@ -113,7 +115,7 @@ export default function Home() {
             }
           }
         } else {
-          setChatHistory(prevHistory => [...prevHistory, { role: "assistant", content: "No response from AI" }]);
+          setChatHistory(prevHistory => [...prevHistory, { role: assistant, content: "No response from AI" }]);
         }
       }
     } catch (error) {
@@ -124,7 +126,7 @@ export default function Home() {
       setWaitingForAnswer(false);
       setHandlingError(false); // Cline: setHandlingError to false in finally block
     }
-  }, [chatHistory, setComponents, setSelectedComponent, isLoading, setIsLoading, componentCompileError, components, waitingForAnswer, handlingError, setHandlingError]);
+  }, [chatHistory, selectedComponent, isLoading, componentCompileError, components, waitingForAnswer, setComponents, setHandlingError, setIsLoading, setSelectedComponent]);
 
   // Update the user input state when the textarea value changes
   useEffect(() => {
@@ -144,7 +146,7 @@ export default function Home() {
         }
       });
     }
-  }, [componentCompileError, setComponentCompileError, selectedComponent, handlingError, setHandlingError]); // Removed handleSubmit from the dependency array
+  }, [componentCompileError, setComponentCompileError, selectedComponent, handlingError, setHandlingError, components, handleSubmit]); // Removed handleSubmit from the dependency array
 
   // Scroll to the bottom of the textarea when the chat history changes
   useEffect(() => {

@@ -41,3 +41,5 @@ package-lock.json
 .vscode/launch.json
 package-lock.json
 .gitignore
+/tests/*
+/tests

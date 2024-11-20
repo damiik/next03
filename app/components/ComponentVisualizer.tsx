@@ -119,7 +119,7 @@ const ComponentVisualizer = () => {
     } else {
       setCompiledComponent(() => ThreeCanvas);
     }
-  }, [selectedComponent, components[selectedComponent]]);
+  }, [selectedComponent, components]);
 
 
   const handleCodeChange = (newCode: string) => {

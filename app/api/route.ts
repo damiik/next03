@@ -115,15 +115,16 @@ export async function POST(req: NextRequest) {
     // google
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY??"");
     const client = genAI.getGenerativeModel({
-      model: "gemini-exp-1114",
+      // model: "gemini-exp-1114",
+      model: "gemini-1.5-pro-002",
       systemInstruction: defaultSystemPrompts[3],
     });
     const chatSession = client.startChat({
 
       generationConfig: {
-        temperature: 1,
-        topP: 0.95,
-        topK: 64,
+        temperature: 0.2,
+        topP: 0.5,
+        topK: 9,
         maxOutputTokens: 8192,
         responseMimeType: "text/plain",
       },

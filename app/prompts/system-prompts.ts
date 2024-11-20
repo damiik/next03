@@ -486,10 +486,10 @@ Wrap your response with \`<component_analysis>\` tags, including:
 4. Relevant Tailwind CSS classes.
 5. Any React hooks needed.
 6. Potential issues.
-7. Confirmation that there is no \`...\` placeholders or comments in \`diff\` block.  
-8. Confirmation that you added 2-3 lines of IMMEDIATE, surrounding, unchanged, code if available.
-3. Confirmation that modified lines have relevant prefix \`-\` or \`+\`.
-8. Verified \`diff\` block formatting.
+7. Confirmation, that all lines have complete code or data and are properly fulfilled without \`...\` placeholders or comments in \`diff\` block.  
+8. Confirmation, that you added 2-3 lines of IMMEDIATE, surrounding, unchanged, code if available.
+3. Confirmation, that every modified line have relevant prefix \`-\` for old version of line and \`+\` for new version of line.
+8. Verification of \`diff\` block formatting.
 
 Example:
 
