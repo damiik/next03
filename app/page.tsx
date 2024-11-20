@@ -10,11 +10,22 @@ type Message = {
   content: string;
 };
 
-const assistant = 'model'; // for gemini //
-// const assistant = 'assistant'; // for rest of the world
+const assistant = 'model'; // for gemini
 
 export default function Home() {
-  const { setComponents, setSelectedComponent, componentCompileError, setComponentCompileError, components, selectedComponent, isLoading, setIsLoading, resetChatHistory: contextResetChatHistory, handlingError, setHandlingError } = useComponentContext();
+  const {
+    setComponents,
+    setSelectedComponent,
+    componentCompileError,
+    setComponentCompileError,
+    components,
+    selectedComponent,
+    isLoading,
+    setIsLoading,
+    resetChatHistory: contextResetChatHistory,
+    handlingError,
+    setHandlingError,
+  } = useComponentContext();
 
   const [userInput, setUserInput] = useState('');
   const [waitingForAnswer, setWaitingForAnswer] = useState(false);
@@ -24,146 +35,137 @@ export default function Home() {
     setChatHistory([]);
   }, []);
 
-  // synchronizes the local resetChatHistory function with the context's resetChatHistory function.
-  // Because the context's resetChatHistory is initially an empty function, this useEffect ensures that
-  // the actual implementation from app/page.tsx is used to update the shared state in the context
-  // whenever the local resetChatHistory changes.
-  // This is crucial for ensuring that the reset operation is properly reflected throughout the application.
   useEffect(() => {
-    contextResetChatHistory(); // The user removed the function call here, but it's needed to update the context
+    contextResetChatHistory();
   }, [resetChatHistory, contextResetChatHistory]);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement> | KeyboardEvent<HTMLTextAreaElement> | {preventDefault: () => void, type: false, target: {elements: {namedItem: (name: string) => ({value: string})}}}) => {
-    e.preventDefault();
-    if (isLoading || waitingForAnswer) return;
+  const processUserInput = (input: string): string => {
+    let cleanedInput = input.trim();
+    const matches = cleanedInput.match(/([\s\S]*?)\{\{code\}\}([\s\S]*)/);
+    if (matches) {
+      const codeLines: string[] = components[selectedComponent]?.split('\n') ?? [];
+      cleanedInput = `${matches[1]}\n${codeLines.join('\n')}\n${matches[2]}`;
+    }
+    return cleanedInput;
+  };
 
-    setWaitingForAnswer(true);
-    setIsLoading(true);
+  const handleSubmit = useCallback(
+    async (e: FormEvent<HTMLFormElement> | KeyboardEvent<HTMLTextAreaElement>) => {
+      e.preventDefault();
+      if (isLoading || waitingForAnswer) return;
 
-    try {
-      console.log("Selected Component in handleSubmit:", selectedComponent); // Add console log here
-      // Get the user input from the form or textarea
-      let cleanedInput = '';
-      if (e.type ?? true) {
-        const inputElement = (e.target as HTMLFormElement)?.elements?.namedItem('userInput') || e.target as HTMLTextAreaElement;
-        cleanedInput = inputElement instanceof HTMLTextAreaElement ? inputElement.value.trim() : '';
-        const matchess = cleanedInput.match(/([\s\S]*?)\{\{code\}\}([\s\S]*)/);
-        if( matchess ) {
-          const codeLines : string[]  = components[selectedComponent]?.split('\n') ?? [];
-          if (codeLines.length === 0) {
-            console.log(`No component code available for selected component: ${selectedComponent}`);
-            cleanedInput = "";//matchess[1] + 'No component code available' + matchess[2];
-          } else {
-            // Reconstruct cleanedInput by combining text before {{comp}},adding numbered component lines, and text after {{comp}}
-            // cleanedInput = matchess[1] + codeLines.flatMap((line, index) => [`${index + 1}. ${line}`]).join('\n') + matchess[2];
-            cleanedInput = matchess[1] + "\n" + codeLines.join('\n') + matchess[2]; // no line numbering
-          }
-        }
-      }
-      else {
-        cleanedInput = `Can you fix error: ${componentCompileError}
-        in component code:
-        ${components[selectedComponent]?.split('\n').flatMap((line, index) => [`${index + 1}. ${line}`]).join('\n')}
-        `
-      }
+      setWaitingForAnswer(true);
+      setIsLoading(true);
 
-      setUserInput('');
-
-      if (cleanedInput !== '') { // Cline: Added condition to check if cleanedInput is empty
-
-
-        const response = await fetch('/api', {    //api is called now!
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ messages: chatHistory, query: cleanedInput}),
-        });
-
-        const data = await response.json();
-        const assistantResponse = data.content;
-        console.log("Assistant Response:", assistantResponse);
-
-
-        const newHistory : Message[] = [...chatHistory, { role: "user", content: cleanedInput }];
-        setChatHistory(newHistory);
-
-        if( assistantResponse ) {
-          
-          setChatHistory(prevHistory => [...prevHistory, { role: assistant, content: assistantResponse }]); //gemini
-
-          // Extract the code from the assistant's response
-          const match = assistantResponse.match(/```(javascript|typescript|tsx|jsx)([\s\S]*?)```/);
-          const frResult = replaceFragments(assistantResponse, components[selectedComponent]);
-          if(frResult.success) {
-            console.log("diff success with code:", frResult.code??""); // Add console log here
-            setComponents(prev => ({ ...prev, [selectedComponent]: frResult.code??"" }));
-          }
-          else { 
-            if(frResult.error) console.log(frResult.error);
-            if (match) {
-              const extractedCode = match[2].trim();
-              // Extract the component name from the function declaration
-              const functionNameRegex = /function\s+(\w+)\s*\(/;
-              const functionNameMatch = extractedCode.match(functionNameRegex);
-              const componentName = functionNameMatch ? functionNameMatch[1] : 'Component1';
-
-              setComponents(prev => ({ ...prev, [componentName]: extractedCode }));
-              setSelectedComponent(componentName);
-            }
-          }
+      try {
+        let cleanedInput = '';
+        if (e.type !== 'click') {
+          const inputElement = e.target as HTMLTextAreaElement;
+          cleanedInput = processUserInput(inputElement.value);
         } else {
-          setChatHistory(prevHistory => [...prevHistory, { role: assistant, content: "No response from AI" }]);
+          cleanedInput = `Can you fix error: ${componentCompileError}\n in component code:\n${components[selectedComponent]}`;
         }
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      setChatHistory(prevHistory => [...prevHistory, { role: "user", content: `Error: ${error}` }]);
-    } finally {
-      setIsLoading(false);
-      setWaitingForAnswer(false);
-      setHandlingError(false); // Cline: setHandlingError to false in finally block
-    }
-  }, [chatHistory, selectedComponent, isLoading, componentCompileError, components, waitingForAnswer, setComponents, setHandlingError, setIsLoading, setSelectedComponent]);
 
-  // Update the user input state when the textarea value changes
-  useEffect(() => {
-    if (componentCompileError && handlingError) { // Check if already handling an error
-      //setHandlingError(true); // Set error handling to true
-      console.log("onSubmit --> Customer Component Compilation error:", componentCompileError);
-      const err_msg = componentCompileError;
-      setComponentCompileError(''); // Clear the error
+        setUserInput('');
 
-      handleSubmit({ // Call handleSubmit with a fake event object (todo: must be refactored in the future)
-        preventDefault: () => {},
-        type: false,
-        target: {
-          elements: {
-            namedItem: () => ({ value: `Compilation error: ${err_msg}\n\nCurrent user component code:\n\n${components[selectedComponent]}` })
+        if (cleanedInput !== '') {
+          const response = await fetch('/api', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ messages: chatHistory, query: cleanedInput }),
+          });
+
+          const data = await response.json();
+          const assistantResponse = data.content;
+
+          const newHistory: Message[] = [
+            ...chatHistory,
+            { role: 'user', content: cleanedInput },
+          ];
+          setChatHistory(newHistory);
+
+          if (assistantResponse) {
+            setChatHistory((prevHistory) => [
+              ...prevHistory,
+              { role: assistant, content: assistantResponse },
+            ]);
+
+            const frResult = replaceFragments(assistantResponse, components[selectedComponent]);
+            if (frResult.success) {
+              setComponents((prev) => ({ ...prev, [selectedComponent]: frResult.code ?? '' }));
+            } else {
+              const match = assistantResponse.match(/```(javascript|typescript|tsx|jsx)([\s\S]*?)```/);
+              if (match) {
+                const extractedCode = match[2].trim();
+                const functionNameRegex = /function\s+(\w+)\s*\(/;
+                const functionNameMatch = extractedCode.match(functionNameRegex);
+                const componentName = functionNameMatch ? functionNameMatch[1] : 'Component1';
+
+                setComponents((prev) => ({ ...prev, [componentName]: extractedCode }));
+                setSelectedComponent(componentName);
+              }
+            }
+          } else {
+            setChatHistory((prevHistory) => [...prevHistory, { role: assistant, content: "No response from AI" }]);
           }
         }
-      });
-    }
-  }, [componentCompileError, setComponentCompileError, selectedComponent, handlingError, setHandlingError, components, handleSubmit]); // Removed handleSubmit from the dependency array
+      } catch (error) {
+        console.error("Error:", error);
+        setChatHistory((prevHistory) => [...prevHistory, { role: "user", content: `Error: ${error}` }]);
+      } finally {
+        setIsLoading(false);
+        setWaitingForAnswer(false);
+        setHandlingError(false);
+      }
+    },
+    [
+      chatHistory,
+      selectedComponent,
+      isLoading,
+      componentCompileError,
+      components,
+      waitingForAnswer,
+      setComponents,
+      setHandlingError,
+      setIsLoading,
+      setSelectedComponent,
+    ]
+  );
 
-  // Scroll to the bottom of the textarea when the chat history changes
+  useEffect(() => {
+    if (componentCompileError && handlingError) {
+      console.log("Compilation error:", componentCompileError);
+      //const errMsg = componentCompileError;
+      setComponentCompileError('');
+
+      handleSubmit({
+        preventDefault: () => {},
+        type: 'click',
+        target: {} as EventTarget,
+      } as FormEvent<HTMLFormElement>);
+    }
+  }, [componentCompileError, setComponentCompileError, handlingError, handleSubmit]);
+
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
     }
   }, [chatHistory]);
 
-  //
-  const formattedHistory = chatHistory.map(msg => `${msg.role === 'user' ? 'You:\n' : 'Assistant:\n'}: ${msg.content}`).join('\n\n');
+  const formattedHistory = chatHistory
+    .map((msg) => `${msg.role === 'user' ? 'You:\n' : 'Assistant:\n'}${msg.content}`)
+    .join('\n\n');
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col h-full w-full max-w[95%]">
@@ -181,7 +183,9 @@ export default function Home() {
           <textarea
             name="userInput"
             value={userInput}
-            onChange={(e) => {if(!isLoading) setUserInput(e.target.value); }}
+            onChange={(e) => {
+              if (!isLoading) setUserInput(e.target.value);
+            }}
             onKeyDown={handleKeyDown}
             placeholder={isLoading ? "Waiting for response..." : "Type your message..."}
             disabled={isLoading || waitingForAnswer}
