@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { handleLLMRequest } from '../utils/llmHandler';
+import { handleLLMRequest } from '../tools/ai/llmHandler';
 
 export async function POST(req: NextRequest) {
   const { messages, query } = await req.json();

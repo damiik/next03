@@ -1,4 +1,4 @@
-import { defaultSystemPrompts } from '../prompts/system-prompts';
+import { defaultSystemPrompts } from './prompts/system-prompts';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 type Message = {
   role: 'user' | 'assistant' | 'system' | 'model';

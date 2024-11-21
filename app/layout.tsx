@@ -8,25 +8,25 @@ import "./globals.css";
 
 
 const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
+  src: "./res/fonts/GeistVF.woff",
   variable: "--font-geist-sans",
   weight: "100 900",
 });
 
 const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
+  src: "./res/fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
 });
 
 const cascadiaCode = localFont({
-  src: "./fonts/CascadiaCode.woff2",
+  src: "./res/fonts/CascadiaCode.woff2",
   variable: "--font-cascadia-code",
   weight: "100 900",
 });
 
 const cascadiaMonoNF = localFont({
-  src: "./fonts/CascadiaMonoNF.woff2",
+  src: "./res/fonts/CascadiaMonoNF.woff2",
   variable: "--font-cascadia-mono-nf",
   weight: "100 400",
 });

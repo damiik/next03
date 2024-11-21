@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { ChevronsRight, CornerRightDown, Palette, FileCode2, Wrench } from 'lucide-react';
-import { colors } from './colors';
+import { colors } from '../res/colors';
 //import Styles from './Styles';
 import { useComponentContext } from '../context/ComponentContext';
 

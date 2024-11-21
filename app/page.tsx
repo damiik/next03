@@ -4,6 +4,8 @@ import { useState, useRef, useEffect, FormEvent, KeyboardEvent, useCallback } fr
 import ComponentVisualizer from './components/ComponentVisualizer';
 import { useComponentContext } from './context/ComponentContext';
 import { replaceFragments } from './tools/diff';
+import { pipe } from 'fp-ts/lib/function';
+import { match } from 'fp-ts/lib/Either';
 
 type Message = {
   role: 'user' | 'assistant' | 'system' | 'model';
@@ -94,9 +96,12 @@ export default function Home() {
               { role: assistant, content: assistantResponse },
             ]);
 
-            const frResult = replaceFragments(assistantResponse, components[selectedComponent]);
-            if (frResult.success) {
-              setComponents((prev) => ({ ...prev, [selectedComponent]: frResult.code ?? '' }));
+            const frResult : string | undefined = pipe(
+              replaceFragments(assistantResponse, components[selectedComponent]), 
+              match(() => undefined, code => code)
+            );
+            if (frResult !== undefined) {
+              setComponents((prev) => ({ ...prev, [selectedComponent]: frResult }));
             } else {
               const match = assistantResponse.match(/```(javascript|typescript|tsx|jsx)([\s\S]*?)```/);
               if (match) {

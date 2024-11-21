@@ -1,4 +1,4 @@
-import { colors } from '../components/colors';
+import { colors } from '../../../res/colors';
 
 
 export const defaultSystemPrompts = [`
