@@ -12,7 +12,8 @@ if (!process.env.GEMINI_API_KEY) {
 export async function handleLLMRequest(messages : Message[], query:string) {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
   const client = genAI.getGenerativeModel({
-    model: 'gemini-1.5-pro-002',
+    // model: 'gemini-1.5-pro-002',
+    model: 'gemini-exp-1121',
     systemInstruction: defaultSystemPrompts[3],
   });
 

@@ -442,8 +442,9 @@ Assist users with:
 Use the following steps to create each \`diff\` block to modify a React component:
 1. Header line: \`\`\`diff
 2. Show 2-3 lines of surrounding unchanged code if available.
-3. Prefix lines to delete with \`-\`.
+3. Prefix lines to delete (used also as context) with \`-\`.
 4. Prefix lines to add with \`+\`.
+5. Prefix lines to keep (context) with \` \`.
 5. Footer line: \`\`\`
 6. **Important**: 
    - First analise user's component source code formating and style.
@@ -455,7 +456,7 @@ Use the following steps to create each \`diff\` block to modify a React componen
    - Do not add placeholders or comments like \`...\` or \`// ... other\`  or \`// ... (truncated for brevity)\` inside the \`diff\` block.
    - Maintain leading/trailing spaces precisely as in the original code. 
    - Maintain context lines precisely as in the original code. 
-   - The first character \`-\` or \`+\` counts as part of trailing space formatting.
+   - The first character in line of diff block is a prefix, use \`-\` or \`+\` or \` \` (space), this prefixes don't count as part of trailing space formatting.
    - For every block of code modification create separated \`diff\` block.
 
 
@@ -488,31 +489,35 @@ Wrap your response with \`<component_analysis>\` tags, including:
 6. Potential issues.
 7. Confirmation, that all lines have complete code or data and are properly fulfilled without \`...\` placeholders or comments in \`diff\` block.  
 8. Confirmation, that you added 2-3 lines of IMMEDIATE, surrounding, unchanged, code if available.
-3. Confirmation, that every modified line have relevant prefix \`-\` for old version of line and \`+\` for new version of line.
-8. Verification of \`diff\` block formatting.
+9. Confirmation, that no \`@@ -XX,YY +XX,YY @@\` header lines are used in \`diff\` block.
+10. Confirmation, that every lines in diff block have relevant prefix:
+  a. prefix \`-\` for old version of line 
+  b. prefix \`+\` for new version of line.
+  c. prefix \` \` (space) for rest of context lines
+11. Verification of \`diff\` block formatting, line by line.
 
 Example:
 
 \`\`\`diff
 function ExampleCompnent() {
 
-  return (
--   <div className="w-full h-full flex justify-center items-center bg-DARK_GREY m-10">
-+   <div className="w-full h-full flex justify-center items-center bg-LIGHT_GREY m-10">
-+     <div>Some additional content</div>
-    <iframe
-      className="w-3/4 h-auto shadow-[0px_0px_10px_rgba(255,0,0,0.5)]"
-      src="https://www.youtube.com/embed/scGS3NnmSH0"
+   return (
+-    <div className="w-full h-full flex justify-center items-center bg-DARK_GREY m-10">
++    <div className="w-full h-full flex justify-center items-center bg-LIGHT_GREY m-10">
++      <div>Some additional content</div>
+     <iframe
+       className="w-3/4 h-auto shadow-[0px_0px_10px_rgba(255,0,0,0.5)]"
+       src="https://www.youtube.com/embed/scGS3NnmSH0"
 \`\`\`
 
 \`\`\`diff
-  return (
-    <div className="w-full h-full flex justify-center items-center bg-DARK_GREY m-10">
-    <iframe
-      className="w-3/4 h-auto shadow-[0px_0px_10px_rgba(255,0,0,0.5)]"
--      src="https://www.youtube.com/embed/scGS3NnmSH0"
-+      src="https://www.youtube.com/embed/anotherVideoId"
+   return (
+     <div className="w-full h-full flex justify-center items-center bg-DARK_GREY m-10">
+     <iframe
+       className="w-3/4 h-auto shadow-[0px_0px_10px_rgba(255,0,0,0.5)]"
+-       src="https://www.youtube.com/embed/scGS3NnmSH0"
++       src="https://www.youtube.com/embed/anotherVideoId"
 \`\`\`
-
+<important> After "diff" block are created, checkout again points 7-11 of section <Response Process/> </important>
 `
 ];

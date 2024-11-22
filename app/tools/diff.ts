@@ -1,6 +1,6 @@
 import { diffTrimmedLines, Change } from 'diff';
 import { pipe } from 'fp-ts/lib/function.js';
-import { Option, some, none, fold, match } from 'fp-ts/lib/Option.js'
+import { Option, some, none, fold } from 'fp-ts/lib/Option.js'
 import { Either, right, left, map, chain } from 'fp-ts/lib/Either.js'
 // import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray.js';
 // import { normalize } from 'path';
@@ -14,10 +14,17 @@ interface DiffBlock {
   readonly oldLines: readonly string[];
   readonly newLines: readonly string[];
   readonly searchBlock: string;
+  readonly lineNumber?: number;
 }
 
 type CodePosition = number;
 type CodeDelta = number;
+
+// Type for a block of changes at a specific position
+type ChangeBlock = {
+  position: CodePosition;
+  changes: readonly Change[];
+};
 
 const normalizeLines = (lines: readonly string[]): readonly string[] =>
   lines.map(line => line.trim());
@@ -51,8 +58,6 @@ const parseDiffLines = (lines: string[]): {
   readonly oldLines: readonly string[],
   readonly newLines: readonly string[]
 } => {
-  //const lines = diffBlockTxt.split('\n');
-  console.log('Input lines:', lines);
 
   // First pass: collect context lines and find addition
   const contextLines: string[] = [];
@@ -90,7 +95,7 @@ const parseDiffLines = (lines: string[]): {
     //insertPosition: additionPosition
   };
 
-  console.log('Final structure:', finalStructure);
+  //console.log('Final structure:', finalStructure);
   return finalStructure;
 };
 
@@ -101,24 +106,42 @@ const extractDiffBlocks = (fragments: string): readonly DiffBlock[] => {
   let match;
 
   while ((match = regex.exec(fragments)) !== null) {
+    const lines = match[1].split('\n');
+    let currentBlock: string[] = [];
+    let currentLineNumber: number | undefined;
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      
+      // Check for @@ line indicator
+      const lineMatch = line.match(/@@ -(\d+),\d+ \+\d+,\d+ @@/);
+      if (lineMatch) {
+        // If we have accumulated lines, create a block
+        if (currentBlock.length > 0) {
+          const { oldLines, newLines } = parseDiffLines(currentBlock);
+          const searchBlock = pipe(oldLines, normalizeLines, joinLines);
+          blocks.push({ oldLines, newLines, searchBlock, lineNumber: currentLineNumber });
+          currentBlock = [];
+        }
+        // Set the line number for the next block
+        currentLineNumber = parseInt(lineMatch[1], 10) + 1; // ommit extra line with prefix @@ ?
+        continue;
+      }
 
-    // const ignoreRegex = /^--- [^\n]*\n\+\+\+ [^\n]*\n@@ -(\d+),(\d+) \+(\d+),(\d+) @@$/;
-    // Ignore lines in "diff" blocks like:
-    // `--- a/some_path...
-    // +++ b/some_path...
-    // @@ -xx,yy +jj,kk @@`
-    const ignoreRegex = /^(--- a\/[^\n]*|\+\+\+ b\/[^\n]*|@@ -\d+,\d+ \+\d+,\d+ @@)$/;
+      // Skip other diff metadata lines
+      if (line.startsWith('--- ') || line.startsWith('+++ ')) {
+        continue;
+      }
 
-    const diffBlockTxt = match[1].split('\n').filter(line => !ignoreRegex.test(line));
+      currentBlock.push(line);
+    }
 
-    //const diffBlockTxt = match[1];
-    const { oldLines, newLines } = parseDiffLines( diffBlockTxt );
-    const searchBlock = pipe(
-      oldLines,
-      normalizeLines,
-      joinLines
-    );
-    blocks.push({ oldLines, newLines, searchBlock });
+    // Add the last block if there are remaining lines
+    if (currentBlock.length > 0) {
+      const { oldLines, newLines } = parseDiffLines(currentBlock);
+      const searchBlock = pipe(oldLines, normalizeLines, joinLines);
+      blocks.push({ oldLines, newLines, searchBlock, lineNumber: currentLineNumber });
+    }
   }
 
   return blocks;
@@ -128,8 +151,21 @@ const processDiffBlock = (
   diffBlock         :DiffBlock,
   originalCodeLines :readonly string[],
   codeIndexDelta    :CodeDelta
-): Either<Error, { readonly position: CodePosition, readonly changes: readonly Change[] }> => {
+): Either<Error, ChangeBlock> => {
 
+  // If we have a line number from @@ indicator, use it directly
+  if (diffBlock.lineNumber !== undefined) {
+    const position = diffBlock.lineNumber + codeIndexDelta;
+    return right({
+      position,
+      changes: diffTrimmedLines(
+        diffBlock.oldLines.join('\n'),
+        diffBlock.newLines.join('\n')
+      )
+    });
+  }
+
+  // Otherwise fall back to searching for the block position
   const normalizedOriginalCode = originalCodeLines.map(normalizeCode);
   const normalizedSearchBlock = normalizeCode(diffBlock.searchBlock);
 
@@ -140,9 +176,7 @@ const processDiffBlock = (
       diffBlock.oldLines.length
     ),
     position => { 
-      const pos_str = pipe(position, match(() => "<not found>", pos => normalizedOriginalCode[pos]));
-      const pos_number = pipe(position, match(() => -1, pos => pos));
-      console.log(`Position: ${pos_number}, at ${pos_str}`);
+
       return pipe(position, fold(
       () => left(new Error('Could not find code block to replace')),
       pos => right({
@@ -158,35 +192,38 @@ const processDiffBlock = (
 
 const applyChanges = (
   workingCodeLines :readonly string[],
-  position         :CodePosition,
-  changes          :readonly Change[]
+  blocks          :readonly ChangeBlock[]
 ): readonly string[] => {
+  // Create a map to track changes at each position
+  //const changesByPosition = new Map<number, { lines: string[], length: number }>();
+  
+  let result = [...workingCodeLines];
 
-  let currentIndex = position;
-  return changes.reduce(
+  // Process each block to calculate its changes
+  for (const block of blocks) {
+    let currentIndex = block.position;
+    const lines: string[] = [];
+    console.log(`Processing block:`, block);
+    
+    for(const change of block.changes) {
 
-    (acc, change) => {
+      if( change.removed ) { 
+        console.log(`Remove at: ${currentIndex}, count: ${change.count}`)
+        result.splice(currentIndex, change.count ?? 0); 
+        console.log(result, "\n")
+      } 
+      else if( change.added ) {
 
-      console.log('Change:', change);
-
-      const lines = [...acc];
-
-      if (change.removed) {
-        const numLinesToRemove = change.count??0; // change.value.split('\n').length - 1;
-        lines.splice(currentIndex, numLinesToRemove);
-        //currentIndex += numLinesToRemove;
-      } else if (change.added) {
         const linesToAdd = change.value.split('\n');
-        linesToAdd.pop();
-        lines.splice(currentIndex, 0, ...linesToAdd);
-        currentIndex += change.count??0;
-      }
-      else currentIndex += change.count??0;
+        linesToAdd.pop(); // Remove last empty line from split
+        result = [...result.slice(0, currentIndex), ...linesToAdd, ...result.slice(currentIndex)];
+        lines.push(...linesToAdd);
+      } 
+      else { currentIndex += change.count ?? 0; }
+    }
+  }
 
-      return lines;
-    },
-    [...workingCodeLines]
-  );
+  return result;
 };
 
 const replaceFragments = (
@@ -194,44 +231,34 @@ const replaceFragments = (
   componentCode :string
 ): Either<Error, string> => {
   try {
-    
     const originalCodeLines = componentCode.split('\n');
-
-    type DiffState = {
-      lines: string[];
-      delta: number;
-    };
 
     return pipe(
       right(extractDiffBlocks(fragments)),
-      chain(blocks => blocks.reduce<Either<Error, DiffState>>(
-        
-        (acc, block) => {
-          
-          console.log('Processing block:', block);
-          
-          return pipe(
-          acc,
-          chain(({ lines, delta }) => pipe(
-            processDiffBlock(block, originalCodeLines, delta),
-            map(({ position, changes }) => ({
-              lines: [...applyChanges(lines, position, changes)],
-              delta: delta + (
-                changes.reduce((sum, change) =>
-                  sum + (change.added ? change.value.split('\n').length - 1 : 0) -
-                  (change.removed ? change.value.split('\n').length - 1 : 0),
-                  0
-                )
-              )
-            }))
-          ))
-        )},
-        right({ lines: [...originalCodeLines], delta: 0 })
-      )),
-      map(result => result.lines.join('\n'))
+      map(blocks => [...blocks].sort((a, b) => {
+        if (a.lineNumber !== undefined && b.lineNumber !== undefined) {
+          return a.lineNumber - b.lineNumber;
+        }
+        if (a.lineNumber !== undefined) return -1;
+        if (b.lineNumber !== undefined) return 1;
+        return 0;
+      })),
+      chain(blocks => {
+        // Process blocks sequentially, using each result as input for the next block
+        return blocks.reduce<Either<Error, readonly string[]>>(
+          (accEither, block) => pipe(
+            accEither,
+            chain(currentCodeLines => pipe(
+              processDiffBlock(block, currentCodeLines, 0),
+              map(result => applyChanges(currentCodeLines, [result]))
+            ))
+          ),
+          right(originalCodeLines)
+        );
+      }),
+      map(result => result.join('\n'))
     );
   } catch (error) {
-
     return left(error instanceof Error ? error : new Error('Unknown error'));
   }
 };
