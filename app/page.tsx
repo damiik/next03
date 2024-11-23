@@ -12,7 +12,7 @@ type Message = {
   content: string;
 };
 
-const assistant = 'model'; // for gemini
+const assistant = 'assistant'; // Standardize assistant role
 
 export default function Home() {
   const {
@@ -32,6 +32,7 @@ export default function Home() {
   const [userInput, setUserInput] = useState('');
   const [waitingForAnswer, setWaitingForAnswer] = useState(false);
   const [chatHistory, setChatHistory] = useState<Message[]>([]);
+  const [llmProvider, setLLMProvider] = useState('openai'); // New state for LLM provider
 
   const resetChatHistory = useCallback(() => {
     setChatHistory([]);
@@ -78,7 +79,7 @@ export default function Home() {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ messages: chatHistory, query: cleanedInput }),
+            body: JSON.stringify({ messages: chatHistory, query: cleanedInput, llmProvider }),
           });
 
           const data = await response.json();
@@ -96,9 +97,12 @@ export default function Home() {
               { role: assistant, content: assistantResponse },
             ]);
 
-            const frResult : string | undefined = pipe(
-              replaceFragments(assistantResponse, components[selectedComponent]), 
-              match(() => undefined, code => code)
+            const frResult: string | undefined = pipe(
+              replaceFragments(assistantResponse, components[selectedComponent]),
+              match(
+                () => undefined,
+                (code) => code
+              )
             );
             if (frResult !== undefined) {
               setComponents((prev) => ({ ...prev, [selectedComponent]: frResult }));
@@ -115,12 +119,18 @@ export default function Home() {
               }
             }
           } else {
-            setChatHistory((prevHistory) => [...prevHistory, { role: assistant, content: "No response from AI" }]);
+            setChatHistory((prevHistory) => [
+              ...prevHistory,
+              { role: assistant, content: 'No response from AI' },
+            ]);
           }
         }
       } catch (error) {
-        console.error("Error:", error);
-        setChatHistory((prevHistory) => [...prevHistory, { role: "user", content: `Error: ${error}` }]);
+        console.error('Error:', error);
+        setChatHistory((prevHistory) => [
+          ...prevHistory,
+          { role: 'user', content: `Error: ${error}` },
+        ]);
       } finally {
         setIsLoading(false);
         setWaitingForAnswer(false);
@@ -134,6 +144,7 @@ export default function Home() {
       componentCompileError,
       components,
       waitingForAnswer,
+      llmProvider,
       setComponents,
       setHandlingError,
       setIsLoading,
@@ -143,8 +154,7 @@ export default function Home() {
 
   useEffect(() => {
     if (componentCompileError && handlingError) {
-      console.log("Compilation error:", componentCompileError);
-      //const errMsg = componentCompileError;
+      console.log('Compilation error:', componentCompileError);
       setComponentCompileError('');
 
       handleSubmit({
@@ -192,11 +202,22 @@ export default function Home() {
               if (!isLoading) setUserInput(e.target.value);
             }}
             onKeyDown={handleKeyDown}
-            placeholder={isLoading ? "Waiting for response..." : "Type your message..."}
+            placeholder={isLoading ? 'Waiting for response...' : 'Type your message...'}
             disabled={isLoading || waitingForAnswer}
             className="w-full h-full p-2 border-[3px] border-gray-800 rounded bg-[#2f2f2a] text-[#6FB150]"
             rows={4}
           />
+          <div className="flex mt-2">
+            <select
+              value={llmProvider}
+              onChange={(e) => setLLMProvider(e.target.value)}
+              className="p-2 bg-gray-700 text-white rounded"
+            >
+              <option value="openai">OpenAI</option>
+              <option value="anthropic">Anthropic</option>
+              <option value="gemini">Gemini</option>
+            </select>
+          </div>
         </form>
       </div>
     </div>

@@ -1,35 +1,49 @@
 import { defaultSystemPrompts } from './prompts/system-prompts';
+import { handleOpenAIRequest } from './openaiHandler';
+import { handleAnthropicRequest } from './anthropicHandler';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+
 type Message = {
   role: 'user' | 'assistant' | 'system' | 'model';
   content: string;
 };
 
-if (!process.env.GEMINI_API_KEY) {
-  throw new Error('GEMINI_API_KEY is not set. Please set it in your environment variables.');
-}
+export async function handleLLMRequest(messages: Message[], query: string, llmProvider: string) {
 
-export async function handleLLMRequest(messages : Message[], query:string) {
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
-  const client = genAI.getGenerativeModel({
-    // model: 'gemini-1.5-pro-002',
-    model: 'gemini-exp-1121',
-    systemInstruction: defaultSystemPrompts[3],
-  });
+  if (llmProvider === 'openai') {
+    return await handleOpenAIRequest(messages, query);
+  } 
+  else if (llmProvider === 'anthropic') {
+    return await handleAnthropicRequest(messages, query);
+  } 
+  else if (llmProvider === 'gemini') {
 
-  const chatSession = client.startChat({
-    generationConfig: {
-      temperature: 0.2,
-      topP: 0.5,
-      topK: 9,
-      maxOutputTokens: 8192,
-      responseMimeType: 'text/plain',
-    },
-    history: messages.map((message) => ({ role: message.role, parts: [{ text: message.content }] })),
-  });
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error('GEMINI_API_KEY is not set. Please set it in your environment variables.');
+    }
 
-  const response = await chatSession.sendMessage(query);
-  const responseText = await response.response.text();
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
+    const client = genAI.getGenerativeModel({
+      model: 'gemini-exp-1121',
+      systemInstruction: defaultSystemPrompts[3],
+    });
 
-  return { content: responseText, fullResponse: response };
+    const chatSession = client.startChat({
+      generationConfig: {
+        temperature: 0.2,
+        topP: 0.5,
+        topK: 9,
+        maxOutputTokens: 8192,
+        responseMimeType: 'text/plain',
+      },
+      history: messages.map((message) => ({ role: message.role, parts: [{ text: message.content }] })),
+    });
+
+    const response = await chatSession.sendMessage(query);
+    const responseText = await response.response.text();
+
+    return { content: responseText, fullResponse: response };
+  } else {
+    throw new Error(`Unsupported LLM provider: ${llmProvider}`);
+  }
 }
