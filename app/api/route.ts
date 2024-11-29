@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { handleLLMRequest } from '../../app/tools/ai/llmHandler';
 
 export async function POST(req: NextRequest) {
-  const { messages, query, llmProvider } = await req.json();
+  const { messages, query, llmProvider, llmModel } = await req.json();
 
   try {
-    const response = await handleLLMRequest(messages, query, llmProvider || 'gemini');
+    const response = await handleLLMRequest(messages, query, llmProvider || 'gemini', llmModel || 'gemini-pro-002');
     return NextResponse.json({
       content: response.content,
       fullResponse: response.fullResponse,

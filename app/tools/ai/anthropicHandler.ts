@@ -1,5 +1,4 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { defaultSystemPrompts } from './prompts/system-prompts';
 
 type Message = {
   role: 'user' | 'assistant' | 'system' | 'model';
@@ -10,7 +9,7 @@ if (!process.env.ANTHROPIC_API_KEY) {
   throw new Error('ANTHROPIC_API_KEY is not set. Please set it in your environment variables.');
 }
 
-export async function handleAnthropicRequest(messages: Message[], query: string) {
+export async function handleAnthropicRequest(llmModel: string, systemPrompt: string, messages: Message[], query: string) {
 
   const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY,
@@ -47,9 +46,9 @@ export async function handleAnthropicRequest(messages: Message[], query: string)
 // });
 
   const response = await anthropic.messages.create({
-    model: "claude-3-5-haiku-20241022",
+    model: llmModel,
     max_tokens: 1024,
-    messages: [{ role: "user", content: defaultSystemPrompts[3] }, 
+    messages: [{ role: "user", content: systemPrompt }, 
                 ...conversation,  
                { role: "user", content: query }]
   });

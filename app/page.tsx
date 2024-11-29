@@ -12,7 +12,7 @@ type Message = {
   content: string;
 };
 
-const assistant = 'assistant'; // Standardize assistant role
+let assistant : 'assistant' |  'model' = 'model'; // Standardize assistant role
 
 export default function Home() {
   const {
@@ -32,7 +32,8 @@ export default function Home() {
   const [userInput, setUserInput] = useState('');
   const [waitingForAnswer, setWaitingForAnswer] = useState(false);
   const [chatHistory, setChatHistory] = useState<Message[]>([]);
-  const [llmProvider, setLLMProvider] = useState('openai'); // New state for LLM provider
+  const [llmProvider, setLLMProvider] = useState('gemini'); // New state for LLM provider
+  const [llmModel, setLLMModel] = useState('gemini-1.5-pro-002'); // New state for LLM model
 
   const resetChatHistory = useCallback(() => {
     setChatHistory([]);
@@ -79,7 +80,7 @@ export default function Home() {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ messages: chatHistory, query: cleanedInput, llmProvider }),
+            body: JSON.stringify({ messages: chatHistory, query: cleanedInput, llmProvider, llmModel }),
           });
 
           const data = await response.json();
@@ -209,13 +210,42 @@ export default function Home() {
           />
           <div className="flex mt-2">
             <select
-              value={llmProvider}
-              onChange={(e) => setLLMProvider(e.target.value)}
-              className="p-2 bg-gray-700 text-white rounded"
+              value={`${llmProvider},${llmModel}`} // Use a comma to separate the values for the selectllmProvider}
+              onChange={(e) => {
+                const [provider, model] = e.target.value.split(',')
+                if(provider === "gemini") assistant = 'model';
+                else 
+                  assistant = 'assistant';
+                console.log('provider:', provider, 'model:', model);
+                setLLMProvider(provider);
+                setLLMModel(model);
+
+              }}
+              className="p-2 bg-gray-700 text-white rounded text-sm"
             >
-              <option value="openai">OpenAI</option>
-              <option value="anthropic">Anthropic</option>
-              <option value="gemini">Gemini</option>
+              <optgroup label="OpenAI Compatible">
+                <option value="openai-compat,grok-beta">grok-beta</option>
+              </optgroup>
+              <optgroup label="LiteLLM (proxy)">
+                <option value='openai-compat,mistral/mistral-large-latest'>LiteLLM: mistral/mistral-large-latest</option>
+                <option value='openai-compat,nvidia/llama-3.1-nemotron-70b-instruct'>LiteLLM: llama-3.1-nemotron-70b-instruct</option>
+                <option value='openai-compat,meta/llama-3.1-70b-instruct'>LiteLLM: nvidia/llama-3.1-70b-instruct</option>
+                <option value='openai-compat,meta/llama-3.1-405b-instruct'>LiteLLM: nvidia/llama-3.1-405b-instruct</option>
+                <option value='openai-compat,meta/llama-3.1-405b-instruct'>LiteLLM: nvidia/llama-3.1-405b-instruct</option>
+              </optgroup>
+              <optgroup label="OpenAI">
+                <option value="openai,gpt-4o">gpt-4o</option>
+                <option value="openai,gpt-3.5-turbo">gpt-3.5-turbo</option>
+              </optgroup>
+              <optgroup label="Anthropic">
+                <option value="anthropic,claude-3-5-haiku-20241022">claude-3-5-haiku-20241022</option>
+                <option value="anthropic,claude-3-5-sonet-20241022">claude-3-5-sonet-20241022</option>
+              </optgroup>
+              <optgroup label="Gemini">
+                <option value="gemini,gemini-exp-1114">gemini-exp-1114</option>
+                <option value="gemini,gemini-1.5-pro-002">gemini-1.5-pro</option>
+                <option value="gemini,gemini-1.5-flash-002">gemini-1.5-flash-002</option>
+              </optgroup>
             </select>
           </div>
         </form>

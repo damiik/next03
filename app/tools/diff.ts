@@ -1,9 +1,10 @@
-import { diffTrimmedLines, Change } from 'diff';
+import { diffTrimmedLines, /*applyPatch,*/ ParsedDiff, Change, /*ApplyPatchOptions*/  } from 'diff';
 import { pipe } from 'fp-ts/lib/function.js';
 import { Option, some, none, fold } from 'fp-ts/lib/Option.js'
 import { Either, right, left, map, chain } from 'fp-ts/lib/Either.js'
-// import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray.js';
-// import { normalize } from 'path';
+
+import { parsePatchAI } from './parsePatch';
+ import { getFinalText, parseModiffFromText } from './modiff';
 
 interface DiffResult {
   readonly code?: string;
@@ -226,7 +227,8 @@ const applyChanges = (
   return result;
 };
 
-const replaceFragments = (
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const replaceFragmentsX = (
   fragments     :string,
   componentCode :string
 ): Either<Error, string> => {
@@ -262,4 +264,104 @@ const replaceFragments = (
     return left(error instanceof Error ? error : new Error('Unknown error'));
   }
 };
+
+
+
+////////////////////////// implementation based on diff library //////////////////////////////
+// https://github.com/kpdecker/jsdiff/blob/master/src/patch/apply.js
+// https://github.com/kpdecker/jsdiff/blob/master/src/patch/parse.js
+// https://www.npmjs.com/package/@types/diff?activeTab=code
+// applyPatch, ParsedDiff, parsePatch, ApplyPatchOptions
+
+
+
+// new function added from parsePatch.ts - parsePatchAI
+// format diff AI:
+//```diff
+//## - ##
+// context line
+//+added line
+//-removed line
+// context line
+//```
+
+
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const parseDiffBlocks = (fragments: string, componentCode: string): readonly ParsedDiff[] => {
+
+    console.log('parseDiffBlocks:\n', fragments);
+    const regex = /```diff\n([\s\S]*?)[\n]*```/g;
+    let blocks: ParsedDiff[] = [];
+
+    let match;
+    console.log('parseDiffBlocks2');
+
+    while ((match = regex.exec(fragments)) !== null) {
+
+      console.log('parsePatch, match:', match);
+      const newBlocks = parsePatchAI(match[1], componentCode);
+      console.log('newBlocks:', newBlocks);
+      newBlocks.forEach(block => {
+
+        console.log('block------------------->');
+        block.hunks.forEach(hunk => {
+          console.log('hunk:', hunk);
+        });
+        console.log('block<------------------');
+
+      });
+
+      blocks = [...blocks, ...newBlocks];
+    }
+    return blocks;
+  };
+
+const replaceFragments = (
+  fragments     :string,
+  componentCode :string
+): Either<Error, string> => {
+  try {
+
+    console.log('replaceFragments:\n', fragments);  
+    const modifiedText = getFinalText(parseModiffFromText(fragments, componentCode));
+    // const diffBlocks : readonly ParsedDiff[] = parseDiffBlocks(fragments, componentCode);
+    // console.log('diffBlocks:\n', diffBlocks);
+    // const options : ApplyPatchOptions = {
+    //   autoConvertLineEndings: true,
+    //   fuzzFactor: 0,
+    //   compareLine: (lineNumber: number, 
+    //                 line: string, 
+    //                 operation: string, 
+    //                 patchContent: string) => {
+    //                   return line.trim() === patchContent.trim();
+    //                 }
+    // };
+
+    // let modifiedText = componentCode;
+
+    // diffBlocks.forEach(block => {
+    //     const result = applyPatch(modifiedText, block, options);
+    //     if(typeof result === 'boolean') {
+    //       console.log('Failed to apply patch:', block);
+    //       return left (new Error(`Failed to apply patch: ${block}`));
+    //     } else {
+    //       modifiedText = result;
+    //     }
+    // });
+
+    if (modifiedText) {
+
+      console.log('Modified Text:\n', modifiedText);
+      return right(modifiedText);
+    } else {
+      return left(new Error('Failed to apply patches'));
+    }
+  
+  } catch (error) {
+    return left(error instanceof Error ? error : new Error('Unknown error'));
+  }
+};
+
+
 export { replaceFragments, type DiffResult };

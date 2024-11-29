@@ -15,11 +15,11 @@ const Styles: React.FC = () => {
       <p className="bg-BLUE text-BLUE border-BLUE border-[3px] w-[400px] h-[400px] px-7 py-7 shadow-inherit rounded-md hover:bg-BLUE hover:text-BLUE">BLUE</p>
       <p className="bg-YELLOW text-YELLOW border-YELLOW border-[3px] w-[450px] h-[450px] px-8 py-8 shadow-inner rounded-md hover:bg-YELLOW hover:text-YELLOW">YELLOW</p>
       <p className="bg-ORANGE text-ORANGE border-ORANGE border-[3px] w-[500px] h-[500px] px-9 py-9 shadow-none rounded-md hover:bg-ORANGE hover:text-ORANGE">ORANGE</p>
-      <p className="bg-BROWN text-BROWN border-BROWN border-[3px] w-[550px] h-[550px] px-10 py-10 rounded-md hover:bg-BROWN hover:text-BROWN">BROWN</p>
-      <p className="bg-PINKY_LIGHT_RED text-PINKY_LIGHT_RED border-PINKY_LIGHT_RED border-[3px] w-[600px] h-[600px] px-11 py-11 rounded-md hover:bg-PINKY_LIGHT_RED hover:text-PINKY_LIGHT_RED">PINKY / LIGHT RED</p>
-      <p className="bg-DARK_GREY text-DARK_GREY border-DARK_GREY border-[3px] w-[650px] h-[650px] px-12 py-12 rounded-md hover:bg-DARK_GREY hover:text-DARK_GREY">DARK GREY</p>
-      <p className="bg-MID_GREY text-MID_GREY border-MID_GREY border-[3px] w-[700px] h-[700px] px-13 py-13 rounded-md hover:bg-MID_GREY hover:text-MID_GREY">MID GREY</p>
-      <p className="bg-LIGHT_GREEN text-LIGHT_GREEN border-LIGHT_GREEN border-[3px] w-[750px] h-[750px] px-14 py-14 rounded-md hover:bg-LIGHT_GREEN hover:text-LIGHT_GREEN">LIGHT GREEN</p>
+      <p className="bg-BROWN text-BROWN border-BROWN border-[3px] w-[550px] h-[550px] px-10 py-10 rounded-md hover:bg-BROWN hover:text-BROWN shadow drop-shadow hover:shadow-none shadow-BLUE">BROWN</p>
+      <p className="bg-PINKY_LIGHT_RED text-PINKY_LIGHT_RED border-PINKY_LIGHT_RED border-[3px] w-[600px] h-[600px] px-11 py-11 rounded-md hover:bg-PINKY_LIGHT_RED hover:text-PINKY_LIGHT_RED shadow-md drop-shadow-md shadow-GREY_500">PINKY / LIGHT RED</p>
+      <p className="bg-DARK_GREY text-DARK_GREY border-DARK_GREY border-[3px] w-[650px] h-[650px] px-12 py-12 rounded-md hover:bg-DARK_GREY hover:text-DARK_GREY shadow-lg drop-shadow-lg">DARK GREY</p>
+      <p className="bg-MID_GREY text-MID_GREY border-MID_GREY border-[3px] w-[700px] h-[700px] px-13 py-13 rounded-md hover:bg-MID_GREY hover:text-MID_GREY shadow-xl drop-shadow-xl">MID GREY</p>
+      <p className="bg-LIGHT_GREEN text-LIGHT_GREEN border-LIGHT_GREEN border-[3px] w-[750px] h-[750px] px-14 py-14 rounded-md hover:bg-LIGHT_GREEN hover:text-LIGHT_GREEN shadow-2xl drop-shadow-2xl">LIGHT GREEN</p>
       <p className="bg-SKY_LIGHT_BLUE text-SKY_LIGHT_BLUE border-SKY_LIGHT_BLUE border-[3px] w-[800px] h-[800px] px-15 py-15 rounded-md hover:bg-SKY_LIGHT_BLUE hover:text-SKY_LIGHT_BLUE">SKY / LIGHT BLUE</p>
       <p className="bg-LIGHT_GREY text-LIGHT_GREY border-LIGHT_GREY border-[3px] w-[850px] h-[850px] px-16 py-16 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
       <p className="bg-BLACK text-BLACK border-BLACK border-[3px] w-[900px] h-[900px] px-17 py-17 rounded-md hover:bg-BLACK hover:text-BLACK">BLACK</p>
@@ -38,17 +38,17 @@ const Styles: React.FC = () => {
       <p className="bg-LIGHT_GREEN text-LIGHT_GREEN border-LIGHT_GREEN border-[3px] w-[1550px] h-[1550px] px-30 py-30 rounded-md hover:bg-LIGHT_GREEN hover:text-LIGHT_GREEN">LIGHT GREEN</p>
       <p className="bg-SKY_LIGHT_BLUE text-SKY_LIGHT_BLUE border-SKY_LIGHT_BLUE border-[3px] w-[1600px] h-[1600px] px-31 py-31 rounded-md hover:bg-SKY_LIGHT_BLUE hover:text-SKY_LIGHT_BLUE">SKY / LIGHT BLUE</p>
       <p className="bg-LIGHT_GREY text-LIGHT_GREY border-LIGHT_GREY border-[3px] w-[1600px] h-[1600px] px-32 py-32 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
-      <p className="bg-GREY_50 text-LIGHT_GREY border-LIGHT_GREY border-[3px] w-[10px] h-[10px] px-33 py-33 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
-      <p className="bg-GREY_100 text-LIGHT_GREY border-LIGHT_GREY border-[3px] w-[20px] h-[20px] px-34 py-34 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
-      <p className="bg-GREY_200 text-LIGHT_GREY border-LIGHT_GREY border-[3px] w-[30px] h-[30px] px-35 py-35 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
-      <p className="bg-GREY_300 text-LIGHT_GREY border-LIGHT_GREY border-[3px] w-[40px] h-[40px] px-36 py-36 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
-      <p className="bg-GREY_400 text-LIGHT_GREY border-LIGHT_GREY border-[3px] w-[50px] h-[50px] px-37 py-37 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
-      <p className="bg-GREY_500 text-LIGHT_GREY border-LIGHT_GREY border-[3px] w-[60px] h-[60px] px-38 py-38 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
-      <p className="bg-GREY_600 text-LIGHT_GREY border-LIGHT_GREY border-[3px] w-[70px] h-[70px] px-39 py-39 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
-      <p className="bg-GREY_700 text-LIGHT_GREY border-LIGHT_GREY border-[3px] w-[80px] h-[80px] px-40 py-40 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
-      <p className="bg-GREY_800 text-LIGHT_GREY border-LIGHT_GREY border-[3px] w-[80px] h-[80px] px-40 py-40 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
-      <p className="bg-GREY_900 text-LIGHT_GREY border-LIGHT_GREY border-[3px] w-[80px] h-[80px] px-40 py-40 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
-      <p className="bg-GREY_950 text-LIGHT_GREY border-LIGHT_GREY border-[3px] w-[80px] h-[80px] px-40 py-40 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
+      <p className="shadow-GREY_50 bg-GREY_50 text-GREY_50 border-LIGHT_GREY border-[3px] w-[10px] h-[10px] px-33 py-33 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
+      <p className="shadow-GREY_100 bg-GREY_100 text-GREY_100 border-LIGHT_GREY border-[3px] w-[20px] h-[20px] px-34 py-34 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
+      <p className="shadow-GREY_200 bg-GREY_200 text-GREY_200 border-LIGHT_GREY border-[3px] w-[30px] h-[30px] px-35 py-35 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
+      <p className="shadow-GREY_300 bg-GREY_300 text-GREY_300 border-LIGHT_GREY border-[3px] w-[40px] h-[40px] px-36 py-36 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
+      <p className="shadow-GREY_400 bg-GREY_400 text-GREY_400 border-LIGHT_GREY border-[3px] w-[50px] h-[50px] px-37 py-37 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
+      <p className="shadow-GREY_500 bg-GREY_500 text-GREY_500 border-LIGHT_GREY border-[3px] w-[60px] h-[60px] px-38 py-38 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
+      <p className="shadow-GREY_600 bg-GREY_600 text-GREY_600 border-LIGHT_GREY border-[3px] w-[70px] h-[70px] px-39 py-39 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
+      <p className="shadow-GREY_700 bg-GREY_700 text-GREY_700 border-LIGHT_GREY border-[3px] w-[80px] h-[80px] px-40 py-40 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
+      <p className="shadow-GREY_800 bg-GREY_800 text-GREY_800 border-LIGHT_GREY border-[3px] w-[80px] h-[80px] px-40 py-40 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
+      <p className="shadow-GREY_900 bg-GREY_900 text-GREY_900 border-LIGHT_GREY border-[3px] w-[80px] h-[80px] px-40 py-40 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
+      <p className="shadow-GREY_950 bg-GREY_950 text-GREY_950 border-LIGHT_GREY border-[3px] w-[80px] h-[80px] px-40 py-40 rounded-md hover:bg-LIGHT_GREY hover:text-LIGHT_GREY">LIGHT GREY</p>
     </div>
   );
 };

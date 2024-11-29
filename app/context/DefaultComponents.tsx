@@ -36,7 +36,7 @@ export const defaultComponents = {
           <h2 className="text-BLUE text-2xl mb-4">Simple Counter</h2>
           <button
             onClick={() => setCounter(counter + 1)}
-            className={\`py-2 px-4 rounded-lg text-WHITE \${counter % 2 === 0 ? 'bg-RED' : 'bg-GREEN'} hover:bg-PURPLE transition duration-300 ease-in-out\`}
+            className={\`shadow-xl shadow-GREY_400 hover:shadow-none py-2 px-4 rounded-lg text-WHITE \${counter % 2 === 0 ? 'bg-RED' : 'bg-GREEN'} hover:bg-PURPLE transition duration-300 ease-in-out\`}
           >
             {buttonText}
           </button>
@@ -457,14 +457,14 @@ export const defaultComponents = {
               
               <div className="flex space-x-4 mt-4">
                 <button 
-                  className="text-BLACK bg-PURPLE hover:bg-SKY_LIGHT_BLUE hover:shadow-inherit disabled:opacity-50 p-2 rounded shadow-lg"
+                  className = "shadow-GREY_800 hover:shadow-none text-BLACK bg-PURPLE hover:bg-SKY_LIGHT_BLUE hover:shadow-inherit disabled:opacity-50 p-2 rounded shadow-lg"
                   onClick={handleStep}
                   disabled={!state.isStepComplete || state.phase === 'done'}
                 >
                   Step {!state.isStepComplete ? '(Processing...)' : ''}
                 </button>
                 <button
-                  className="bg-ORANGE hover:bg-SKY_LIGHT_BLUE hover:text-BLACK hover:shadow-inherit p-2 rounded shadow-lg"
+                  className = "shadow-GREY_800  bg-ORANGE hover:bg-SKY_LIGHT_BLUE hover:text-BLACK hover:shadow-inherit p-2 rounded shadow-lg"
                   onClick={handleRefresh}
                 >
                   Random Array

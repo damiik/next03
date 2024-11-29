@@ -1,5 +1,6 @@
-import { defaultSystemPrompts } from './prompts/system-prompts';
+import { systemPrompt } from './prompts/system-prompts';
 import { handleOpenAIRequest } from './openaiHandler';
+import { handleOpenAICompatRequest } from './openaiCompatHandler';
 import { handleAnthropicRequest } from './anthropicHandler';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
@@ -8,13 +9,21 @@ type Message = {
   content: string;
 };
 
-export async function handleLLMRequest(messages: Message[], query: string, llmProvider: string) {
+export async function handleLLMRequest(messages: Message[], query: string, llmProvider: string, llmModel: string) {
 
   if (llmProvider === 'openai') {
-    return await handleOpenAIRequest(messages, query);
+    return await handleOpenAIRequest(llmModel, systemPrompt, messages, query);
+  } 
+  else if (llmProvider === 'openai-compat') {
+
+    const validMessages : {role:'user'|'assistant'|'system', content: string} [] = messages.filter((message) => (message.role !== 'model')).map((message) => {
+      return { role: (message.role as 'user' | 'assistant' | 'system'), content: message.content };
+    });
+
+    return await handleOpenAICompatRequest(llmModel, systemPrompt, validMessages , query);
   } 
   else if (llmProvider === 'anthropic') {
-    return await handleAnthropicRequest(messages, query);
+    return await handleAnthropicRequest(llmModel, systemPrompt, messages, query);
   } 
   else if (llmProvider === 'gemini') {
 
@@ -24,8 +33,8 @@ export async function handleLLMRequest(messages: Message[], query: string, llmPr
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
     const client = genAI.getGenerativeModel({
-      model: 'gemini-exp-1121',
-      systemInstruction: defaultSystemPrompts[3],
+      model: llmModel,
+      systemInstruction:systemPrompt
     });
 
     const chatSession = client.startChat({
@@ -40,10 +49,11 @@ export async function handleLLMRequest(messages: Message[], query: string, llmPr
     });
 
     const response = await chatSession.sendMessage(query);
-    const responseText = await response.response.text();
+    const responseText = await response.response;
 
-    return { content: responseText, fullResponse: response };
-  } else {
+    return { content: responseText.text(), fullResponse: response };
+  } 
+  else {
     throw new Error(`Unsupported LLM provider: ${llmProvider}`);
   }
 }
