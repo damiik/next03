@@ -30,7 +30,7 @@ export async function handleOpenAICompatRequest(llmModel: string, systemPrompt: 
     response = await client.chat.completions.create({ 
       model: llmModel,
       messages: [{ role: 'system', content: systemPrompt }, ...messages, { role: 'user', content: query }],
-      temperature: 0.7,
+      temperature: 0.45,
       top_p: 1,
     });    
   }

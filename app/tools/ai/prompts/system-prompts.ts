@@ -1164,6 +1164,7 @@ Wrap your response with \`<task_analysis>\` tags, including:
    - 2-3 lines of context before or after changes, where available
    - Proper hunk headers with \`@@@\`
    - Correct line prefixes (...,<--,-->)
+   - Empty lines preserved with \`...\` (prefix with empty line)
    - Proper whitespace preservation
 
 After completing the user's task response wrapped with \`<task_analysis>\`, you can response on questions not relevant to your task, but be careful not to offer further assistance or ask questions.
@@ -1192,7 +1193,6 @@ A modiff block is a text modification format that allows you to specify changes 
 
 
 <Examples>
-1. Replace Operation - Replacing a single line while keeping context
 <User>
 I need to change the YouTube video title from "YouTube video player" to "Video player 86".
 Here is component source code:
@@ -1202,6 +1202,7 @@ function SomeComponentWithIFrame() {}
 
       className="w-3/4 h-auto shadow-[0px_0px_10px_rgba(255,0,0,0.5)]"
       src="https://www.youtube.com/embed/scGS3NnmSH0"
+
       title="YouTube video player"
       frameBorder="0"
       allowFullScreen
@@ -1209,12 +1210,15 @@ function SomeComponentWithIFrame() {}
 </User>
 
 <Assistant>
-Sure, I can change the title. I'm going to use this modiff block:
+Sure, I can change the title. I need to replace one line. I'm going to use this modiff block:
+
 
 \`\`\`modiff
 @@@
+...
 ...      className="w-3/4 h-auto shadow-[0px_0px_10px_rgba(255,0,0,0.5)]"
 ...      src="https://www.youtube.com/embed/scGS3NnmSH0"
+...
 <--      title="YouTube video player"
 -->      title="Video player 86"
 ...      frameBorder="0"
@@ -1257,11 +1261,13 @@ I want to remove the useState import since it's not being used in the code:
 
 Source code:
 function SomeComponentWithFunctionInside() {
-
       function hello() {
+
         const greeting = "World";
         console.log("Hello");
         console.log("Hello, " + greeting);
+
+      }
 </User>
 <Assistant>
 I'm going to remove the not needed console.log(). This is the modiff block:
@@ -1269,29 +1275,30 @@ I'm going to remove the not needed console.log(). This is the modiff block:
 \`\`\`modiff
 @@@
 ...function SomeComponentWithFunctionInside() {
-...
 ...      function hello() {
+...
 ...        const greeting = "World";
 <--        console.log("Hello");
 ...        console.log("Hello, " + greeting);
+...
 \`\`\`
 </Assistant>
 
 4. Multiple Operations - Multiple changes in one hunk
 
 <User>
-I need to update the config object by changing the description and adding an author field:
-
-Source code:
+I need to update the config object by changing the description to "Updated app" and adding an author field and "MIT" license.
+Here is source code for component - empty lines are important for context:
 function SomeComponentWithConfigObject() {
 
-... some code omitted ...
+    (... some code omitted ...)
 
     const config = {
       name: "app",
       version: "1.0.0",
       description: "Test app"
     };
+
 }
 </User>
 
@@ -1300,19 +1307,21 @@ I'm going to update the config object. Here's the modiff block:
 
 \`\`\`modiff
 @@@
+...
 ...    const config = {
 ...      name: "app",
 ...      version: "1.0.0",
 <--      description: "Test app"
 -->      description: "Updated app",
 -->      author: "Test User"
+-->      license: "MIT"
 ...    };
+...
 ...}
 \`\`\`
 </Assistant>
 
 
-5. Multiple Blocks - Sequential changes with multiple blocks
 <User>
 I need to make several changes to this configuration:
 1. First, update the app name and version
@@ -1322,34 +1331,38 @@ I need to make several changes to this configuration:
 Source code:
 function SomeComponentWithConfigObject() {
 
-... some code omitted ...
+    (... some code omitted ...)
 
     const config = {
       name: "app",
       version: "1.0.0",
       description: "Test app"
     };
+
 }
 </User>
 <Assistant>
 
-I'm going to make these changes in sequence. Here are the modiff blocks sequence to apply the changes in order:
+I'm going to make these changes in sequence using separated \`modiff\` blocks. Here are the modiff blocks sequence to apply the changes in order:
 
 1. First, update the name:
 \`\`\`modiff
 @@@
+...
 ...    const config = {
 <--      name: "app",
 <--      version: "1.0.0",
 -->      name: "myapp",
 ...      description: "Test app"
 ...    };
+...
 ...}
 \`\`\`
 
 2. Then add the metadata fields:
 \`\`\`modiff
 @@@
+...
 ...    const config = {
 ...      name: "myapp",
 -->      version: "2.0.0",
@@ -1358,16 +1371,19 @@ I'm going to make these changes in sequence. Here are the modiff blocks sequence
 -->      author: "Test User"
 -->      license: "MIT"
 ...    };
+...
 ...}
 \`\`\`
 
 3. Finally, add the new config object:
 \`\`\`modiff
 @@@
+...
 -->    const additionalConfig = {
 -->      setting1: "value1",
 -->      setting2: "value2"
 -->    };
+-->
 ...    const config = {
 ...      name: "myapp",
 ...      version: "2.0.0",
@@ -1377,27 +1393,29 @@ I'm going to make these changes in sequence. Here are the modiff blocks sequence
 \`\`\`
 </Assistant>
 
-6. Multiple change hunks in One \`modiff\` block - Parallel changes in different parts of code
 <User>
-I need to make several parallel changes to this React component:
+Please to  - Parallel changes in different parts of code
+several parallel changes to this React component:
 1. Update the title in the header
 2. Change the button text
 3. Modify the footer copyright
 
-Source code:
+Be careful with generating modiff blocks - Empty lines are important for context! - source code:
 \`\`\`
 function MyComponent() {
   return (
     <div>
+
       <header>
+
         <h1>Welcome to My App</h1>
       </header>
-      
       <main>
+
         <button>Click me!</button>
       </main>
-      
       <footer>
+
         <p>&copy; 2023 My Company</p>
       </footer>
     </div>
@@ -1406,24 +1424,29 @@ function MyComponent() {
 </User>
 
 <Assistant>
-I'm going to make parallel changes now. 
-Note that all hunks in this modiff block will be applied in parallel to the original input. 
-Note that all removed lines are also used as context lines to help locate where changes should be applied.
+I'm going to make multiple change hunks in One \`modiff\` block, all modifying the same original input. 
+I'm going to use removed lines as context lines, to help locate where changes should be applied.
+Note that all hunks in this modiff block will be applied parallely to the original input. 
 Here is the modiff block:
 
 \`\`\`modiff
 @@@
+...      <div>
+...
 ...      <header>
+...
 <--        <h1>Welcome to My App</h1>
 -->        <h1>Welcome to Our Platform</h1>
 ...      </header>
 @@@
 ...      <main>
+...
 <--        <button>Click me!</button>
 -->        <button>Get Started</button>
 ...      </main>
 @@@
 ...      <footer>
+...
 <--        <p>&copy; 2023 My Company</p>
 -->        <p>&copy; 2024 Our Platform Inc.</p>
 ...      </footer>

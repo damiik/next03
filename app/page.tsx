@@ -47,10 +47,10 @@ export default function Home() {
 
   const processUserInput = (input: string): string => {
     let cleanedInput = input.trim();
-    const matches = cleanedInput.match(/([\s\S]*?)\{\{code\}\}([\s\S]*)/);
+    const matches = cleanedInput.match(/([\s\S]*?)\{\{\}\}([\s\S]*)/);
     if (matches) {
       const codeLines: string[] = components[selectedComponent]?.split('\n') ?? [];
-      cleanedInput = `${matches[1]}\n${codeLines.join('\n')}\n${matches[2]}`;
+      cleanedInput = `${matches[1]}\n##Current component source code:\n${codeLines.join('\n')}\n${matches[2]}`;
     }
     return cleanedInput;
   };
@@ -146,12 +146,14 @@ export default function Home() {
       components,
       waitingForAnswer,
       llmProvider,
+      llmModel, // Add llmModel to the dependency array
       setComponents,
       setHandlingError,
       setIsLoading,
       setSelectedComponent,
     ]
   );
+
 
   useEffect(() => {
     if (componentCompileError && handlingError) {
@@ -191,7 +193,7 @@ export default function Home() {
       <div className="flex flex-col w-full max-w-[95%] min-h-[400px] m-4 p-2 border-[3px] border-[#483AA4] rounded bg-[#282824] text-[#CB993B] text-xl font-[family-name:var(--font-cascadia-code)] overflow-y-auto">
         <textarea
           ref={textareaRef}
-          className="flex-1 h-full bg-transparent outline-none"
+          className="text-sm flex-1 h-full bg-transparent outline-none"
           value={formattedHistory}
           readOnly
         />
@@ -205,12 +207,12 @@ export default function Home() {
             onKeyDown={handleKeyDown}
             placeholder={isLoading ? 'Waiting for response...' : 'Type your message...'}
             disabled={isLoading || waitingForAnswer}
-            className="w-full h-full p-2 border-[3px] border-gray-800 rounded bg-[#2f2f2a] text-[#6FB150]"
+            className="w-full h-full p-2 text-sm border-[3px] border-gray-800 rounded bg-[#2f2f2a] text-[#6FB150]"
             rows={4}
           />
           <div className="flex mt-2">
             <select
-              value={`${llmProvider},${llmModel}`} // Use a comma to separate the values for the selectllmProvider}
+              value={`${llmProvider},${llmModel}`} // Use a comma to separate the values for the select
               onChange={(e) => {
                 const [provider, model] = e.target.value.split(',')
                 if(provider === "gemini") assistant = 'model';
@@ -219,7 +221,6 @@ export default function Home() {
                 console.log('provider:', provider, 'model:', model);
                 setLLMProvider(provider);
                 setLLMModel(model);
-
               }}
               className="p-2 bg-gray-700 text-white rounded text-sm"
             >
@@ -230,7 +231,6 @@ export default function Home() {
                 <option value='openai-compat,mistral/mistral-large-latest'>LiteLLM: mistral/mistral-large-latest</option>
                 <option value='openai-compat,nvidia/llama-3.1-nemotron-70b-instruct'>LiteLLM: llama-3.1-nemotron-70b-instruct</option>
                 <option value='openai-compat,meta/llama-3.1-70b-instruct'>LiteLLM: nvidia/llama-3.1-70b-instruct</option>
-                <option value='openai-compat,meta/llama-3.1-405b-instruct'>LiteLLM: nvidia/llama-3.1-405b-instruct</option>
                 <option value='openai-compat,meta/llama-3.1-405b-instruct'>LiteLLM: nvidia/llama-3.1-405b-instruct</option>
               </optgroup>
               <optgroup label="OpenAI">

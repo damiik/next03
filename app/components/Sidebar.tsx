@@ -92,7 +92,7 @@ const Sidebar: React.FC = () => {
           </ul>
         </li>
         <li>
-          <select className="w-full p-2 border rounded mb-4 bg-[#b472d0]" value={selectedComponent} onChange={handleComponentChange}>
+          <select className="w-full p-2 border mb-4 bg-gray-700 text-white rounded text-sm" value={selectedComponent} onChange={handleComponentChange}>
             <option value="">Select a component</option>
             {Object.keys(components).map(comp => <option key={comp} value={comp}>{comp}</option>)}
           </select>
