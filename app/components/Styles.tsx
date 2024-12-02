@@ -7,13 +7,13 @@ const Styles: React.FC = () => {
     <div>
        
       <p className="bg-BLACK text-BLACK border-BLACK border-[1px] w-[100px] h-[100px] px-1 py-1 shadow rounded-md hover:bg-BLACK hover:text-BLACK">BLACK</p>
-      <p className="bg-WHITE text-WHITE border-WHITE border-[2px] w-[150px] h-[150px] px-2 py-2 shadow-sm rounded-md hover:bg-WHITE hover:text-WHITE">WHITE</p>
-      <p className="bg-RED text-RED border-RED border-[3px] w-[200px] h-[200px] px-3 py-3 shadow-md rounded-md hover:bg-RED hover:text-RED">RED</p>
-      <p className="bg-CYAN text-CYAN border-CYAN border-[3px] w-[250px] h-[250px] px-4 py-4 shadow-lg rounded-md hover:bg-CYAN hover:text-CYAN">CYAN</p>
-      <p className="bg-PURPLE text-PURPLE border-PURPLE border-[3px] w-[300px] h-[300px] px-5 py-5 shadow-xl rounded-md hover:bg-PURPLE hover:text-PURPLE">PURPLE</p>
-      <p className="bg-GREEN text-GREEN border-GREEN border-[3px] w-[350px] h-[350px] px-6 py-6 shadow-2xl rounded-md hover:bg-GREEN hover:text-GREEN">GREEN</p>
-      <p className="bg-BLUE text-BLUE border-BLUE border-[3px] w-[400px] h-[400px] px-7 py-7 shadow-inherit rounded-md hover:bg-BLUE hover:text-BLUE">BLUE</p>
-      <p className="bg-YELLOW text-YELLOW border-YELLOW border-[3px] w-[450px] h-[450px] px-8 py-8 shadow-inner rounded-md hover:bg-YELLOW hover:text-YELLOW">YELLOW</p>
+      <p className="bg-WHITE text-WHITE border-WHITE border-[2px] w-[150px] h-[150px] px-2 py-2 shadow-sm rounded-xl hover:bg-WHITE hover:text-WHITE">WHITE</p>
+      <p className="bg-RED text-RED border-RED border-[3px] w-[200px] h-[200px] px-3 py-3 shadow-md rounded-2xl hover:bg-RED hover:text-RED">RED</p>
+      <p className="bg-CYAN text-CYAN border-CYAN border-1 w-[250px] h-[250px] px-4 py-4 shadow-lg rounded-md hover:bg-CYAN hover:text-CYAN">CYAN</p>
+      <p className="bg-PURPLE text-PURPLE border-PURPLE border-2 w-[300px] h-[300px] px-5 py-5 shadow-xl rounded-md hover:bg-PURPLE hover:text-PURPLE">PURPLE</p>
+      <p className="bg-GREEN text-GREEN border-GREEN border-3 w-[350px] h-[350px] px-6 py-6 shadow-2xl rounded-md hover:bg-GREEN hover:text-GREEN">GREEN</p>
+      <p className="bg-BLUE text-BLUE border-BLUE border-[4px] w-[400px] h-[400px] px-7 py-7 shadow-inherit rounded-md hover:bg-BLUE hover:text-BLUE">BLUE</p>
+      <p className="bg-YELLOW text-YELLOW border-YELLOW border-4 w-[450px] h-[450px] px-8 py-8 shadow-inner rounded-md hover:bg-YELLOW hover:text-YELLOW">YELLOW</p>
       <p className="bg-ORANGE text-ORANGE border-ORANGE border-[3px] w-[500px] h-[500px] px-9 py-9 shadow-none rounded-md hover:bg-ORANGE hover:text-ORANGE">ORANGE</p>
       <p className="bg-BROWN text-BROWN border-BROWN border-[3px] w-[550px] h-[550px] px-10 py-10 rounded-md hover:bg-BROWN hover:text-BROWN shadow drop-shadow hover:shadow-none shadow-BLUE">BROWN</p>
       <p className="bg-PINKY_LIGHT_RED text-PINKY_LIGHT_RED border-PINKY_LIGHT_RED border-[3px] w-[600px] h-[600px] px-11 py-11 rounded-md hover:bg-PINKY_LIGHT_RED hover:text-PINKY_LIGHT_RED shadow-md drop-shadow-md shadow-GREY_500">PINKY / LIGHT RED</p>
