@@ -8,7 +8,7 @@
  */
 export interface MLine {
   str: string;
-  flag: 'origin' | 'to_delete' | 'to_insert';
+  flag: 'origin' | 'to_delete' | 'to_insert' | 'unrecognized';
 }
 
 /**
@@ -50,6 +50,13 @@ function parseHunk(hunk: string): MLine[] {
       result.push({
         str: line.slice(3),
         flag: 'to_insert'
+      });
+    }
+    else {
+
+      result.push({
+        str: line,
+        flag: 'unrecognized'
       });
     }
   }
