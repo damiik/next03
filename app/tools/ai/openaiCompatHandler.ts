@@ -38,7 +38,7 @@ export async function handleOpenAICompatRequest(llmModel: string, systemPrompt: 
     llmModel === 'mistral/mistral-large-latest' || 
     llmModel === 'nvidia/llama-3.1-nemotron-70b-instruct' || 
     llmModel === 'meta/llama-3.1-405b-instruct' ||
-    llmModel === 'meta/llama-3.1-70b-instruct') {
+    llmModel === 'meta/llama-3.3-70b-instruct') {
 
     // liteLLM proxy
     const client = new OpenAI({
@@ -50,8 +50,8 @@ export async function handleOpenAICompatRequest(llmModel: string, systemPrompt: 
     response = await client.chat.completions.create({
       model: llmModel,
       messages: [{ role: "system", content: systemPrompt }, ...messages, { role: "user", content: query }],
-      temperature:0.75,
-      top_p:1,
+      temperature:0.3,
+      top_p:0.7,
       //max_tokens:1024,
       // stream:true,
     }); 

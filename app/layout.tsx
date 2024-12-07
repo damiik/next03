@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ComponentProvider } from './context/ComponentContext';
-import Sidebar from "./components/Sidebar";
+import { ChatProvider } from './context/ChatContext';
+import ResizableSidebar from "./components/ResizableSidebar";
 import Topbar from "./components/Topbar";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -48,16 +49,18 @@ export default function RootLayout({
         className={`${geistSans.className} ${geistMono.className} ${cascadiaCode.className} ${cascadiaMonoNF.className} antialiased`}
       >
         <ComponentProvider>
-          <div className="flex flex-col h-screen">
-            <Topbar />
-            <div className="flex flex-row h-full">
-              <Sidebar />
-              <div className="flex-1 p-2 m-2 bg-stone-800 border-green-600 md:ml-0 mt-0">
+          <ChatProvider>
+            <div className="flex flex-col h-screen">
+              <Topbar />
+              <div className="flex flex-row h-full">
+                <ResizableSidebar />
+                <div className="flex-1 p-2 m-2 bg-stone-800 border-green-600 md:ml-0 mt-0">
 
-                {children}
+                  {children}
+                </div>
               </div>
             </div>
-          </div>
+          </ChatProvider>
         </ComponentProvider>
       </body>
     </html>

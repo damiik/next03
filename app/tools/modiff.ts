@@ -33,19 +33,19 @@ function parseHunk(hunk: string): MLine[] {
     const trimmed = line.trimStart();
     if (!trimmed) continue;
 
-    if (trimmed.startsWith('...')) {
+    if (trimmed.startsWith('___')) {
       // Context line - used for locating where to apply changes
       result.push({
         str: line.slice(3),
         flag: 'origin'
       });
-    } else if (trimmed.startsWith('<--')) {
+    } else if (trimmed.startsWith('<__')) {
       // Line that should be removed from the source
       result.push({
         str: line.slice(3),
         flag: 'to_delete'
       });
-    } else if (trimmed.startsWith('-->')) {
+    } else if (trimmed.startsWith('__>')) {
       // New line that should be added to the source
       result.push({
         str: line.slice(3),

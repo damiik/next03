@@ -34,7 +34,7 @@ export const ComponentProvider: React.FC<ComponentProviderProps> = ({ children }
   const [previewKey, setPreviewKey] = useState(0);
   const [selectedComponent, setSelectedComponent] = useState('');
   const [componentCompileError, setComponentCompileError] = useState('');
-  const [codeMirrorHeight, setCodeMirrorHeight] = useState(400);
+  const [codeMirrorHeight, setCodeMirrorHeight] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [handlingError, setHandlingError] = useState(false); // Cline: Added handlingError state
 
