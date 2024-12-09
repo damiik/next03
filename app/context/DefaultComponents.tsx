@@ -17,7 +17,7 @@ export const defaultComponents = {
     return { value: f(m.value) };
   }
 
-  let maybeName: Maybe<string> = { value: "Andżela" };
+  let maybeName: Maybe<string> = { value: "Monada" };
   let maybeAge: Maybe<number> = { value: null };
 
   return (
@@ -204,7 +204,7 @@ export const defaultComponents = {
 
         <div className="space-y-8">
           <p>&nbsp;</p>
-          <div className="text-BLUE bg-GREEN >Vim Command:</div>
+          <div className="text-BLUE bg-GREEN">Vim Command:</div>
           <div className="p-4 text-ORANGE">{highlightedCommand}</div>
         </div>
         <p>&nbsp;</p>
@@ -725,5 +725,494 @@ function Component1() {
         <tbody>{rows}</tbody>
       </table>
     );
-  }`
+  }`,
+  SVGEditor: 
+  `function InteractiveSVGPathComponent() {
+
+// Curve type and path element type definitions
+type CurveType = 'line' | 'quadratic' | 'cubic' | 'smooth-cubic';
+type PathElementT = {
+  type: 'M'|'m'|'l'|'h'|'v'|'c'|'a'|'z'|'s'|'q'|'t', 
+  points: number[]
+};
+
+
+  
+  // Helper functions for path creation
+  const CreatePath = (elements: PathElementT[]) => {
+    return elements.map(e => \`\${e.type}\${e.points.join(' ')}\`).join(' ');
+  };
+
+  const moveTo = (x:number, y:number) => ({ type: 'M', points: [x, y] });
+  const lineTo = (x:number, y:number) => ({ type: 'l', points: [x, y] });
+  const quadraticCurveTo = (x1:number, y1:number, x:number, y:number) => 
+    ({ type: 'q', points: [x1, y1, x, y] });
+  const curveTo = (x1:number, y1:number, x2:number, y2:number, x:number, y:number) => 
+    ({ type: 'c', points: [x1, y1, x2, y2, x, y] });
+  const smoothCurveTo = (x2:number, y2:number, x:number, y:number) => 
+    ({ type: 's', points: [x2, y2, x, y] });
+
+  // State for paths with more detailed management
+  const [paths, setPaths] = useState<{
+    id: string,
+    elements: PathElementT[], 
+    stroke: string, 
+    strokeWidth: string, 
+    fill: string,
+    curveType: CurveType
+  }[]>([
+    {
+      id: 'initial-path',
+      elements: [
+        moveTo(150, 140),
+        lineTo(200, 180),
+        lineTo(250, 140),
+        lineTo(300, 180)
+      ],
+      stroke: "#FF69B4",
+      strokeWidth: "2",
+      fill: "none",
+      curveType: 'line'
+    }
+  ]);
+
+  // Expanded state for point dragging and interaction
+  const [draggedPoint, setDraggedPoint] = useState<{
+    pathId: string, 
+    pathIndex: number,
+    elementIndex: number, 
+    pointIndex: number
+  } | null>(null);
+
+  const [selectedCurveType, setSelectedCurveType] = useState<CurveType>('line');
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  // Enhanced mouse position tracking
+  const getMousePosition = (event: MouseEvent<SVGSVGElement>) => {
+    if (!svgRef.current) return { x: 0, y: 0 };
+    
+    const svgPoint = svgRef.current.createSVGPoint();
+    svgPoint.x = event.clientX;
+    svgPoint.y = event.clientY;
+    
+    return svgPoint.matrixTransform(svgRef.current.getScreenCTM()!.inverse());
+  };
+
+  // More flexible point dragging
+  const handleMouseDown = (
+    pathId: string,
+    pathIndex: number, 
+    elementIndex: number, 
+    pointIndex: number
+  ) => (event: MouseEvent<SVGCircleElement>) => {
+    event.preventDefault();
+    setDraggedPoint({ 
+      pathId, 
+      pathIndex, 
+      elementIndex, 
+      pointIndex 
+    });
+  };
+
+  // Advanced mouse move handling
+  const handleMouseMove = (event: MouseEvent<SVGSVGElement>) => {
+    if (!draggedPoint) return;
+
+    const { x, y } = getMousePosition(event);
+
+    let px = 0; 
+    let py = 0;
+    
+    setPaths(currentPaths => {
+      return currentPaths.map((path, pathIndex) => {
+        if (path.id !== draggedPoint.pathId) return path;  // return path untouched
+
+        const newElements = path.elements.map((element, elementIndex) => {
+
+          if(elementIndex ===0) {
+            px = 0;
+            py = 0;   
+          }
+          const basex = px, basey = py;
+
+          
+
+          if(element.type === 'c'){
+
+            px = px + element.points[4];
+            py = py + element.points[5];              
+          }
+          else if(element.type === 'q'){
+
+            px = px + element.points[2];
+            py = py + element.points[3];                          // px = px + element.points[0];
+            // py = py + element.points[1];   
+          }
+          else if(element.type === 's'){
+
+            px = px + element.points[2];
+            py = py + element.points[3];              
+          }            
+          else {
+            px = px + element.points[0];
+            py = py + element.points[1];                
+          }
+
+          if (elementIndex !== draggedPoint.elementIndex) return element;  // return element untouched
+
+
+          
+          if(draggedPoint.pointIndex === 0) {
+
+              
+          }
+          
+          const newPoints = [...element.points];
+          newPoints[draggedPoint.pointIndex] = x-basex;
+          newPoints[draggedPoint.pointIndex + 1] = y-basey;
+
+          return {
+            ...element,
+            points: newPoints
+          };
+        });
+
+        return {
+          ...path,
+          elements: newElements
+        };
+      });
+    });
+  };
+
+  // Path point manipulation
+  const handleMouseUp = () => {
+    setDraggedPoint(null);
+  };
+
+  // Add new path with more randomization
+  const addNewPath = () => {
+    const newPathId = \`path-\${Date.now()}\`;
+    const newPath = {
+      id: newPathId,
+      elements: createPathByType(selectedCurveType),
+      stroke: \`#\${Math.floor(Math.random()*16777215).toString(16)}\`,
+      strokeWidth: "2",
+      fill: "none",
+      curveType: selectedCurveType
+    };
+
+    setPaths(current => [...current, newPath]);
+  };
+
+  // Path creation based on curve type
+  const createPathByType = (curveType: CurveType): PathElementT[] => {
+    const baseX = Math.random() * 300;
+    const baseY = Math.random() * 200;
+
+    switch (curveType) {
+      case 'line':
+        return [
+          moveTo(baseX, baseY),
+          lineTo(baseX + 50, baseY + 50),
+          lineTo(baseX + 100, baseY),
+          lineTo(baseX + 150, baseY + 50)
+        ];
+      case 'quadratic':
+        return [
+          moveTo(baseX, baseY),
+          quadraticCurveTo(baseX + 50, baseY + 50, baseX + 100, baseY),
+          quadraticCurveTo(baseX + 150, baseY + 50, baseX + 200, baseY)
+        ];
+      case 'cubic':
+        return [
+          moveTo(baseX, baseY),
+          curveTo(baseX + 50, baseY + 50, baseX + 100, baseY - 50, baseX + 150, baseY),
+          curveTo(baseX + 200, baseY + 50, baseX + 250, baseY - 50, baseX + 300, baseY)
+        ];
+      case 'smooth-cubic':
+        return [
+          moveTo(baseX, baseY),
+          curveTo(baseX + 50, baseY + 50, baseX + 100, baseY - 50, baseX + 150, baseY),
+          smoothCurveTo(baseX + 200, baseY - 50, baseX + 250, baseY)
+        ];
+    }
+  };
+
+
+  const addNewCurveToPath = () => {
+    const currentPath = paths[paths.length - 1];
+    const newElements = [...currentPath.elements];
+    const curveType = selectedCurveType;
+    let newCurve;
+    switch (curveType) {
+    case 'line':
+      newCurve = lineTo(Math.random() * 300, Math.random() * 200);
+      break;
+    case 'quadratic':
+      newCurve = quadraticCurveTo(Math.random() * 100, Math.random() * 100, Math.random() * 300, Math.random() * 200);
+      break;
+    case 'cubic':
+      newCurve = curveTo(Math.random() * 100, Math.random() * 100, Math.random() * 100, Math.random() * 100, Math.random() * 300, Math.random() * 200);
+      break;
+    case 'smooth-cubic':
+      newCurve = smoothCurveTo(Math.random() * 100, Math.random() * 100, Math.random() * 300, Math.random() * 200);
+      break;
+    default:
+      return;
+    }
+    newElements.push(newCurve);
+    setPaths([...paths.slice(0, -1), { ...currentPath, elements: newElements }]);
+  };
+
+  const closePath = () => {
+    const currentPath = paths[paths.length - 1];
+    const newElements = [...currentPath.elements];
+    newElements.push({ type: 'z', points: [] });
+    setPaths([...paths.slice(0, -1), { ...currentPath, elements: newElements }]);
+  };  
+
+  // Path deletion functionality
+  const deletePath = (pathId: string) => {
+    setPaths(current => current.filter(path => path.id !== pathId));
+  };
+
+  let px = 0, py = 0;
+
+  return (
+    <div className="p-4 bg-GREY_600">
+      <svg 
+        ref={svgRef}
+        xmlns="http://www.w3.org/2000/svg"
+        width="1100" 
+        height="600"
+        className="bg-GREY_800 border border-gray-300"
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
+        {paths.map((path, pathIndex) => (
+          <React.Fragment key={path.id}>
+            <path
+              d={CreatePath(path.elements)}
+              stroke={path.stroke}
+              strokeWidth={path.strokeWidth}
+              fill={path.fill}
+            />
+            {path.elements.flatMap((element, elementIndex) => {
+              let basex = 0, basey = 0;
+              if(elementIndex ===0) {
+                px = 0;
+                py = 0;    
+              }
+  
+            
+
+            
+              return element.points.reduce((acc, point, pointIndex, arr) => {
+
+                if(pointIndex === 0) {
+
+                  basex = px;
+                  basey = py;
+
+                  if(element.type === 'c'){
+        
+                    px = px + element.points[4];
+                    py = py + element.points[5];              
+                  }
+                  else if(element.type === 'q'){
+        
+                    px = px + element.points[2];
+                    py = py + element.points[3];              
+                  }
+                  else if(element.type === 's'){
+        
+                    px = px + element.points[2];
+                    py = py + element.points[3];              
+                  }                      
+                  else {
+                    px = px + element.points[0];
+                    py = py + element.points[1];   
+                  }                  
+                }
+                
+                if (pointIndex % 2 === 0) {
+                  acc.push(
+                    <circle
+                      key={\`\${path.id}-\${elementIndex}-\${pointIndex}\`}
+                      cx={basex + point}
+                      cy={basey + arr[pointIndex + 1]}
+                      r={5}
+                      fill="red"
+                      className="cursor-move"
+                      onMouseDown={handleMouseDown(
+                        path.id, 
+                        pathIndex, 
+                        elementIndex, 
+                        pointIndex
+                      )}
+                    />
+                  );
+                }
+                return acc;
+              }, [] as React.ReactNode[]);
+            )}}
+          </React.Fragment>
+        ))}
+      </svg>
+      <div className="mt-4 space-x-2">
+        <select 
+          value={selectedCurveType}
+          onChange={(e) => setSelectedCurveType(e.target.value as CurveType)}
+          className="p-2 border rounded text-BLACK"
+        >
+          <option value="line">Line</option>
+          <option value="quadratic">Quadratic Curve</option>
+          <option value="cubic">Cubic Curve</option>
+          <option value="smooth-cubic">Smooth Cubic Curve</option>
+        </select>
+        <button 
+          onClick={addNewCurveToPath}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Add To Path
+        </button>        
+        <button 
+          onClick={addNewPath}
+          className="px-4 py-2 bg-PURPLE text-white rounded hover:bg-blue-600"
+        >
+          New Path
+        </button>
+        <button 
+          onClick={closePath}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Close Path
+        </button>
+        <button 
+          onClick={() => {
+            const svgText = svgRef.current ? svgRef.current.outerHTML : '';
+            navigator.clipboard.writeText(svgText).then(() => {
+              alert('SVG copied to clipboard!');
+            });
+          }}
+          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+        >
+          Copy SVG
+        </button>
+      </div>
+      {paths.length > 0 && (
+        <div className="mt-4">
+          <h3 className="text-GREEN text-lg font-semibold mb-2">Paths</h3>
+          {paths.map((path, index) => (
+            <div 
+              key={path.id} 
+              className="flex text-BLACK items-center justify-between p-2 bg-white border rounded mb-2"
+            >
+              <span>Path {index + 1} - {path.curveType}</span>
+              <button 
+                onClick={() => deletePath(path.id)}
+                className="px-2 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+              >
+                Delete
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}`,
+RootDepthVisualization:
+`function RootDepthVisualization() {
+  const treeData = [
+    { name: "Sosna zwyczajna", depth: 12, width: 8 },
+    { name: "Świerk pospolity", depth: 9, width: 6 },
+    { name: "Jodła pospolita", depth: 7, width: 5 },
+    { name: "Kasztanowiec zwyczajny", depth: 6, width: 7 },
+    { name: "Lipa szerokolistna", depth: 8, width: 9 },
+    { name: "Wiąz polny", depth: 5, width: 6 },
+    { name: "Cis pospolity", depth: 5, width: 4 },
+    { name: "Robinia akacjowa", depth: 8, width: 7 },
+    { name: "Dąb szypułkowy", depth: 10, width: 9 },
+    { name: "Brzoza brodawkowata", depth: 8, width: 8 },
+    { name: "Buk pospolity", depth: 6, width: 7 },
+    { name: "Grab pospolity", depth: 4, width: 5 },
+    { name: "Klon pospolity", depth: 8, width: 8 },
+    { name: "Lipa drobnolistna", depth: 10, width: 8 },
+    { name: "Modrzew europejski", depth: 12, width: 7 },
+    { name: "Topola osika", depth: 6, width: 6 },
+    { name: "Wierzba krucha", depth: 4, width: 10 },
+    { name: "Jesion wyniosły", depth: 9, width: 8 },
+    { name: "Wiąz szypułkowy", depth: 7, width: 7 },
+    { name: "Olcha czarna", depth: 5, width: 6 },
+    { name: "Osika", depth: 6, width: 7 },
+    { name: "Grusza pospolita", depth: 3, width: 4 },
+    { name: "Topola czarna", depth: 11, width: 7 },
+    { name: "Klon Jawor", depth: 9, width: 8 },
+    { name: "Wierzba biała", depth: 7, width: 10 },    
+  ];
+
+  const maxDepth = Math.max(...treeData.map((tree) => tree.depth));
+
+  const barWidth = 20;
+  const barSpacing = 15;
+  const svgWidth = treeData.length * (barWidth + barSpacing) + 60;
+  const svgHeight = maxDepth *20 + 200;
+
+  const sortedData = treeData.sort((a, b) => b.depth - a.depth);
+
+  return (
+  <div className="flex flex-col items-center p-4 bg-GREY_100">
+    <h2 className="text-xl font-bold mb-4 text-DARK_GREY">
+      Głębokość systemu korzeniowego drzew
+    </h2>
+    <svg width={svgWidth} height={svgHeight}>
+      {/* Bars */}
+      {sortedData.map((tree, index) => ( // sortowanie
+        <rect
+          key={tree.name}
+          x={30 + index * (barWidth + barSpacing)}
+          y={ svgHeight - tree.depth * 20 - (svgHeight - maxDepth * 20) + 20 }
+          rx={4}
+          ry={4}
+          width={barWidth}
+          height={tree.depth * 20}
+          fill="GREEN"
+        />
+      ))}
+      
+      {/* Vertical scale */}
+      <g transform={\`translate(30, -80)\`}>
+        {[...Array(maxDepth + 1).keys()].map((i) => (
+          <g key={i}>
+            <line x1={0} y1={svgHeight - (svgHeight - maxDepth * 20) / 2 - i * 20} x2={svgWidth - 50} y2={svgHeight - (svgHeight - maxDepth * 20) / 2 - i * 20} stroke="GREY" strokeWidth={0.5} />
+            <text x={-5} y={svgHeight - (svgHeight - maxDepth * 20) / 2 - i * 20} textAnchor="end" dominantBaseline="middle" fontSize="13" fill="GREY">
+              {i}m
+            </text>
+          </g>
+        ))}
+      </g>
+      {/* Labels */}
+      {sortedData.map((tree, index) => (
+        <text
+          key={tree.name + "_label"}
+          x={index * (barWidth + barSpacing) + barWidth / 2 + 20}
+          y={svgHeight - 20}
+          fontSize={tree.width*1.75}
+          fill="GREY_700"
+          transform={\`rotate(-90 \${30 + index * (barWidth + barSpacing) + barWidth / 2} \${svgHeight - 23})\`}
+        >
+          {tree.name}
+        </text>
+      ))}
+    </svg>
+      <div className="mt-4 text-sm text-MID_GREY">
+        Wizualizacja głębokości systemu korzeniowego wybranych gatunków drzew.
+      </div>
+    </div>
+  );
+}`
+  
 }

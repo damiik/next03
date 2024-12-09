@@ -1,3 +1,5 @@
+// import { cons } from "fp-ts/lib/ReadonlyNonEmptyArray";
+
 /**
  * Represents a line in the modification process
  * @property str - The actual content of the line
@@ -16,9 +18,9 @@ export interface MLine {
  * A hunk is a group of modifications that should be applied together
  * 
  * Hunk format:
- * ... - Context line (unchanged)
- * <-- - Line to be deleted
- * --> - Line to be inserted
+ * ___ - Context line (unchanged)
+ * <~~ - Line to be deleted
+ * ~~> - Line to be inserted
  * 
  * @param hunk - Raw string containing the hunk definition
  * @returns Array of MLine objects representing the modifications
@@ -39,13 +41,13 @@ function parseHunk(hunk: string): MLine[] {
         str: line.slice(3),
         flag: 'origin'
       });
-    } else if (trimmed.startsWith('<__')) {
+    } else if (trimmed.startsWith('<~~')) {
       // Line that should be removed from the source
       result.push({
         str: line.slice(3),
         flag: 'to_delete'
       });
-    } else if (trimmed.startsWith('__>')) {
+    } else if (trimmed.startsWith('~~>')) {
       // New line that should be added to the source
       result.push({
         str: line.slice(3),
@@ -113,14 +115,16 @@ export function findContextPosition(lines: MLine[], hunkLines: MLine[]): number 
     // Try to match context lines in sequence
     while (hunkIndex < hunkLines.length && lineIndex < lines.length) {
       const hunkLine = hunkLines[hunkIndex];
+
+      if(hunkLine.flag === 'unrecognized') throw new Error(`Invalid flag: ${hunkLine.flag} for hunk line: ${hunkLine.str}`);
       
       if (hunkLine.flag === 'to_insert') {
         // Skip insert lines during context matching since they don't exist in source
         hunkIndex++;
         continue;
       }
-
       const sourceLine = lines[lineIndex];
+      console.log(`SourceLine: ${sourceLine.str}[${sourceLine.flag}] , hunkLine: ${hunkLine.str} [${hunkLine.flag}], hunkIndex: ${hunkIndex}, lineIndex: ${lineIndex}`);
       if (sourceLine.flag === 'to_insert') {
         // Skip insert lines in source since they don't exist in hunk
         lineIndex++;
@@ -174,12 +178,13 @@ function parseModiff(modiff: string, sourceText: string): MLine[] {
 
   // Process each hunk in sequence
   for (const hunk of hunks) {
+    console.log('Processing hunk:', hunk);
     const pos = findContextPosition(lines, hunk);
+    console.log('Found context position:', pos);
     if (pos === -1) {
       console.error('Context not found for hunk:', hunk);
       continue;
     }
-
 
     // Apply the hunk modifications
     let hunkIndex = 0;
@@ -222,6 +227,9 @@ function parseModiff(modiff: string, sourceText: string): MLine[] {
         hunkIndex++;
         lineIndex++;
       }
+      else {
+        throw new Error(`Invalid flag: ${hunkLine.flag} for hunk line: ${hunkLine.str}`);
+      }
     }
 
     // Insert any remaining to_insert lines at the end of the hunk
@@ -239,7 +247,6 @@ function parseModiff(modiff: string, sourceText: string): MLine[] {
       lineIndex++;
     }
   }
-
   return lines;
 }
 

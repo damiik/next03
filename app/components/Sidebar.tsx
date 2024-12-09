@@ -11,10 +11,10 @@ import { replaceFragments } from '../tools/diff';
 
 let assistant: 'assistant' | 'model' = 'model';
 
-type Message = {
-  role: 'user' | 'assistant' | 'system' | 'model';
-  content: string;
-};
+// type Message = {
+//   role: 'user' | 'assistant' | 'system' | 'model';
+//   content: string;
+// };
 
 interface SidebarProps {
   className?: string;
@@ -114,14 +114,12 @@ const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
           const data = await response.json();
           const assistantResponse = data.content;
 
-          const newHistory: Message[] = [
-            ...chatHistory,
-            { role: 'user', content: cleanedInput },
-          ];
-          setChatHistory(newHistory);
-
           if (assistantResponse) {
-            setChatHistory([...chatHistory, { role: assistant, content: assistantResponse }]);
+            setChatHistory([
+              ...chatHistory,
+              { role: 'user', content: cleanedInput },
+              { role: assistant, content: assistantResponse }
+            ]);
 
             const frResult: string | undefined = pipe(
               replaceFragments(assistantResponse, components[selectedComponent]),
@@ -145,12 +143,12 @@ const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
               }
             }
           } else {
-            setChatHistory([...chatHistory, { role: 'assistant', content: 'No response from AI' }]);
+            setChatHistory([...chatHistory, { role: assistant, content: 'No response from AI' }]);
           }
         }
       } catch (error) {
         console.error('Error:', error);
-        setChatHistory([...chatHistory, { role: 'assistant', content: `Error: ${error}` }]);
+        setChatHistory([...chatHistory, { role: assistant, content: `Error: ${error}` }]);
       } finally {
         setIsLoading(false);
         setWaitingForAnswer(false);
@@ -357,6 +355,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
                         <option value="anthropic,claude-3-5-sonet-20241022">claude-3-5-sonet-20241022</option>
                       </optgroup>
                       <optgroup label="Gemini">
+                        <option value="gemini,gemini-exp-1206">gemini-exp-1206</option>
                         <option value="gemini,gemini-exp-1114">gemini-exp-1114</option>
                         <option value="gemini,gemini-1.5-pro-002">gemini-1.5-pro</option>
                         <option value="gemini,gemini-1.5-flash-002">gemini-1.5-flash-002</option>
