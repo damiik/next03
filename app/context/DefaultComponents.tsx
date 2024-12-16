@@ -1213,6 +1213,238 @@ RootDepthVisualization:
       </div>
     </div>
   );
-}`
+}`,
+HealthReport: `
+
+function PatientReport() {
+  return (
+    <div className="p-4 bg-LIGHT_GREY">
+      <h1 className="text-2xl font-bold text-DARK_GREY mb-4">Raport o stanie zdrowia pacjenta</h1>
+
+      <div className="bg-GREY_100 p-4 rounded-lg shadow-md border border-GREY_300">
+        <h2 className="text-xl font-bold text-BLUE mb-2">Dane pacjenta</h2>
+        <p className="text-GREY_700">Wiek: 54 lata</p>
+        <p className="text-GREY_700">
+          Przyjmowane leki: Euthyrox N 125 (25 µg dziennie), Prefaxine (150 mg
+          dziennie)
+        </p>
+
+        <h2 className="text-xl font-bold text-BLUE mt-4 mb-2">Wyniki badań</h2>
+        <ul className="list-disc list-inside text-GREY_700">
+          <li className="mb-1">
+            Cholesterol całkowity: <span className="text-RED">289 mg/dl</span> (norma &lt; 190)
+          </li>
+          <li className="mb-1">
+            Cholesterol LDL: <span className="text-RED">192 mg/dl</span> (norma &lt; 115)
+          </li>
+          <li className="mb-1">
+            Trójglicerydy: <span className="text-RED">173 mg/dl</span> (norma &lt; 150)
+          </li>
+          <li className="mb-1">
+            ALAT: <span className="text-RED">54 U/l</span> (norma &lt; 40)
+          </li>
+          <li className="mb-1">
+            TSH: <span className="text-RED">0,03 µlU/ml</span> (norma 0,27 - 4,2)
+          </li>
+          <li className="mb-1">FT3: 3,0 pg/ml (norma 2,0 - 4,4)</li>
+          <li className="mb-1">FT4: 1,81 ng/dl (norma 0,93 - 1,7)</li>
+          <li className="mb-1">Glukoza: 97 mg/dl (norma 70 - 99)</li>
+          <li className="mb-1">Kreatynina: 0,94 mg/dl (norma 0,7 - 1,3)</li>
+          <li className="mb-1">Potas: 5,0 mmol/l (norma 3,5 - 5,1)</li>
+          <li className="mb-1">PSA: 1,47 ng/ml (norma &lt; 4,0)</li>
+        </ul>
+
+
+        <h2 className="text-xl font-bold text-BLUE mt-4 mb-2">
+          Ocena stanu zdrowia
+        </h2>
+        <p className="text-GREY_700 leading-relaxed">
+          Stan zdrowia pacjenta jest <span className="font-bold text-RED">niepokojący</span> i wymaga dalszej
+          diagnostyki oraz modyfikacji leczenia. Stwierdzono
+          możliwą <span className="font-bold text-PURPLE">nadczynność tarczycy</span> (pomimo jej usunięcia),{" "}
+          <span className="font-bold text-PURPLE">zaburzenia lipidowe</span>,{" "}
+          <span className="font-bold text-PURPLE">możliwe uszkodzenie wątroby</span> oraz inne problemy
+          zdrowotne, takie jak problemy z kręgosłupem, szumy uszne i
+          pogorszenie wzroku.
+        </p>
+        <h2 className="text-xl font-bold text-BLUE mt-4 mb-2">
+          Interpretacja wyników badań
+        </h2>
+        <p className="text-GREY_700 leading-relaxed">
+          <span className="font-bold">Cholesterol całkowity, LDL i trójglicerydy</span>:
+          Podwyższone poziomy cholesterolu całkowitego (289 mg/dl), LDL (192 mg/dl) i
+          trójglicerydów (173 mg/dl) wskazują na zaburzenia lipidowe. Może to
+          zwiększać ryzyko chorób sercowo-naczyniowych. Przyczynami mogą być
+          nieprawidłowa dieta (nadmiar cukru), brak tarczycy, przyjmowane leki lub
+          inne czynniki. Zalecana jest modyfikacja diety oraz, w razie potrzeby,
+          wdrożenie leczenia farmakologicznego.
+        </p>
+        <p className="text-GREY_700 leading-relaxed mt-2">
+          <span className="font-bold">ALAT</span>: Podwyższony poziom ALAT (54 U/l)
+          może sugerować uszkodzenie wątroby. Konieczna jest dalsza diagnostyka w
+          celu ustalenia przyczyny (leki, borelioza, inne czynniki) i wdrożenia
+          odpowiedniego leczenia.
+        </p>
+        <p className="text-GREY_700 leading-relaxed mt-2">
+          <span className="font-bold">TSH</span>: Bardzo niski poziom TSH (0,03
+          µlU/ml) wskazuje na nadmierną supresję TSH przez przyjmowany Euthyrox. W
+          połączeniu z FT3 i FT4 w normie może to sugerować nadczynność tarczycy,
+          pomimo jej usunięcia. Wskazana jest pilna konsultacja z endokrynologiem w
+          celu dostosowania dawki Euthyroxu.
+        </p>
+        <p className="text-GREY_700 leading-relaxed mt-2">
+          <span className="font-bold">FT3 i FT4</span>: Poziomy FT3 (3,0 pg/ml) i
+          FT4 (1,81 ng/dl) mieszczą się w normie, ale w kontekście bardzo niskiego
+          TSH mogą wskazywać na nadczynność tarczycy.
+        </p>
+        <p className="text-GREY_700 leading-relaxed mt-2">
+          <span className="font-bold">Glukoza, kreatynina, potas, PSA</span>:
+          Wyniki badań glukozy (97 mg/dl), kreatyniny (0,94 mg/dl), potasu (5,0
+          mmol/l) i PSA (1,47 ng/ml) są prawidłowe.
+        </p>
+        <h2 className="text-xl font-bold text-BLUE mt-4 mb-2">Zalecenia</h2>
+        <ul className="list-disc list-inside text-GREY_700">
+          <li className="mb-1">
+            <span className="font-bold text-CYAN">Pilna konsultacja z endokrynologiem</span> w celu
+            dostosowania dawki Euthyroxu i oceny czynności tarczycy.
+          </li>
+          <li className="mb-1">
+            <span className="font-bold text-CYAN">Konsultacja z lekarzem prowadzącym</span> w celu
+            omówienia wyników badań i dalszego postępowania.
+          </li>
+          <li className="mb-1">
+            <span className="font-bold text-CYAN">Modyfikacja diety</span>: ograniczenie spożycia cukru i
+            tłuszczów nasyconych, zwiększenie spożycia warzyw i owoców.
+          </li>
+          <li className="mb-1">
+            <span className="font-bold text-CYAN">Kontynuacja aktywności fizycznej</span> dostosowanej
+            do stanu zdrowia.
+          </li>
+          <li className="mb-1">
+            <span className="font-bold text-CYAN">
+              Dalsza diagnostyka w kierunku uszkodzenia wątroby
+            </span>
+            , jeśli podwyższony ALAT się utrzyma.
+          </li>
+          <li className="mb-1">
+            <span className="font-bold text-CYAN">Konsultacja okulistyczna i laryngologiczna</span> w
+            celu diagnostyki i leczenia problemów ze wzrokiem i słuchem.
+          </li>
+          <li className="mb-1">
+            <span className="font-bold text-CYAN">Diagnostyka i leczenie bólu kręgosłupa</span>.
+          </li>
+          <li className="mb-1">
+            <span className="font-bold text-CYAN">
+              Rozważenie wpływu stresu na stan zdrowia
+            </span>{" "}
+            i ewentualne wdrożenie technik radzenia sobie ze stresem.
+          </li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+`,
+SearchNet:
+`function SearchNet() {
+
+  interface Icon {
+    Height: string;
+    URL: string;
+    Width: string;
+  }
+
+  interface Topic {
+    FirstURL: string;
+    Icon: Icon;
+    Result: string;
+    Text: string;
+  }
+
+  interface SearchResult {
+    FirstURL?: string;
+    Icon?: Icon;
+    Result?: string;
+    Text?: string;
+    Name?: string;
+    Topics?: Topic[];
+  }
+
+
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSearch = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(\`/api/search?q=\${query}\`); // Zakładamy, że masz endpoint /api/search
+      if (!response.ok) {
+        throw new Error(\`HTTP error! status: \${response.status}\`);
+      }
+      const data = await response.json();
+      console.log(data.RelatedTopics)
+      setResults(data.RelatedTopics);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="p-4">
+      <div className="flex space-x-2">
+        <input
+          type="text"
+          className="border border-GREY_700 rounded px-2 py-1 text-GREY_700"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <button
+          className="bg-GREEN text-BLACK px-4 py-1 rounded hover:bg-LIGHT_GREEN"
+          onClick={handleSearch}
+          disabled={loading}
+        >
+          Szukaj
+        </button>
+      </div>
+      {loading && <p>Ładowanie...</p>}
+      {error && <p className="text-PINKY_LIGHT_RED">Błąd: {error}</p>}
+      {results.length > 0 && (
+        <ul className="mt-4">
+          {results.map((result, index) => (
+            <li key={index} className="mb-4">
+              {result.FirstURL && (
+                <a href={result.FirstURL} target="_blank" rel="noopener noreferrer"
+                  className="text-GREEN hover:underline">
+                  {result.Text}
+                </a>
+              )}
+              {result.Text && !result.FirstURL && (
+                <p className="text-PURPLE">{result.Text}</p>
+              )}
+              {result.Topics && (
+                <ul className="ml-4">
+                  {result.Topics.map((topic, topicIndex) => (
+                    <li key={topicIndex} className="mb-2">
+                      <a href={topic.FirstURL} target="_blank" rel="noopener noreferrer"
+                        className="text-BLUE hover:underline">
+                        {topic.Text}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+`
   
 }

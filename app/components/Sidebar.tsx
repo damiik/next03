@@ -18,9 +18,10 @@ let assistant: 'assistant' | 'model' = 'model';
 
 interface SidebarProps {
   className?: string;
+  getTextAreaValue?: (callback: () => string) => void; // Cline: Modified getTextAreaValue prop
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
+const Sidebar: React.FC<SidebarProps> = ({ className = '', getTextAreaValue }) => {
   const [expandedNodes, setExpandedNodes] = useState<{ [key: string]: boolean }>({
     componentStyle: false,
     background: false,
@@ -212,6 +213,18 @@ const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
     .map((msg) => `${msg.role}: ${msg.content}`)
     .join('\n\n');
 
+    // Cline: Function to get the textarea value
+    const getTextAreaValueFromRef = () => {
+      return textareaRef.current?.value || '';
+    };
+
+    // Cline: Expose the function to get the textarea value
+    useEffect(() => {
+      if (getTextAreaValue) {
+        getTextAreaValue(getTextAreaValueFromRef);
+      }
+    }, [getTextAreaValue, getTextAreaValueFromRef]);
+
   return (
     <div className={`bg-gray-800 p-4 shadow-md h-full overflow-y-auto relative ${className}`}>
       <h2 className="text-xl font-bold mb-4 text-white">Component:</h2>
@@ -338,13 +351,18 @@ const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
                       className="p-2 bg-gray-700 text-white rounded text-sm"
                     >
                       <optgroup label="OpenAI Compatible">
-                        <option value="openai-compat,grok-beta">grok-beta</option>
+                        <option value="grok,grok-beta">grok-beta</option>
+                        <option value="grok,grok-2-1212">grok-2-1212</option>
                       </optgroup>
                       <optgroup label="LiteLLM (proxy)">
                         <option value='openai-compat,mistral/mistral-large-latest'>LiteLLM: mistral/mistral-large-latest</option>
                         <option value='openai-compat,nvidia/llama-3.1-nemotron-70b-instruct'>LiteLLM: llama-3.1-nemotron-70b-instruct</option>
                         <option value='openai-compat,meta/llama-3.3-70b-instruct'>LiteLLM: nvidia/llama-3.3-70b-instruct</option>
                         <option value='openai-compat,meta/llama-3.1-405b-instruct'>LiteLLM: nvidia/llama-3.1-405b-instruct</option>
+                      </optgroup>
+                      <optgroup label="Groq">
+                        <option value="groq,llama-3.3-70b-specdec">llama-3.3-70b-specdec</option>
+                        <option value="groq,llama-3.3-70b-versatile">llama-3.3-70b-versatile</option>
                       </optgroup>
                       <optgroup label="OpenAI">
                         <option value="openai,gpt-4o">gpt-4o</option>
@@ -356,7 +374,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
                       </optgroup>
                       <optgroup label="Gemini">
                         <option value="gemini,gemini-exp-1206">gemini-exp-1206</option>
-                        <option value="gemini,gemini-exp-1114">gemini-exp-1114</option>
+                        <option value="gemini,gemini-2.0-flash-exp">gemini-2.0-flash-exp</option>
                         <option value="gemini,gemini-1.5-pro-002">gemini-1.5-pro</option>
                         <option value="gemini,gemini-1.5-flash-002">gemini-1.5-flash-002</option>
                       </optgroup>

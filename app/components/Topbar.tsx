@@ -1,8 +1,9 @@
 "use client";
 import React from 'react';
 import Image from "next/image";
-import { Save, PlayCircle, RotateCw, ChevronUp, ChevronDown, Sparkles } from 'lucide-react'; // Cline: Imported Sparkles icon
+import { Save, PlayCircle, RotateCw, ChevronUp, ChevronDown, Sparkles, FileDiff } from 'lucide-react'; // Cline: Imported BetweenHorizontalStart icon
 import { useComponentContext } from '../context/ComponentContext';
+import { Either, fold } from 'fp-ts/lib/Either'; // Import Either and fold
 
 const Topbar: React.FC = () => {
   const { setComponents, setIsRefreshing, setPreviewKey, components, selectedComponent, setCodeMirrorHeight, resetChatHistory, handlingError, setHandlingError } = useComponentContext(); // Cline: Added handlingError and setHandlingError
@@ -41,6 +42,25 @@ const Topbar: React.FC = () => {
     setHandlingError(prev => !prev);
   };
 
+  const handleApplyDiff = async () => {
+    try {
+      const copiedText = await navigator.clipboard.readText();
+      const { replaceFragments } = await import('../tools/diff');
+      const result: Either<Error, string> = replaceFragments(copiedText, components[selectedComponent]);
+      
+      fold(
+        (error: Error) => {
+          console.error("Error applying diff:", error);
+        },
+        (resultOfReplace: string) => {
+          setComponents((prev) => ({ ...prev, [selectedComponent]: resultOfReplace }));
+        }
+      )(result);
+    } catch (error) {
+      console.error("Failed to apply diff:", error);
+    }
+  };
+
 
   return (
     <header className="bg-black p-1 flex justify-between items-center">
@@ -63,6 +83,7 @@ const Topbar: React.FC = () => {
         <button onClick={handleToggleError} className={`p-2 rounded ${handlingError ?'hover:bg-gray-400 text-gray-700':'hover:bg-red-400 text-pink-200'} transition-colors ${handlingError ? 'bg-red-700 text-pink-200' : 'bg-gray-700 text-gray-500'}`} title="Toggle Error Handling"> {/* Cline: Added toggle button and conditional styling */}
           <Sparkles size={16} />
         </button>
+        <button onClick={handleApplyDiff} className="p-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors" title="Apply Diff"><FileDiff size={16} /></button>
         <a
           className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-[50%] sm:h-[50%] px-4 sm:px-5"
           href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"

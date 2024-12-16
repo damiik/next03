@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, Component } from 'react';
+import React, { useState, useEffect, useRef, Component} from 'react';
 import ts from 'typescript';
 import { ErrorBoundary } from "react-error-boundary";
 import { RotateCw } from 'lucide-react';
