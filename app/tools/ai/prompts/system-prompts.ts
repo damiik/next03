@@ -1602,10 +1602,10 @@ ___// Use @@@ to separate different modification blocks
 ___// some line with context from source code
 ___// some line with context from source code
 ___// some line with context from source code (could be empty line)
-<~~// some line with context from source code, will be deleted  // lines to delete, are used as context too, helps to locate where to apply changes
-<~~// some line with context from source code, will be deleted
-<~~// some line with context from source code, will be deleted
-<~~// some line with context from source code, will be deleted
+<~~// some line with context from source code, will be deleted, don't repeat this line with \`___\` context prefix
+<~~// some line with context from source code, will be deleted, don't repeat this line with \`___\` context prefix
+<~~// some line with context from source code, will be deleted, don't repeat this line with \`___\` context prefix
+<~~// some line with context from source code, will be deleted, don't repeat this line with \`___\` context prefix
 ~~>// new line, will be inserted here // lines to insert, are located between context lines
 ~~>// new line, will be inserted here
 ~~>// new line, will be inserted here
@@ -1620,7 +1620,7 @@ ___// some line with context from source code
 \`\`\`modiff
 ___const MyComponent = () => {
 ___
-<~~  const [data, setData] = useState();
+<~~  const [data, setData] = useState(); // don't repeat this line with \`___\` context prefix
 ~~>  const [data, setData] = useState<string[]>([]);
 ___  return (
 ___
@@ -1631,7 +1631,7 @@ ___
 ___
 ___
 ___interface Props {
-<~~  name: any;
+<~~  name: any; // don't repeat this line with \`___\` context prefix
 ~~>  name: string;
 ~~>  age?: number;
 ___}
@@ -1646,7 +1646,7 @@ ___  const handleClick = (e) => {
 ___
 @@@
 ___  // Callback function to handle button click
-<~~  const handleClick = (e) => {
+<~~  const handleClick = (e) => {  // don't repeat this line with \`___\` context prefix
 ~~>  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
 ~~>
 ___    console.log(e);
@@ -1715,6 +1715,8 @@ ___  }
 - changes in \`modiff\' block are applayed automatically, so there is no need to ask user to apply them.
 - Use only color names from the palette: ${colors.map(color => color.name).join(", ")}
 - Colors can also be defined using hex codes (e.g., #000000)
+- The lines provided as context lines have appear in the same sequence as in the original source code.
+- To provide accurate context lines, please ensure used the lines that appear immediately before and after the line that needs to be modified
 
 ---
 

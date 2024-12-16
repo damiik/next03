@@ -2,6 +2,8 @@ import { systemPrompt } from './prompts/system-prompts';
 import { handleOpenAIRequest } from './openaiHandler';
 import { handleOpenAICompatRequest } from './openaiCompatHandler';
 import { handleAnthropicRequest } from './anthropicHandler';
+import { handleGroqRequest } from './groqHandler';
+import { handleGrokRequest } from './grokHandler';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 type Message = {
@@ -24,6 +26,17 @@ export async function handleLLMRequest(messages: Message[], query: string, llmPr
   } 
   else if (llmProvider === 'anthropic') {
     return await handleAnthropicRequest(llmModel, systemPrompt, messages, query);
+  } 
+  else if (llmProvider === 'grok') {
+
+    const validMessages : {role:'user'|'assistant'|'system', content: string} [] = messages.filter((message) => (message.role !== 'model')).map((message) => {
+      return { role: (message.role as 'user' | 'assistant' | 'system'), content: message.content };
+    });
+
+    return await handleGrokRequest(llmModel, systemPrompt, validMessages, query);
+  } 
+  else if (llmProvider === 'groq') {
+    return await handleGroqRequest(llmModel, systemPrompt, messages, query);
   } 
   else if (llmProvider === 'gemini') {
 
